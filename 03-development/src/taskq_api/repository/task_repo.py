@@ -23,7 +23,7 @@ Citations:
 
 from __future__ import annotations
 
-from typing import Any, Optional, Sequence
+from typing import Any, Optional, Sequence, cast
 
 from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError
@@ -98,7 +98,7 @@ def list_tasks(
 
     next_cursor: Optional[str] = None
     if len(rows) == limit:
-        next_cursor = rows[-1].id
+        next_cursor = cast(str, rows[-1].id)
     return rows, next_cursor
 
 
