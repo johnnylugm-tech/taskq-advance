@@ -18,7 +18,8 @@
         },
         {
           "name": "taskq_api.api.health"
-        }
+        },
+        "taskq_api.api.metrics"
       ],
       "allowed_dependencies": [
         "service",
