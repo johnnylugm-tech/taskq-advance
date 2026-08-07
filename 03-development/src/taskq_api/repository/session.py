@@ -81,7 +81,11 @@ def get_engine() -> Engine:
     if _engine is None:
         _engine = _build_engine()
         _SessionLocal = sessionmaker(
-            bind=_engine, autoflush=False, autocommit=False, future=True
+            bind=_engine,
+            autoflush=False,
+            autocommit=False,
+            expire_on_commit=False,
+            future=True,
         )
     return _engine
 

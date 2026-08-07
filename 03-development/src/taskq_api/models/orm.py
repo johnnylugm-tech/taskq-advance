@@ -95,7 +95,7 @@ class TaskResult(Base):
     stdout_tail = Column(Text, nullable=True)
     stderr_tail = Column(Text, nullable=True)
     duration_ms = Column(String(32), nullable=True)
-    finished_at = Column(DateTime(timezone=True), nullable=True)
+    finished_at = Column(String(64), nullable=True)
 
 
 class Task(Base):

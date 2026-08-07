@@ -32,7 +32,7 @@ from sqlalchemy.orm import Session, selectinload
 from taskq_api.errors import ConflictError
 from taskq_api.models.orm import Task
 
-__all__ = ["create_task", "get_task", "list_tasks", "delete_task"]
+__all__ = ["create_task", "get_task", "list_tasks", "delete_task", "get_results"]
 
 
 def create_task(session: Session, *, name: str, command: str) -> Task:
@@ -102,6 +102,8 @@ def list_tasks(
     return rows, next_cursor
 
 
+
+
 def delete_task(session: Session, task: Task) -> None:
     """Delete a task row; commit/rollback is the caller's responsibility.
 
@@ -111,3 +113,15 @@ def delete_task(session: Session, task: Task) -> None:
     """
     session.delete(task)
     session.flush()
+
+
+def get_results(session: Session, task_id: str) -> list:
+    """Return task execution results newest first.
+
+    [FR-02] History is ordered by terminal timestamp descending.
+    Citations: SPEC.md#L79-L91.
+    """
+    from taskq_api.models.orm import TaskResult
+    return list(session.execute(
+        select(TaskResult).where(TaskResult.task_id == task_id).order_by(TaskResult.finished_at.desc())
+    ).scalars().all())
