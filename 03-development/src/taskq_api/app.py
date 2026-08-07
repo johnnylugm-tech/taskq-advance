@@ -93,6 +93,8 @@ def _register_router(application: FastAPI, router: APIRouter) -> None:
     - SAD.md#L168-L175 (§2.4 `api/tasks.py` — included by `create_app`)
     """
     for route in router.routes:
+        # ``APIRouter.routes`` is typed ``list[BaseRoute]``; only ``APIRoute``
+        # carries the ``endpoint`` / ``response_model`` attributes read below.
         if not isinstance(route, APIRoute):
             continue
         application.router.add_api_route(
