@@ -826,3 +826,91 @@ test_inventory:
   by_layer_total: 92
 
   total_test_cases: 92
+
+# ============================================================
+# fr_tests — P1 naming authority (per-FR test-name enumeration)
+# Consumed by validate-handoff (P1→P2) to assert every FR has ≥1 test name.
+# Derived from test_inventory.tests[].test_function above; layer buckets preserved.
+# ============================================================
+fr_tests:
+  FR-01:
+    integration:
+      - test_create_task_returns_201
+      - test_create_task_invalid_body_returns_422
+      - test_get_unknown_task_returns_404
+      - test_duplicate_name_returns_409
+      - test_list_limit_exceeds_max_returns_422
+      - test_list_sql_count_constant
+    unit:
+      - test_cursor_pagination_unit
+  FR-02:
+    cross_cutting:
+      - test_timeout_kills_child_no_orphan
+    integration:
+      - test_run_returns_202_with_run_id
+      - test_task_results_persisted
+      - test_runs_history_newest_first
+    unit:
+      - test_shlex_split_injection_unit
+  FR-03:
+    integration:
+      - test_missing_api_key_returns_401
+    unit:
+      - test_sha256_hash_unit
+      - test_hmac_compare_digest_unit
+      - test_revoked_key_rejected_unit
+      - test_key_create_prints_once_unit
+  FR-04:
+    cross_cutting:
+      - test_all_v1_routes_use_same_dep
+    integration:
+      - test_write_key_cannot_delete_returns_403
+    unit:
+      - test_scope_hierarchy_unit
+  FR-05:
+    integration:
+      - test_exceed_burst_returns_429_with_retry_after
+      - test_healthz_readyz_not_rate_limited
+    unit:
+      - test_row_level_lock_unit
+  FR-06:
+    cross_cutting:
+      - test_no_string_concatenated_sql_grep
+    integration:
+      - test_list_endpoint_constant_sql_count
+    unit:
+      - test_repository_only_owns_session
+      - test_context_manager_commit_unit
+      - test_pool_pre_ping_unit
+  FR-07:
+    cross_cutting:
+      - test_migration_offline_sql_render
+    integration:
+      - test_upgrade_head_succeeds
+      - test_downgrade_base_leaves_no_residual
+      - test_round_trip_byte_identical
+    unit:
+      - test_no_drop_table_shortcut
+  FR-08:
+    cross_cutting:
+      - test_timeout_terminates_child
+      - test_cancelled_error_propagates
+    integration:
+      - test_drain_timeout_marks_interrupted
+    unit:
+      - test_concurrency_cap_unit
+  FR-09:
+    integration:
+      - test_readyz_503_when_db_unreachable
+      - test_readyz_503_when_migration_lag
+      - test_readyz_fails_closed_without_migration
+      - test_metrics_requires_admin
+    unit:
+      - test_healthz_readyz_no_auth_no_rate_limit
+  FR-10:
+    integration:
+      - test_500_body_no_stack_or_path
+      - test_correlation_id_matches_header_and_log
+    unit:
+      - test_problem_json_fields_unit
+      - test_status_code_mapping_unit
