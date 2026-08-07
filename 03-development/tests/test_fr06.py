@@ -586,3 +586,53 @@ def test_pool_pre_ping_unit(sqlite_db_url, monkeypatch):
         "AC-6.5 requires the engine to be built with pool_size=… "
         "(taskq_api.repository.session); the source does not include it"
     )
+
+
+# --------------------------------------------------------------------------
+# Coverage-fill — defensive ``except Exception`` in ``reset_engine()``.
+#
+# NFR-01 (test_coverage) requires every executable statement in the
+# repository layer to be exercised. ``reset_engine()`` swallows a
+# ``drop_all`` failure on the never-connected-engine path so that test
+# fixtures can still drop the in-process cache and start the next case
+# clean — the branch is load-bearing for test isolation. This case
+# monkeypatches ``Base.metadata.drop_all`` to raise and asserts that
+# ``reset_engine()`` returns normally and leaves the engine cleared.
+# --------------------------------------------------------------------------
+
+
+# NFR-01 NFR-03 NFR-09
+def test_reset_engine_swallows_drop_all_failure(sqlite_db_url, monkeypatch):
+    """``reset_engine()`` must not propagate ``drop_all`` failures.
+
+    [FR-06] The repository's test-isolation helper drops the cached schema
+    on engine reset so the next ``create_all`` starts from a clean slate.
+    If the engine was never connected (e.g. an interrupted prior fixture)
+    ``Base.metadata.drop_all`` can raise — swallowing that exception is
+    what keeps the next test from inheriting a broken cache. The contract
+    is invariant: ``reset_engine()`` clears the cache regardless of what
+    ``drop_all`` does.
+    """
+    from taskq_api.models.orm import Base
+    from taskq_api.repository import session as db_session_mod
+
+    # Force the engine to be built so reset_engine() actually enters the
+    # ``if _engine is not None:`` branch.
+    db_session_mod.reset_engine()
+    engine = db_session_mod.get_engine()
+    assert engine is not None
+
+    def _boom(*_args, **_kwargs):
+        raise RuntimeError("simulated drop_all failure")
+
+    monkeypatch.setattr(Base.metadata, "drop_all", _boom)
+
+    # Invariant: reset_engine() must return normally, and the cached
+    # engine + sessionmaker must be cleared.
+    db_session_mod.reset_engine()
+    assert db_session_mod._engine is None, (
+        "reset_engine() must clear the cached engine even when drop_all raises"
+    )
+    assert db_session_mod._SessionLocal is None, (
+        "reset_engine() must clear the cached sessionmaker even when drop_all raises"
+    )
