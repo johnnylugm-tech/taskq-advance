@@ -26,11 +26,13 @@ __all__ = [
     "TYPE_CONFLICT",
     "TYPE_INTERNAL",
     "TYPE_UNAUTHORIZED",
+    "TYPE_FORBIDDEN",
     "ProblemError",
     "NotFoundError",
     "ConflictError",
     "ValidationProblem",
     "UnauthorizedError",
+    "ForbiddenError",
     "problem",
 ]
 
@@ -45,6 +47,7 @@ TYPE_NOT_FOUND = "/errors/not-found"
 TYPE_CONFLICT = "/errors/conflict"
 TYPE_INTERNAL = "/errors/internal"
 TYPE_UNAUTHORIZED = "/errors/unauthorized"
+TYPE_FORBIDDEN = "/errors/forbidden"
 
 
 class ProblemError(Exception):
@@ -134,6 +137,26 @@ class UnauthorizedError(ProblemError):
     status = 401
     type_uri = TYPE_UNAUTHORIZED
     title = "Unauthorized"
+
+
+class ForbiddenError(ProblemError):
+    """Insufficient scope for the requested route → HTTP 403 (FR-04 AC-4.1).
+
+    [FR-04] Raised by ``api.deps.check_scope`` when the authenticated
+    principal's scope rank is strictly below the route's required scope.
+    The ``detail`` string is intentionally generic — it MUST NOT echo
+    back the resource id, the action, or any wording that would let an
+    attacker probe whether the id exists (NFR-02 / FR-04 non-disclosure).
+
+    Citations:
+    - SPEC.md#L109-L113 (FR-04 — scope check, 403, no existence leak)
+    - SPEC.md#L394 (§7 — 權限不足 | 403 | `/errors/forbidden`)
+    - SRS.md (AC-4.1 — 403 + non-leaking body)
+    """
+
+    status = 403
+    type_uri = TYPE_FORBIDDEN
+    title = "Forbidden"
 
 
 def problem(

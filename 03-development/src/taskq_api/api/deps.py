@@ -14,11 +14,20 @@ surface as ``UnauthorizedError`` → 401 + ``application/problem+json``
 (NFR-04) so the response cannot distinguish "missing" from "revoked" from
 "unknown".
 
+[FR-04] AC-4.1: a failed scope check raises ``ForbiddenError`` → 403 +
+``application/problem+json`` with ``type=/errors/forbidden``. The detail
+string is intentionally generic so the response cannot be used to probe
+whether the resource id exists. AC-4.2: ``auth_dep`` is the single auth
+dependency — every /v1 route passes through it, and the scope check is
+applied per-route via ``check_scope`` rather than scattered across
+handlers.
+
 Citations:
 - SPEC.md#L101-L107 (FR-03 — X-API-Key, hmac.compare_digest, revoked)
 - SPEC.md#L109-L113 (FR-04 — single dependency, no leak in 403)
 - SAD.md#L161-L172 (§2.4 `api/deps.py` — auth_dep, scope check)
 - SRS.md#L92-L131 (AC-1.1..AC-1.7, scope per row of FR-01/02)
+- SRS.md (AC-4.1 / AC-4.2 / AC-4.3)
 """
 
 from __future__ import annotations
@@ -26,9 +35,9 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import NoReturn
 
-from fastapi import Header, HTTPException, status
+from fastapi import Header
 
-from taskq_api.errors import UnauthorizedError
+from taskq_api.errors import ForbiddenError, UnauthorizedError
 from taskq_api.repository import key_repo
 from taskq_api.repository.session import session_scope
 from taskq_api.service import auth as auth_service
@@ -36,12 +45,15 @@ from taskq_api.service import auth as auth_service
 __all__ = ["Principal", "auth_dep", "check_scope"]
 
 
-_SCOPE_RANK: dict[str, int] = {"read": 1, "write": 2, "admin": 3}
-
 # [FR-03 / NFR-04] The detail string is intentionally identical across every
 # 401 path so the response cannot be used to probe which keys exist (missing
 # vs. revoked vs. unknown all surface the same string).
 _UNAUTHORIZED_DETAIL = "missing or invalid API key"
+
+# [FR-04 / NFR-02] The 403 detail is intentionally generic — it must NOT
+# echo back the task id, the action, or any wording that would let an
+# attacker probe whether the resource exists (per AC-4.1).
+_FORBIDDEN_DETAIL = "insufficient scope"
 
 
 @dataclass(frozen=True)
@@ -103,12 +115,15 @@ def auth_dep(
 def check_scope(principal: Principal, needed: str) -> None:
     """Raise 403 if ``principal.scope`` does not satisfy ``needed``.
 
-    [FR-01] Pure function so the route handlers can call it without
-    constructing another ``Depends`` chain — the spec mandates a single
-    dependency, not a chain of them.
+    [FR-04] AC-4.1: a failed check surfaces as ``ForbiddenError`` → 403 +
+    ``application/problem+json`` (``type=/errors/forbidden``). The detail
+    string is intentionally generic so the response cannot be used to
+    probe which resource id was being authorised (NFR-02 / FR-04
+    non-disclosure).
+
+    The rank comparison is delegated to ``taskq_api.service.auth.scope_satisfies``
+    so the read < write < admin hierarchy is defined in exactly one place
+    (AC-4.3).
     """
-    if _SCOPE_RANK.get(principal.scope, 0) < _SCOPE_RANK.get(needed, 0):
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="insufficient scope",
-        )
+    if not auth_service.scope_satisfies(needed, principal.scope):
+        raise ForbiddenError(_FORBIDDEN_DETAIL)

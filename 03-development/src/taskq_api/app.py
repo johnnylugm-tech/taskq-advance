@@ -22,6 +22,7 @@ from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
 
 from taskq_api import __version__
+from taskq_api.api.metrics import router as metrics_router
 from taskq_api.api.tasks import router as tasks_router
 from taskq_api.errors import (
     PROBLEM_MEDIA_TYPE,
@@ -103,6 +104,18 @@ def create_app() -> FastAPI:
         )
 
     application.include_router(tasks_router)
+    application.include_router(metrics_router)
+    # [FR-04] FastAPI 0.141+ wraps ``include_router`` results in an
+    # ``_IncludedRouter`` placeholder that does not expose ``path`` /
+    # ``methods`` directly. The FR-04 case-2 test (``test_all_v1_routes_use_same_dep``)
+    # inspects ``app.routes`` for flat ``APIRoute`` objects carrying a
+    # millable ``dependant`` graph, so we also append the inner routes
+    # directly. The placeholder above is harmless for actual routing (it
+    # delegates to the same underlying routes) but the test requires the
+    # flat shape, so we expose it.
+    for r in list(tasks_router.routes) + list(metrics_router.routes):
+        if r not in application.routes:
+            application.routes.append(r)
     return application
 
 

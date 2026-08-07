@@ -1,4 +1,4 @@
-"""API-key authentication service (FR-03).
+"""API-key authentication service (FR-03 + FR-04).
 
 [FR-03] The thin service layer that sits between ``api.deps.auth_dep`` and
 ``repository.key_repo``. The two responsibilities are kept narrow on purpose:
@@ -10,6 +10,11 @@
   once via an injectable ``plaintext_writer``, and persists only its SHA-256
   hash (AC-3.5).
 
+[FR-04] :func:`scope_satisfies` is the single source of truth for the
+``read`` < ``write`` < ``admin`` hierarchy (AC-4.3). Every handler that
+needs to check a scope delegates to this helper so the rank table is
+defined in one place.
+
 The service never invents a plaintext in production — that responsibility
 belongs to the CLI / the operator. The function accepts an injectable
 writer so the test harness can intercept stdout without depending on the
@@ -17,9 +22,10 @@ subprocess layer.
 
 Citations:
 - SPEC.md#L101-L107 (FR-03 — X-API-Key, hmac.compare_digest, revoked)
+- SPEC.md#L109-L113 (FR-04 — read < write < admin hierarchy, single source)
 - SPEC.md#L166 (NFR-04 — no internal leakage in ``detail``)
 - SAD.md#L146-L165 (§2.4 `service/auth.py` — auth operations)
-- SRS.md (AC-3.3 / AC-3.5 — constant-time comparison, one-time print)
+- SRS.md (AC-3.3 / AC-3.5 / AC-4.3)
 """
 
 from __future__ import annotations
@@ -31,7 +37,14 @@ from typing import Any, Callable, Optional
 
 from taskq_api.repository import key_repo
 
-__all__ = ["verify_key", "create_api_key"]
+__all__ = ["verify_key", "create_api_key", "scope_satisfies"]
+
+
+# [FR-04] AC-4.3: the read < write < admin hierarchy. A higher rank
+# "contains" the lower rank, so a route requiring ``write`` is satisfied
+# by callers presenting ``write`` OR ``admin``. Centralised so a future
+# tier (e.g. ``owner``) only needs to be inserted in one place.
+_SCOPE_RANK: dict[str, int] = {"read": 1, "write": 2, "admin": 3}
 
 
 # The plaintext prefix is the visible marker an operator scans for in the
@@ -85,3 +98,19 @@ def create_api_key(
         revoked_at=revoked_at,
         id=id,
     )
+
+
+def scope_satisfies(needed_scope: str, present_scope: str) -> bool:
+    """Return True iff ``present_scope`` satisfies ``needed_scope``.
+
+    [FR-04] AC-4.3: the hierarchy is ``read`` < ``write`` < ``admin`` with
+    each higher tier containing the lower. Equal scopes satisfy each
+    other (a ``write`` key satisfies a route requiring ``write``); a
+    strictly lower rank never satisfies a strictly higher requirement.
+
+    The function is pure and lives in the service layer so the rank
+    table is defined in exactly one place. ``api.deps.check_scope`` is
+    the only caller in the production code path; tests exercise it
+    directly to pin down the invariant.
+    """
+    return _SCOPE_RANK.get(present_scope, 0) >= _SCOPE_RANK.get(needed_scope, 0)
