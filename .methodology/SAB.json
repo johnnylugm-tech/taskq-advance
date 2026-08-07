@@ -147,7 +147,8 @@
         },
         {
           "name": "migrations.versions.v3_split_results"
-        }
+        },
+        "taskq_api"
       ],
       "allowed_dependencies": [
         "models"
