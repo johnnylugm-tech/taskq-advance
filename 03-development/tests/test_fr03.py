@@ -526,3 +526,262 @@ def test_key_create_prints_once_unit(sqlite_db_url, tmp_path, monkeypatch):
         f"`python -m taskq_api key create --scope write` must exit 0, "
         f"got rc={result.returncode}, stderr={result.stderr!r}"
     )
+
+
+# --------------------------------------------------------------------------
+# Coverage gap: deps.auth_dep happy-path return + scope-check failure branches.
+# --------------------------------------------------------------------------
+# The five TEST_SPEC.md cases drive the rejection branches (missing key,
+# unknown hash, revoked key) but not the success path that returns a
+# ``Principal``. The following two tests close that gap by exercising a
+# valid (non-revoked, scope-satisfying) key through the real ``auth_dep``
+# and by exercising a key whose scope is too narrow for the requested
+# route's scope check. Without these, deps.py's lines 97-100 and 110-111
+# would remain uncovered, dropping the gate's coverage dimension.
+
+
+# NFR-02 NFR-09
+def test_valid_api_key_authenticates_unit(sqlite_db_url, app):
+    """A non-revoked, scope-matching key returns a 201 from POST /v1/tasks.
+
+    [FR-03] Closes the coverage gap on ``deps.auth_dep``'s success path
+    (lines 97-100): a request that presents a valid ``X-API-Key`` whose
+    ``api_keys`` row has ``revoked_at`` NULL and whose ``scope`` satisfies
+    the route's scope check must reach the handler and respond 201.
+    """
+    # Seed a fresh schema + a write-scoped active key.
+    from taskq_api.models import orm
+    orm.Base.metadata.create_all(db_session.get_engine())
+
+    candidate_key = "sk-valid-cover-success"
+    key_id = str(uuid.uuid4())
+    with db_session.session_scope() as session:
+        key_repo.create_api_key(
+            scope="write",
+            plaintext=candidate_key,
+            session=session,
+            id=key_id,
+        )
+
+    async def _do():
+        async with AsyncClient(
+            transport=ASGITransport(app=app), base_url="http://testserver"
+        ) as c:
+            response = await c.post(
+                "/v1/tasks",
+                json={"name": "fr03-cover-valid", "command": "echo ok"},
+                headers={"X-API-Key": candidate_key},
+            )
+            return response
+
+    response = _run(_do())
+    assert response.status_code == 201, (
+        f"a valid (non-revoked, write-scoped) key must reach the handler "
+        f"and respond 201, got {response.status_code} with body {response.text!r}"
+    )
+
+
+# NFR-02 NFR-09
+def test_scope_check_unit(sqlite_db_url, app):
+    """A read-scoped key gets 403 when an admin-scoped route is called.
+
+    [FR-03] Closes the coverage gap on ``deps.check_scope`` (lines 110-111):
+    a key whose ``scope`` rank is strictly less than the route's required
+    scope rank must surface as ``HTTPException(403, 'insufficient scope')``.
+    DELETE /v1/tasks/{id} requires ``admin``; a ``read`` key must be
+    rejected even though the ``auth_dep`` itself accepted the key.
+    """
+    # Seed a fresh schema + a read-scoped active key.
+    from taskq_api.models import orm
+    orm.Base.metadata.create_all(db_session.get_engine())
+
+    candidate_key = "sk-read-scope-check"
+    with db_session.session_scope() as session:
+        key_repo.create_api_key(
+            scope="read",
+            plaintext=candidate_key,
+            session=session,
+        )
+
+    async def _do():
+        async with AsyncClient(
+            transport=ASGITransport(app=app), base_url="http://testserver"
+        ) as c:
+            response = await c.delete(
+                "/v1/tasks/some-id",
+                headers={"X-API-Key": candidate_key},
+            )
+            return response
+
+    response = _run(_do())
+    assert response.status_code == 403, (
+        f"a read-scoped key must be rejected as 403 on an admin-scoped "
+        f"route, got {response.status_code} with body {response.text!r}"
+    )
+
+
+# --------------------------------------------------------------------------
+# Coverage gap: key_repo._coerce_revoked_at edge cases + lookup_active_key
+# success return branch.
+# --------------------------------------------------------------------------
+# TEST_SPEC.md case 2 only ever passes ``None`` for ``revoked_at`` so the
+# tzinfo-replacement branch and the ``TypeError``-on-bad-input branch in
+# ``_coerce_revoked_at`` are not exercised. Likewise TEST_SPEC.md case 4
+# only verifies the ``lookup_active_key is None`` path; the row-found
+# return branch (``return _row_to_dict(row)``) is never taken. The
+# following three tests close those gaps without modifying the spec
+# cases themselves.
+
+
+# NFR-02 NFR-09
+def test_lookup_active_key_returns_row_unit(sqlite_db_url):
+    """``lookup_active_key`` returns the row dict when the key is active.
+
+    [FR-03] Closes the coverage gap on ``key_repo.lookup_active_key``'s
+    success branch (line 140): when the candidate hash matches an
+    ``api_keys`` row whose ``revoked_at`` is NULL, the function must
+    return the row's dict projection (not None).
+    """
+    candidate_key = "sk-active-lookup"
+    from taskq_api.models import orm
+    db_session.reset_engine()
+    orm.Base.metadata.create_all(db_session.get_engine())
+
+    key_id = str(uuid.uuid4())
+    with db_session.session_scope() as session:
+        key_repo.create_api_key(
+            scope="write",
+            plaintext=candidate_key,
+            session=session,
+            id=key_id,
+        )
+
+    with db_session.session_scope() as session:
+        row = key_repo.lookup_active_key(candidate_key, session=session)
+
+    assert row is not None, (
+        "lookup_active_key must return the row dict for an active, "
+        "non-revoked key whose hash matches"
+    )
+    assert row["id"] == key_id, (
+        f"lookup_active_key must return the row whose id={key_id!r}, "
+        f"got {row!r}"
+    )
+    assert row["scope"] == "write", (
+        f"lookup_active_key must return the row's scope='write', "
+        f"got {row!r}"
+    )
+    assert row["revoked_at"] is None, (
+        f"lookup_active_key must only return rows with revoked_at=None, "
+        f"got {row!r}"
+    )
+
+
+# NFR-02 NFR-09
+def test_coerce_revoked_at_naive_iso_string_unit():
+    """A naive ISO-8601 string for ``revoked_at`` gets a tzinfo stamped on.
+
+    [FR-03] Closes the coverage gap on ``key_repo._coerce_revoked_at``'s
+    tzinfo-stamping branch (line 63): when callers pass an ISO-8601 string
+    that does NOT include a timezone offset, the helper must attach the
+    process-local timezone so SQLite's strict DateTime column accepts it.
+    """
+    from taskq_api.repository.key_repo import _coerce_revoked_at
+
+    naive = "2026-01-01T00:00:00"  # no Z, no offset
+    coerced = _coerce_revoked_at(naive)
+
+    assert coerced is not None, (
+        "_coerce_revoked_at must return a datetime for a naive ISO string, "
+        f"got None for input {naive!r}"
+    )
+    assert coerced.tzinfo is not None, (
+        f"_coerce_revoked_at must stamp a tzinfo on a naive ISO string, "
+        f"got tzinfo={coerced.tzinfo!r}"
+    )
+    assert coerced.year == 2026 and coerced.month == 1 and coerced.day == 1, (
+        f"_coerce_revoked_at must preserve the date components, got {coerced!r}"
+    )
+
+
+# NFR-02 NFR-09
+def test_coerce_revoked_at_invalid_type_unit():
+    """An invalid ``revoked_at`` type surfaces as ``TypeError``.
+
+    [FR-03] Closes the coverage gap on ``key_repo._coerce_revoked_at``'s
+    bad-input branch (line 65): callers passing neither a ``datetime``
+    nor an ISO-8601 string must see a ``TypeError`` so the failure mode
+    is explicit (not a silent ``None`` or a DB-driver-level crash).
+    """
+    from taskq_api.repository.key_repo import _coerce_revoked_at
+
+    with pytest.raises(TypeError) as excinfo:
+        _coerce_revoked_at(12345)  # an int is neither datetime nor str
+
+    assert "datetime" in str(excinfo.value) or "ISO-8601" in str(excinfo.value), (
+        f"TypeError must explain the expected type, got: {excinfo.value!r}"
+    )
+
+
+# --------------------------------------------------------------------------
+# Coverage gap: deps.auth_dep's defence-in-depth ``verify_key`` failure
+# branch (line 98).
+# --------------------------------------------------------------------------
+# ``lookup_active_key`` already filters by hash via SQL, so under normal
+# operation the ``verify_key`` call inside ``auth_dep`` always returns
+# True — the failure branch is a defensive guard that fires only when a
+# future code path returns a row whose hash no longer matches the
+# candidate. This test forces that condition by monkey-patching
+# ``auth_service.verify_key`` to always return False, then asserts the
+# request still surfaces as 401 + problem+json.
+
+
+# NFR-02 NFR-09
+def test_auth_dep_defence_in_depth_unit(sqlite_db_url, app, monkeypatch):
+    """Forcing ``verify_key`` to fail still rejects the request as 401.
+
+    [FR-03] Closes the coverage gap on ``deps.auth_dep``'s defence-in-depth
+    branch (line 98): even after the SQL filter accepts the hash, the
+    constant-time ``verify_key`` call must independently be able to reject
+    the request. With ``auth_service.verify_key`` patched to always
+    return False, a valid key (matching the row's hash) must still
+    surface as 401 + problem+json — the defence-in-depth guarantee.
+    """
+    # Seed a fresh schema + a write-scoped active key (lookup will accept it).
+    from taskq_api.models import orm
+    orm.Base.metadata.create_all(db_session.get_engine())
+
+    candidate_key = "sk-defence-in-depth"
+    with db_session.session_scope() as session:
+        key_repo.create_api_key(
+            scope="write",
+            plaintext=candidate_key,
+            session=session,
+        )
+
+    # Force the constant-time verifier to refuse every candidate. With the
+    # SQL filter alone, this request would reach the handler; the verify_key
+    # guard must still 401 it.
+    monkeypatch.setattr(auth, "verify_key", lambda plaintext, stored_hash: False)
+
+    async def _do():
+        async with AsyncClient(
+            transport=ASGITransport(app=app), base_url="http://testserver"
+        ) as c:
+            response = await c.post(
+                "/v1/tasks",
+                json={"name": "fr03-cover-defence", "command": "echo ok"},
+                headers={"X-API-Key": candidate_key},
+            )
+            return response
+
+    response = _run(_do())
+    assert response.status_code == 401, (
+        f"a request that the SQL filter accepts but ``verify_key`` rejects "
+        f"must surface as 401 (defence-in-depth), got {response.status_code} "
+        f"with body {response.text!r}"
+    )
+    assert response.headers.get("content-type", "") == "application/problem+json", (
+        f"401 response must use application/problem+json media type, "
+        f"got content-type={response.headers.get('content-type')!r}"
+    )
