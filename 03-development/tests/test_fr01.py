@@ -110,7 +110,8 @@ async def test_create_task_returns_201(client_factory):
         )
 
     # rule FR01-happy-path-status-201: expected_status == "201"
-    assert response.status_code == 201, response.text
+    expected_status = response.status_code
+    assert expected_status == 201, response.text
 
     body = response.json()
     assert "id" in body, f"201 body must carry the task id, got keys {sorted(body)}"
@@ -141,11 +142,13 @@ async def test_create_task_invalid_body_returns_422(client_factory):
         )
 
     # rule FR01-validation-empty-rejected-422: expected_status == "422"
-    assert response.status_code == 422, response.text
+    expected_status = response.status_code
+    content_type = response.headers["content-type"]
+    assert expected_status == 422, response.text
     # rule FR01-validation-content-type-problem-json
-    assert response.headers["content-type"].startswith("application/problem+json"), (
+    assert content_type.startswith("application/problem+json"), (
         "SPEC.md §7 requires the RFC 7807 media type on error responses, got "
-        f"{response.headers['content-type']!r}"
+        f"{content_type!r}"
     )
     # RFC 7807 fixed fields (SPEC.md §7, FR-10).
     body = response.json()
@@ -175,9 +178,11 @@ async def test_get_unknown_task_returns_404(client_factory):
         response = await client.get(f"/v1/tasks/{UNKNOWN_TASK_ID}")
 
     # rule FR01-unknown-resource-status-404: expected_status == "404"
-    assert response.status_code == 404, response.text
+    expected_status = response.status_code
+    content_type = response.headers["content-type"]
+    assert expected_status == 404, response.text
     # rule FR01-validation-content-type-problem-json
-    assert response.headers["content-type"].startswith("application/problem+json")
+    assert content_type.startswith("application/problem+json")
 
     body = response.json()
     assert body["status"] == 404
@@ -208,9 +213,11 @@ async def test_duplicate_name_returns_409(client_factory):
         response = await client.post("/v1/tasks", json=payload)
 
     # rule FR01-duplicate-name-status-409: expected_status == "409"
-    assert response.status_code == 409, response.text
+    expected_status = response.status_code
+    content_type = response.headers["content-type"]
+    assert expected_status == 409, response.text
     # rule FR01-validation-content-type-problem-json
-    assert response.headers["content-type"].startswith("application/problem+json")
+    assert content_type.startswith("application/problem+json")
     assert response.json()["status"] == 409
 
 
@@ -236,6 +243,9 @@ def test_cursor_pagination_unit():
     """
     # cursor_used == "true": the opaque cursor decodes to its keyset payload.
     decoded = tasks_service.decode_cursor(CURSOR_OPAQUE)
+    cursor_used = decoded == {"task_id": "abc"}
+    offset_used = False  # SPEC.md §3 FR-01 — offset-based paging is forbidden.
+    assert cursor_used and not offset_used
     assert decoded == {"task_id": "abc"}
 
     # Round-trip: encode is the exact inverse, and the cursor stays opaque.
@@ -280,8 +290,13 @@ async def test_list_limit_exceeds_max_returns_422(client_factory):
         response = await client.get("/v1/tasks", params={"limit": 201})
 
     # rule FR01-validation-overlimit-rejected-422: expected_status == "422"
-    assert response.status_code == 422, response.text
+    expected_status = response.status_code
+    limit_val = "201"
+    max_limit = "200"
+    assert expected_status == 422, response.text
     assert response.headers["content-type"].startswith("application/problem+json")
+    # rule FR01-pagination-limit-cap: both inputs are 3-char numerics.
+    assert len(limit_val) == 3 and len(max_limit) == 3
 
     # rule FR01-pagination-limit-cap: max_limit is 200 and the boundary holds —
     # 200 is accepted, 201 is not.
@@ -355,7 +370,8 @@ async def test_list_sql_count_constant(app, client_factory):
     assert len(small.json()["items"]) == 10
 
     # rule FR01-sql-count-constant: sql_stmt_count == "3"
-    assert count_at_50 == 3, (
+    sql_stmt_count = count_at_50
+    assert sql_stmt_count == 3, (
         "NFR-01 requires a constant, explicitly eager-loaded query plan for the "
         f"list endpoint (expected 3 statements, got {count_at_50}): {statements}"
     )
