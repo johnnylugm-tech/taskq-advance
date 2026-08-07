@@ -20,6 +20,7 @@ import uuid
 from fastapi import FastAPI, Request
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
+from fastapi.routing import APIRoute, APIRouter
 
 from taskq_api import __version__
 from taskq_api.api.metrics import router as metrics_router
@@ -60,6 +61,64 @@ def _problem_response(
         ),
         media_type=PROBLEM_MEDIA_TYPE,
     )
+
+
+def _register_router(application: FastAPI, router: APIRouter) -> None:
+    """Register every route of ``router`` flat on ``application``.
+
+    [FR-04] AC-4.2 requires that every ``/v1`` route be observably wired to
+    the single ``auth_dep`` dependency. As of FastAPI 0.141, ``include_router``
+    no longer copies the router's path operations into ``app.routes``; it
+    appends one lazy ``_IncludedRouter`` placeholder that resolves the
+    underlying routes at dispatch time and exposes neither ``path``,
+    ``methods`` nor ``dependant``. That makes the app's authorisation wiring
+    unauditable — neither the AC-4.2 test nor an operator can enumerate which
+    routes actually sit behind ``auth_dep``.
+
+    Re-adding each path operation through ``application.router.add_api_route``
+    restores the flat, inspectable shape. Going through ``add_api_route``
+    (rather than appending the router's own ``APIRoute`` objects) is what makes
+    the routes usable: ``APIRoute`` captures its ``dependency_overrides_provider``
+    at construction time, so a route built by a bare ``APIRouter`` carries
+    ``None`` and silently ignores ``app.dependency_overrides``. Rebuilding the
+    route against ``application.router`` binds the app as the provider, so
+    dependency overrides resolve as documented.
+
+    Each route is registered exactly once — mixing ``include_router`` with a
+    flat copy would double-register every path operation and emit a duplicate
+    operation id into the OpenAPI schema.
+
+    Citations:
+    - SPEC.md#L109-L113 (FR-04 — authorisation via a single dependency)
+    - SAD.md#L168-L175 (§2.4 `api/tasks.py` — included by `create_app`)
+    """
+    for route in router.routes:
+        if not isinstance(route, APIRoute):
+            continue
+        application.router.add_api_route(
+            route.path,
+            route.endpoint,
+            response_model=route.response_model,
+            status_code=route.status_code,
+            tags=route.tags,
+            dependencies=route.dependencies,
+            summary=route.summary,
+            description=route.description,
+            response_description=route.response_description,
+            responses=route.responses,
+            deprecated=route.deprecated,
+            methods=route.methods,
+            operation_id=route.operation_id,
+            response_model_include=route.response_model_include,
+            response_model_exclude=route.response_model_exclude,
+            response_model_by_alias=route.response_model_by_alias,
+            response_model_exclude_unset=route.response_model_exclude_unset,
+            response_model_exclude_defaults=route.response_model_exclude_defaults,
+            response_model_exclude_none=route.response_model_exclude_none,
+            include_in_schema=route.include_in_schema,
+            response_class=route.response_class,
+            name=route.name,
+        )
 
 
 def create_app() -> FastAPI:
@@ -103,19 +162,8 @@ def create_app() -> FastAPI:
             correlation_id=getattr(request.state, "correlation_id", _correlation_id()),
         )
 
-    application.include_router(tasks_router)
-    application.include_router(metrics_router)
-    # [FR-04] FastAPI 0.141+ wraps ``include_router`` results in an
-    # ``_IncludedRouter`` placeholder that does not expose ``path`` /
-    # ``methods`` directly. The FR-04 case-2 test (``test_all_v1_routes_use_same_dep``)
-    # inspects ``app.routes`` for flat ``APIRoute`` objects carrying a
-    # millable ``dependant`` graph, so we also append the inner routes
-    # directly. The placeholder above is harmless for actual routing (it
-    # delegates to the same underlying routes) but the test requires the
-    # flat shape, so we expose it.
-    for r in list(tasks_router.routes) + list(metrics_router.routes):
-        if r not in application.routes:
-            application.routes.append(r)
+    _register_router(application, tasks_router)
+    _register_router(application, metrics_router)
     return application
 
 
