@@ -405,3 +405,202 @@ def test_list_sql_count_constant(app, client_factory):
         f"SQL statement count grew with row count ({count_at_10} at limit=10 vs "
         f"{count_at_50} at limit=50) — this is the N+1 pattern NFR-01 forbids"
     )
+
+
+# --------------------------------------------------------------------------
+# Coverage tests — exercise lines not reached by the spec-mandated cases.
+# These add code coverage without re-stating any TEST_SPEC case; they do not
+# alter the spec's 7-case contract.
+# --------------------------------------------------------------------------
+
+
+# NFR-02 NFR-10
+def test_get_existing_task_returns_200(client_factory):
+    """GET /v1/tasks/{id} for an existing task returns 200 + body (covers api/tasks.py get_task happy path)."""
+    client = client_factory("write")
+
+    async def _do():
+        async with client as c:
+            created = await c.post(
+                "/v1/tasks", json={"name": "round-trip", "command": "echo hi"}
+            )
+            assert created.status_code == 201, created.text
+            new_id = created.json()["id"]
+            fetched = await c.get(f"/v1/tasks/{new_id}")
+            return fetched
+
+    response = _run(_do())
+    assert response.status_code == 200, response.text
+    body = response.json()
+    assert body["name"] == "round-trip"
+    assert body["command"] == "echo hi"
+    assert body["id"]
+
+
+# NFR-02 NFR-10
+def test_delete_task_returns_204(client_factory):
+    """DELETE /v1/tasks/{id} for an existing task returns 204 (covers api/tasks.py delete_task)."""
+    client = client_factory("admin")
+
+    async def _do():
+        async with client as c:
+            created = await c.post(
+                "/v1/tasks", json={"name": "to-delete", "command": "echo bye"}
+            )
+            assert created.status_code == 201, created.text
+            new_id = created.json()["id"]
+            deleted = await c.delete(f"/v1/tasks/{new_id}")
+            # A second GET for the deleted id returns 404 (delete_task
+            # service path raises NotFoundError when no row exists).
+            notfound = await c.get(f"/v1/tasks/{new_id}")
+            return deleted, notfound
+
+    deleted, notfound = _run(_do())
+    assert deleted.status_code == 204, deleted.text
+    assert notfound.status_code == 404, notfound.text
+
+
+# NFR-02 NFR-10
+def test_delete_unknown_task_returns_404(client_factory):
+    """DELETE /v1/tasks/{unknown} returns 404 + problem+json (covers service/tasks.py delete_task 404 branch)."""
+    client = client_factory("admin")
+
+    async def _do():
+        async with client as c:
+            return await c.delete(f"/v1/tasks/{UNKNOWN_TASK_ID}")
+
+    response = _run(_do())
+    body = response.json()
+    assert response.status_code == 404, response.text
+    assert response.headers["content-type"] == "application/problem+json"
+    assert body["status"] == 404
+
+
+# NFR-06 — cursor helpers unit
+def test_decode_cursor_malformed_raises():
+    """A non-base64 cursor string raises ValidationProblem (covers service/tasks.py decode_cursor error branch)."""
+    from taskq_api.errors import ValidationProblem
+
+    with pytest.raises(ValidationProblem):
+        tasks_service.decode_cursor("not-valid-base64!!!")
+
+
+# NFR-06 — cursor helpers unit
+def test_decode_cursor_non_dict_raises():
+    """A cursor that decodes to a non-dict raises ValidationProblem (covers service/tasks.py decode_cursor dict guard)."""
+    from taskq_api.errors import ValidationProblem
+
+    # base64 of "[1,2,3]" — valid base64 + valid JSON, but not an object.
+    import base64
+
+    bad = base64.urlsafe_b64encode(b"[1,2,3]").decode("ascii")
+    with pytest.raises(ValidationProblem):
+        tasks_service.decode_cursor(bad)
+
+
+# NFR-10 — list with cursor
+def test_list_with_cursor_unit(app):
+    """list_tasks accepts a valid cursor; the repository's keyset branch fires."""
+    # Insert two tasks so list_tasks has rows to page over.
+    engine = db_session.get_engine()
+    with engine.begin() as conn:
+        conn.execute(
+            sqlalchemy.insert(orm.Task.__table__),
+            [
+                {
+                    "id": str(uuid.uuid5(uuid.NAMESPACE_OID, "cursor-a")),
+                    "name": "cursor-a",
+                    "command": "echo a",
+                    "status": "pending",
+                },
+                {
+                    "id": str(uuid.uuid5(uuid.NAMESPACE_OID, "cursor-b")),
+                    "name": "cursor-b",
+                    "command": "echo b",
+                    "status": "pending",
+                },
+            ],
+        )
+
+    # Use a cursor whose task_id sorts BEFORE both inserted rows so the
+    # keyset filter returns both rows.
+    early_cursor = tasks_service.encode_cursor({"task_id": "00000000-0000-0000-0000-000000000000"})
+    page = tasks_service.list_tasks(cursor=early_cursor)
+    assert page.items, "expected at least one item paged by cursor"
+
+
+# NFR-10 — list with status filter
+def test_list_status_filter_unit(app):
+    """list_tasks(status=...) emits a WHERE clause on the status column."""
+    engine = db_session.get_engine()
+    with engine.begin() as conn:
+        conn.execute(
+            sqlalchemy.insert(orm.Task.__table__),
+            [
+                {
+                    "id": str(uuid.uuid5(uuid.NAMESPACE_OID, "sf-pending")),
+                    "name": "sf-pending",
+                    "command": "echo p",
+                    "status": "pending",
+                },
+                {
+                    "id": str(uuid.uuid5(uuid.NAMESPACE_OID, "sf-done")),
+                    "name": "sf-done",
+                    "command": "echo d",
+                    "status": "done",
+                },
+            ],
+        )
+
+    pending = tasks_service.list_tasks(status="pending")
+    done = tasks_service.list_tasks(status="done")
+    pending_names = {item.name for item in pending.items}
+    done_names = {item.name for item in done.items}
+    assert "sf-pending" in pending_names
+    assert "sf-pending" not in done_names
+    assert "sf-done" in done_names
+
+
+# NFR-02 — pydantic validators
+def test_task_create_whitespace_name_rejected():
+    """TaskCreate rejects whitespace-only names (covers schemas._reject_blacklist_and_empty)."""
+    with pytest.raises(Exception):
+        schemas.TaskCreate(name="   ", command="echo x")
+
+
+# NFR-02 — pydantic validators
+def test_task_create_blacklist_character_rejected():
+    """TaskCreate rejects injection characters (covers schemas blacklist validator)."""
+    for bad in (";", "|", "&", "$", "`", "\n", "\r"):
+        with pytest.raises(Exception):
+            schemas.TaskCreate(name="x", command=f"echo {bad} hi")
+
+
+# helper coverage
+def test_new_id_returns_unique_string():
+    """new_id() returns a fresh UUID4 string."""
+    a = schemas.new_id()
+    b = schemas.new_id()
+    assert isinstance(a, str) and len(a) == 36
+    assert a != b
+
+
+# Repository defensive re-raise
+def test_repository_non_unique_integrity_error_propagates(app):
+    """A non-unique IntegrityError is re-raised, not swallowed (covers task_repo.create_task defensive raise)."""
+    engine = db_session.get_engine()
+    # Direct session — bypass session_scope so the PendingRollbackError that
+    # follows an IntegrityError does not escape pytest.raises.
+    SessionLocal = sqlalchemy.orm.sessionmaker(
+        bind=engine, autoflush=False, autocommit=False, future=True
+    )
+    session = SessionLocal()
+    try:
+        # name=None bypasses Python-level validation; flush fails with NOT
+        # NULL constraint, an IntegrityError whose message is NOT the
+        # unique/uq_tasks_name pattern the repo special-cases. The repo's
+        # defensive `raise` re-throws so the caller (not ConflictError) sees it.
+        with pytest.raises(sqlalchemy.exc.IntegrityError):
+            task_repo.create_task(session, name=None, command="x")
+    finally:
+        session.close()
