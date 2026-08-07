@@ -149,7 +149,10 @@
         {
           "name": "migrations.versions.v3_split_results"
         },
-        "taskq_api"
+        "taskq_api",
+        "migrations",
+        "migrations.env",
+        "migrations.versions"
       ],
       "allowed_dependencies": [
         "models"
