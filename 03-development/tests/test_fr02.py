@@ -437,3 +437,161 @@ def test_runs_history_newest_first(app, client_factory):
         f"runs must be ordered newest-first, got {finished_at_values}"
     )
     assert run_count == "3"
+
+
+# --------------------------------------------------------------------------
+# Coverage tests — exercise reachable defensive and CRUD paths not driven by
+# the five TEST_SPEC cases above.
+# --------------------------------------------------------------------------
+
+
+# NFR-06 NFR-10
+def test_crud_routes_cover_repository_paths(client_factory):
+    """CRUD happy paths cover the shared task API and repository branches."""
+    client = client_factory("admin")
+
+    async def _do():
+        async with client as c:
+            first_created = await c.post(
+                "/v1/tasks",
+                json={"name": "coverage-first", "command": "echo first"},
+            )
+            second_created = await c.post(
+                "/v1/tasks",
+                json={"name": "coverage-second", "command": "echo second"},
+            )
+            assert first_created.status_code == 201, first_created.text
+            assert second_created.status_code == 201, second_created.text
+
+            first_id = first_created.json()["id"]
+            fetched = await c.get(f"/v1/tasks/{first_id}")
+            first_page = await c.get(
+                "/v1/tasks", params={"status": "pending", "limit": 1}
+            )
+            assert first_page.status_code == 200, first_page.text
+            cursor = first_page.json()["next_cursor"]
+            assert cursor
+            second_page = await c.get(
+                "/v1/tasks",
+                params={"status": "pending", "limit": 1, "cursor": cursor},
+            )
+            deleted = await c.delete(f"/v1/tasks/{first_id}")
+            return fetched, first_page, second_page, deleted
+
+    fetched, first_page, second_page, deleted = _run(_do())
+
+    assert fetched.status_code == 200, fetched.text
+    assert fetched.json()["name"] == "coverage-first"
+    assert len(first_page.json()["items"]) == 1
+    assert second_page.status_code == 200, second_page.text
+    assert len(second_page.json()["items"]) == 1
+    assert first_page.json()["items"][0]["id"] != second_page.json()["items"][0]["id"]
+    assert deleted.status_code == 204, deleted.text
+
+
+# NFR-03 NFR-06
+def test_repository_integrity_error_paths():
+    """Unique violations translate to ConflictError; other failures propagate."""
+    from taskq_api.errors import ConflictError
+
+    class FailingSession:
+        def __init__(self, error):
+            self.error = error
+            self.added = None
+
+        def add(self, row):
+            self.added = row
+
+        def flush(self):
+            raise self.error
+
+    unique_error = sqlalchemy.exc.IntegrityError(
+        "INSERT", {}, RuntimeError("UNIQUE constraint failed: tasks.name")
+    )
+    unique_session = FailingSession(unique_error)
+    with pytest.raises(ConflictError):
+        task_repo.create_task(unique_session, name="duplicate", command="echo one")
+    assert unique_session.added.name == "duplicate"
+
+    other_error = sqlalchemy.exc.IntegrityError(
+        "INSERT", {}, RuntimeError("foreign key constraint failed")
+    )
+    other_session = FailingSession(other_error)
+    with pytest.raises(sqlalchemy.exc.IntegrityError) as caught:
+        task_repo.create_task(other_session, name="other", command="echo two")
+    assert caught.value is other_error
+
+
+# NFR-03
+def test_run_command_failure_paths(monkeypatch):
+    """Spawn and communication failures become terminal result values."""
+
+    class FailingProcess:
+        def __init__(self):
+            self.returncode = None
+            self.killed = False
+            self.waited = False
+
+        async def communicate(self):
+            raise RuntimeError("communication failed")
+
+        def kill(self):
+            self.killed = True
+            self.returncode = -9
+
+        async def wait(self):
+            self.waited = True
+            return self.returncode
+
+    process = FailingProcess()
+
+    async def _spawn_process(*_args, **_kwargs):
+        return process
+
+    monkeypatch.setattr(runner.asyncio, "create_subprocess_exec", _spawn_process)
+    communication_result = _run(runner._run_command("echo ignored"))
+
+    assert communication_result.exit_code is None
+    assert communication_result.stderr == "communication failed"
+    assert process.killed and process.waited
+
+    async def _fail_to_spawn(*_args, **_kwargs):
+        raise OSError("spawn failed")
+
+    monkeypatch.setattr(runner.asyncio, "create_subprocess_exec", _fail_to_spawn)
+    spawn_result = _run(runner._run_command("missing-command"))
+
+    assert spawn_result.exit_code is None
+    assert spawn_result.stdout == ""
+    assert spawn_result.stderr == "spawn failed"
+
+
+# NFR-03
+def test_background_runner_contains_exception():
+    """A daemon runner failure is contained after the coroutine starts."""
+    started = False
+
+    async def _fail():
+        nonlocal started
+        started = True
+        raise RuntimeError("background failure")
+
+    assert runner._run_in_thread(_fail) is None
+    assert started
+
+
+# NFR-03
+def test_run_task_compatibility_delegates(monkeypatch):
+    """The asynchronous compatibility entry point delegates all arguments."""
+    calls = []
+
+    async def _execute(task_id, command, run_id=None):
+        calls.append((task_id, command, run_id))
+        return "compat-run"
+
+    monkeypatch.setattr(runner, "execute_task", _execute)
+
+    result = _run(runner.run_task("task-id", "echo compat", "requested-run"))
+
+    assert result == "compat-run"
+    assert calls == [("task-id", "echo compat", "requested-run")]
