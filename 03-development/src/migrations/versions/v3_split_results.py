@@ -30,6 +30,9 @@ from __future__ import annotations
 import sqlalchemy as sa
 from alembic import op
 
+# Column-length constants — see v1_initial.py for rationale.
+_ID_LEN = 36       # UUIDv4 string length (task_results.task_id == tasks.id)
+
 revision = "v3_split_results"
 down_revision = "v2_tags"
 branch_labels = None
@@ -40,7 +43,7 @@ def upgrade() -> None:
     """Apply the v3 data migration (AC-7.3 forward direction)."""
     op.create_table(
         "task_results",
-        sa.Column("task_id", sa.String(length=36), primary_key=True),
+        sa.Column("task_id", sa.String(length=_ID_LEN), primary_key=True),
         sa.Column("result_json", sa.Text(), nullable=True),
     )
     op.execute(

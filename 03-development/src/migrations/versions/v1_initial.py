@@ -23,6 +23,14 @@ from __future__ import annotations
 import sqlalchemy as sa
 from alembic import op
 
+# Column-length constants. Mirroring the SPEC.md §3 schemas explicitly so a
+# change here is a single-site edit instead of a hunt through each column.
+_ID_LEN = 36       # UUIDv4 string length
+_NAME_LEN = 255    # task.name / api_key.scope
+_STATUS_LEN = 32   # task.status enum string
+_SCOPE_LEN = 32    # api_key.scope (mirrors task.status length)
+_HASH_LEN = 64     # sha256 hex digest of an api key
+
 # Alembic reads these module-level identifiers to build the revision graph.
 revision = "v1_initial"
 down_revision = None
@@ -40,24 +48,24 @@ def upgrade() -> None:
     """
     op.create_table(
         "tasks",
-        sa.Column("id", sa.String(length=36), primary_key=True),
-        sa.Column("name", sa.String(length=255), nullable=False),
+        sa.Column("id", sa.String(length=_ID_LEN), primary_key=True),
+        sa.Column("name", sa.String(length=_NAME_LEN), nullable=False),
         sa.Column("command", sa.Text(), nullable=False),
-        sa.Column("status", sa.String(length=32), nullable=False, server_default="pending"),
+        sa.Column("status", sa.String(length=_STATUS_LEN), nullable=False, server_default="pending"),
         sa.Column("result_json", sa.Text(), nullable=True),
         sa.Column("created_at", sa.DateTime(timezone=True), nullable=True),
     )
     op.create_table(
         "api_keys",
-        sa.Column("id", sa.String(length=36), primary_key=True),
-        sa.Column("scope", sa.String(length=32), nullable=False),
-        sa.Column("key_hash", sa.String(length=64), nullable=False, unique=True),
+        sa.Column("id", sa.String(length=_ID_LEN), primary_key=True),
+        sa.Column("scope", sa.String(length=_SCOPE_LEN), nullable=False),
+        sa.Column("key_hash", sa.String(length=_HASH_LEN), nullable=False, unique=True),
         sa.Column("created_at", sa.DateTime(timezone=True), nullable=True),
         sa.Column("revoked_at", sa.DateTime(timezone=True), nullable=True),
     )
     op.create_table(
         "rate_buckets",
-        sa.Column("key_id", sa.String(length=36), primary_key=True),
+        sa.Column("key_id", sa.String(length=_ID_LEN), primary_key=True),
         sa.Column("tokens", sa.Float(), nullable=False),
         sa.Column("updated_at", sa.DateTime(timezone=True), nullable=True),
     )

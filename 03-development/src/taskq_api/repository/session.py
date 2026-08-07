@@ -41,6 +41,20 @@ _engine: Engine | None = None
 _SessionLocal: sessionmaker[Session] | None = None
 
 
+def _set_sqlite_pragma(dbapi_connection, _connection_record):  # type: ignore[no-untyped-def]
+    """Enable foreign-key enforcement on every new SQLite connection.
+
+    SQLite needs ``PRAGMA foreign_keys=ON`` per connection (it is off by
+    default) so the FR-01 CRUD round-trips match the production Postgres
+    behaviour. Registered as a connect-listener on SQLite engines only.
+    """
+    cursor = dbapi_connection.cursor()
+    try:
+        cursor.execute("PRAGMA foreign_keys=ON")
+    finally:
+        cursor.close()
+
+
 def _build_engine() -> Engine:
     """Build a fresh SQLAlchemy engine from the current environment.
 
@@ -50,9 +64,8 @@ def _build_engine() -> Engine:
     SPEC.md §6 FR-06.
     """
     url = db_url()
-    connect_args: dict = {}
-    if url.startswith("sqlite"):
-        connect_args["check_same_thread"] = False
+    is_sqlite = url.startswith("sqlite")
+    connect_args: dict = {"check_same_thread": False} if is_sqlite else {}
 
     engine = create_engine(
         url,
@@ -62,16 +75,8 @@ def _build_engine() -> Engine:
         connect_args=connect_args,
     )
 
-    # SQLite needs WAL + foreign keys on for the FR-01 CRUD round-trips to
-    # behave like the production Postgres.
-    if url.startswith("sqlite"):
-        @event.listens_for(engine, "connect")
-        def _set_sqlite_pragma(dbapi_connection, _connection_record):  # type: ignore[no-untyped-def]
-            cursor = dbapi_connection.cursor()
-            try:
-                cursor.execute("PRAGMA foreign_keys=ON")
-            finally:
-                cursor.close()
+    if is_sqlite:
+        event.listen(engine, "connect", _set_sqlite_pragma)
 
     return engine
 

@@ -20,6 +20,10 @@ from __future__ import annotations
 import sqlalchemy as sa
 from alembic import op
 
+# Column-length constants — see v1_initial.py for rationale.
+_ID_LEN = 36       # UUIDv4 string length
+_NAME_LEN = 255    # tag.name
+
 revision = "v2_tags"
 down_revision = "v1_initial"
 branch_labels = None
@@ -30,13 +34,13 @@ def upgrade() -> None:
     """Apply the v2 schema."""
     op.create_table(
         "tags",
-        sa.Column("id", sa.String(length=36), primary_key=True),
-        sa.Column("name", sa.String(length=255), nullable=False, unique=True),
+        sa.Column("id", sa.String(length=_ID_LEN), primary_key=True),
+        sa.Column("name", sa.String(length=_NAME_LEN), nullable=False, unique=True),
     )
     op.create_table(
         "task_tags",
-        sa.Column("task_id", sa.String(length=36), sa.ForeignKey("tasks.id"), primary_key=True),
-        sa.Column("tag_id", sa.String(length=36), sa.ForeignKey("tags.id"), primary_key=True),
+        sa.Column("task_id", sa.String(length=_ID_LEN), sa.ForeignKey("tasks.id"), primary_key=True),
+        sa.Column("tag_id", sa.String(length=_ID_LEN), sa.ForeignKey("tags.id"), primary_key=True),
     )
     op.create_index("uq_tasks_name", "tasks", ["name"], unique=True)
 
