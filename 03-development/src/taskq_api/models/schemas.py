@@ -17,7 +17,7 @@ Citations:
 
 from __future__ import annotations
 
-from typing import ClassVar, FrozenSet
+from typing import FrozenSet
 from uuid import uuid4
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator

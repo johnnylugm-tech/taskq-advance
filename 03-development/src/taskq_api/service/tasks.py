@@ -31,9 +31,8 @@ import json
 from typing import Any, Optional
 
 from pydantic import ValidationError
-from sqlalchemy.exc import IntegrityError
 
-from taskq_api.errors import ConflictError, NotFoundError, ValidationProblem
+from taskq_api.errors import NotFoundError, ValidationProblem
 from taskq_api.models import schemas
 from taskq_api.repository import task_repo
 from taskq_api.repository.session import session_scope
@@ -95,31 +94,24 @@ def decode_cursor(cursor: str) -> dict[str, Any]:
 def create_task(*, name: str, command: str) -> schemas.TaskRead:
     """Create a new task; returns the persisted row.
 
-    [FR-01] Pydantic validation runs first; an ``IntegrityError`` on
-    duplicate name is mapped to ``ConflictError`` (→ 409).
+    [FR-01] Pydantic validation runs first; a duplicate ``name`` is mapped to
+    ``ConflictError`` (→ 409) by the repository layer so this function never
+    touches SQLAlchemy exception types (NFR-06 layering).
     """
     try:
         payload = schemas.TaskCreate(name=name, command=command)
     except ValidationError as exc:
         raise ValidationProblem(f"validation failed: {exc.errors()}") from exc
 
-    try:
-        with session_scope() as session:
-            row = task_repo.create_task(
-                session, name=payload.name, command=payload.command
-            )
-            session.flush()
-            # Force a reload on attribute access so the response reflects
-            # exactly what is persisted (server-side defaults, triggers, …).
-            session.expire(row)
-            return schemas.TaskRead.model_validate(row)
-    except IntegrityError as exc:
-        # Name uniqueness violation is the only IntegrityError we expect
-        # from this insert path; anything else is a real bug and propagates.
-        msg = str(exc.orig).lower() if exc.orig else ""
-        if "unique" in msg or "uq_tasks_name" in msg:
-            raise ConflictError("task name already exists") from exc
-        raise
+    with session_scope() as session:
+        row = task_repo.create_task(
+            session, name=payload.name, command=payload.command
+        )
+        session.flush()
+        # Force a reload on attribute access so the response reflects
+        # exactly what is persisted (server-side defaults, triggers, …).
+        session.expire(row)
+        return schemas.TaskRead.model_validate(row)
 
 
 def get_task(task_id: str) -> schemas.TaskRead:

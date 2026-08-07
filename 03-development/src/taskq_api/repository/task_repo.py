@@ -26,8 +26,10 @@ from __future__ import annotations
 from typing import Any, Optional, Sequence
 
 from sqlalchemy import select
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session, selectinload
 
+from taskq_api.errors import ConflictError
 from taskq_api.models.orm import Task
 
 __all__ = ["create_task", "get_task", "list_tasks", "delete_task"]
@@ -38,10 +40,19 @@ def create_task(session: Session, *, name: str, command: str) -> Task:
 
     [FR-01] The unique index on ``name`` (defined in ``models.orm``) is the
     only thing that makes ``IntegrityError`` -> 409 a race-free operation.
+    On duplicate-name the repository translates the DB-level violation to
+    ``ConflictError`` (a domain exception in ``errors.py``) so the service
+    layer never needs to know about SQLAlchemy exception types (NFR-06).
     """
     row = Task(name=name, command=command)
     session.add(row)
-    session.flush()
+    try:
+        session.flush()
+    except IntegrityError as exc:
+        msg = str(exc.orig).lower() if exc.orig else ""
+        if "unique" in msg or "uq_tasks_name" in msg:
+            raise ConflictError("task name already exists") from exc
+        raise
     return row
 
 

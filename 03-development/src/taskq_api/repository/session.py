@@ -20,7 +20,6 @@ Citations:
 
 from __future__ import annotations
 
-import os
 from contextlib import contextmanager
 from typing import Iterator
 
@@ -29,7 +28,6 @@ from sqlalchemy.engine import Engine
 from sqlalchemy.orm import Session, sessionmaker
 
 from taskq_api.config import db_pool_size, db_url
-from taskq_api.models.orm import Base
 
 __all__ = ["get_engine", "reset_engine", "session_scope"]
 

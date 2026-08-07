@@ -38,7 +38,7 @@ from sqlalchemy import (
     Text,
     UniqueConstraint,
 )
-from sqlalchemy.orm import DeclarativeBase, Mapped, declared_attr, relationship
+from sqlalchemy.orm import DeclarativeBase, Mapped, relationship
 
 
 class Base(DeclarativeBase):
