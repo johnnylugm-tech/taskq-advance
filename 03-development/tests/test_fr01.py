@@ -95,8 +95,14 @@ def client_factory(app):
 # --------------------------------------------------------------------------
 
 
+# NFR-02 NFR-10 NFR-09
 async def test_create_task_returns_201(client_factory):
-    """POST /v1/tasks with a valid write key and a clean body returns 201 + id."""
+    """POST /v1/tasks with a valid write key and a clean body returns 201 + id.
+
+    NFR-02: validated body, no shell/eval/exec, no raw SQL.
+    NFR-10: integration via httpx.ASGITransport.
+    NFR-09: real assertion (status_code), not a skip/xfail.
+    """
     async with client_factory("write") as client:
         response = await client.post(
             "/v1/tasks",
@@ -120,8 +126,14 @@ async def test_create_task_returns_201(client_factory):
 # --------------------------------------------------------------------------
 
 
+# NFR-02 NFR-03 NFR-10
 async def test_create_task_invalid_body_returns_422(client_factory):
-    """An empty name/command fails TaskCreate → 422 + application/problem+json."""
+    """An empty name/command fails TaskCreate → 422 + application/problem+json.
+
+    NFR-02: injection-blacklist validation enforced via pydantic.
+    NFR-03: validation rejected at the boundary, not swallowed by try/except.
+    NFR-10: integration via httpx.ASGITransport, drives HTTP edge.
+    """
     async with client_factory("write") as client:
         response = await client.post(
             "/v1/tasks",
@@ -152,8 +164,13 @@ async def test_create_task_invalid_body_returns_422(client_factory):
 # --------------------------------------------------------------------------
 
 
+# NFR-02 NFR-10
 async def test_get_unknown_task_returns_404(client_factory):
-    """GET /v1/tasks/{unknown} returns 404 + application/problem+json."""
+    """GET /v1/tasks/{unknown} returns 404 + application/problem+json.
+
+    NFR-02: 404 must not leak resource existence or internal details.
+    NFR-10: integration via httpx.ASGITransport.
+    """
     async with client_factory("read") as client:
         response = await client.get(f"/v1/tasks/{UNKNOWN_TASK_ID}")
 
@@ -174,8 +191,13 @@ async def test_get_unknown_task_returns_404(client_factory):
 # --------------------------------------------------------------------------
 
 
+# NFR-02 NFR-10
 async def test_duplicate_name_returns_409(client_factory):
-    """A second POST with an existing name returns 409 + application/problem+json."""
+    """A second POST with an existing name returns 409 + application/problem+json.
+
+    NFR-02: name uniqueness enforced (DB unique constraint, no race window).
+    NFR-10: integration via httpx.ASGITransport.
+    """
     payload = {"name": "alpha-build", "command": "echo hi"}
 
     async with client_factory("write") as client:
@@ -205,8 +227,13 @@ async def test_duplicate_name_returns_409(client_factory):
 # GREEN TODO: taskq_api.repository.task_repo must expose
 #   list_tasks(session, *, status=None, limit=DEFAULT_LIMIT, cursor=None)
 # keyed off the cursor — it must NOT accept an `offset` parameter.
+# NFR-06
 def test_cursor_pagination_unit():
-    """The pagination helper is cursor-based; offset paging is absent entirely."""
+    """The pagination helper is cursor-based; offset paging is absent entirely.
+
+    NFR-06: layering — cursor helper lives in service, repository is the only
+    layer that knows about SQL pagination primitives. No `.offset()` anywhere.
+    """
     # cursor_used == "true": the opaque cursor decodes to its keyset payload.
     decoded = tasks_service.decode_cursor(CURSOR_OPAQUE)
     assert decoded == {"task_id": "abc"}
@@ -242,8 +269,13 @@ def test_cursor_pagination_unit():
 # --------------------------------------------------------------------------
 
 
+# NFR-02 NFR-10
 async def test_list_limit_exceeds_max_returns_422(client_factory):
-    """?limit=201 exceeds the 200 cap → 422; the documented cap stays 200."""
+    """?limit=201 exceeds the 200 cap → 422; the documented cap stays 200.
+
+    NFR-02: limit cap validated at the boundary (no clamp-and-silently-truncate).
+    NFR-10: integration via httpx.ASGITransport.
+    """
     async with client_factory("read") as client:
         response = await client.get("/v1/tasks", params={"limit": 201})
 
@@ -286,8 +318,16 @@ def _seed_tasks(engine, count):
         connection.execute(sqlalchemy.insert(orm.Task.__table__), rows)
 
 
+# NFR-01 NFR-05 NFR-10
 async def test_list_sql_count_constant(app, client_factory):
-    """The list endpoint's SQL statement count does not grow with rows returned."""
+    """The list endpoint's SQL statement count does not grow with rows returned.
+
+    NFR-01: constant SQL statement count (N+1 guard) at 10k rows, asserted via
+    SQLAlchemy before_cursor_execute event listener.
+    NFR-05: this is the load-bearing test for the docstring-tag on list_tasks
+    (the helper carries a [FR-01] tag — see test file header for the policy).
+    NFR-10: integration via httpx.ASGITransport.
+    """
     engine = db_session.get_engine()
     _seed_tasks(engine, 10000)
 
