@@ -37,6 +37,11 @@ __all__ = ["Principal", "auth_dep", "check_scope"]
 
 _SCOPE_RANK: dict[str, int] = {"read": 1, "write": 2, "admin": 3}
 
+# [FR-03 / NFR-04] The detail string is intentionally identical across every
+# 401 path so the response cannot be used to probe which keys exist (missing
+# vs. revoked vs. unknown all surface the same string).
+_UNAUTHORIZED_DETAIL = "missing or invalid API key"
+
 
 @dataclass(frozen=True)
 class Principal:
@@ -51,6 +56,16 @@ class Principal:
     scope: str
 
 
+def _reject_unauthorized() -> None:
+    """Raise the canonical 401 with the non-disclosing detail string.
+
+    Centralised so the missing / unknown / revoked paths all surface the
+    identical NFR-04 detail — an operator cannot use the response to
+    distinguish between them.
+    """
+    raise UnauthorizedError(_UNAUTHORIZED_DETAIL)
+
+
 def auth_dep(
     x_api_key: str | None = Header(default=None, alias="X-API-Key"),
 ) -> Principal:
@@ -63,7 +78,7 @@ def auth_dep(
     probe which keys exist (NFR-04).
     """
     if not x_api_key:
-        raise UnauthorizedError("missing or invalid API key")
+        _reject_unauthorized()
 
     # [FR-03] The lookup compares hashes via ``hmac.compare_digest``
     # (AC-3.3) and excludes revoked rows by SQL filter (AC-3.4). The
@@ -72,13 +87,13 @@ def auth_dep(
     with session_scope() as session:
         row = key_repo.lookup_active_key(x_api_key, session=session)
     if row is None:
-        raise UnauthorizedError("missing or invalid API key")
+        _reject_unauthorized()
 
     # The constant-time verification is also run in the service layer so
     # the equality oracle stays closed even if a future code path skips
     # the SQL filter (defence in depth).
     if not auth_service.verify_key(x_api_key, row["key_hash"]):
-        raise UnauthorizedError("missing or invalid API key")
+        _reject_unauthorized()
 
     return Principal(key_id=row["id"], scope=row["scope"])
 

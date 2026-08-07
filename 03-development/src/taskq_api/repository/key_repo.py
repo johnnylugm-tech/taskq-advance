@@ -67,6 +67,23 @@ def _coerce_revoked_at(value: Optional[datetime | str]) -> Optional[datetime]:
     )
 
 
+def _row_to_dict(row: ApiKey) -> dict[str, Any]:
+    """Project an ``ApiKey`` ORM instance onto the public dict contract.
+
+    [FR-03] Every public repository function returns the same five-field
+    dict shape so callers can iterate / assert on it without knowing about
+    the ORM layer. Centralising the mapping also keeps the dict keys in
+    sync with the FR-03 GREEN TODO contracts in ``test_fr03.py``.
+    """
+    return {
+        "id": row.id,
+        "scope": row.scope,
+        "key_hash": row.key_hash,
+        "created_at": row.created_at,
+        "revoked_at": row.revoked_at,
+    }
+
+
 def create_api_key(
     session: Session,
     *,
@@ -95,13 +112,7 @@ def create_api_key(
     )
     session.add(row)
     session.flush()
-    return {
-        "id": row.id,
-        "scope": row.scope,
-        "key_hash": row.key_hash,
-        "created_at": row.created_at,
-        "revoked_at": row.revoked_at,
-    }
+    return _row_to_dict(row)
 
 
 def lookup_active_key(
@@ -126,26 +137,11 @@ def lookup_active_key(
     row = session.execute(stmt).scalar_one_or_none()
     if row is None:
         return None
-    return {
-        "id": row.id,
-        "scope": row.scope,
-        "key_hash": row.key_hash,
-        "created_at": row.created_at,
-        "revoked_at": row.revoked_at,
-    }
+    return _row_to_dict(row)
 
 
 def list_all_keys(session: Session) -> list[dict[str, Any]]:
     """Return every api_keys row as a dict (used by AC-3.5 verification)."""
     stmt = select(ApiKey).order_by(ApiKey.created_at.asc())
     rows = session.execute(stmt).scalars().all()
-    return [
-        {
-            "id": row.id,
-            "scope": row.scope,
-            "key_hash": row.key_hash,
-            "created_at": row.created_at,
-            "revoked_at": row.revoked_at,
-        }
-        for row in rows
-    ]
+    return [_row_to_dict(row) for row in rows]
