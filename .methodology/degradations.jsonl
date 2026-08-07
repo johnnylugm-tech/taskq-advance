@@ -1,2 +1,5 @@
 {"ts": 1786105182.568429, "component": "mutation:scope", "what": "SAB scope_layers resolve to non-existent director(ies) ['03-development/src/taskq_api/repository', '03-development/src/taskq_api/service']", "why": "setup.cfg left unchanged; fix the layer→module mapping in the SAB"}
 {"ts": 1786109496.989959, "component": "run-fr-step:TDD-GREEN", "what": "step dispatch failed", "why": "FR-01 TDD-GREEN: INFRA_ERROR", "data": {"fr_id": "FR-01", "step": "TDD-GREEN", "signature": "bea0407620c1fa40", "tree": "b169094edb1a2ef8", "error_class": "INFRA_ERROR"}}
+{"ts": 1786117491.744073, "component": "agent:developer:3", "what": "wall-clock timeout at 600s", "why": ""}
+{"ts": 1786117491.801018, "component": "run-fr-step:TDD-GREEN", "what": "step dispatch failed", "why": "FR-02 TDD-GREEN: TIMEOUT", "data": {"fr_id": "FR-02", "step": "TDD-GREEN", "signature": "ee0c72175119e69e", "tree": "5da94c3343fd7c93", "error_class": "TIMEOUT"}}
+{"ts": 1786117491.801118, "component": "run-fr-step:TDD-GREEN", "what": "task_timeout escalated 600 -> 1200", "why": "FR-02 TDD-GREEN hit its wall-clock budget; re-dispatching at the same budget cannot finish what did not fit"}
