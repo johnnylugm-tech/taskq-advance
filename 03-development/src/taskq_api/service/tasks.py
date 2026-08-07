@@ -109,7 +109,9 @@ def create_task(*, name: str, command: str) -> schemas.TaskRead:
                 session, name=payload.name, command=payload.command
             )
             session.flush()
-            session.expire(row)  # ensure fresh __dict__ after commit
+            # Force a reload on attribute access so the response reflects
+            # exactly what is persisted (server-side defaults, triggers, …).
+            session.expire(row)
             return schemas.TaskRead.model_validate(row)
     except IntegrityError as exc:
         # Name uniqueness violation is the only IntegrityError we expect

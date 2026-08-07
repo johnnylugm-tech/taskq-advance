@@ -20,7 +20,6 @@ from typing import Optional
 from fastapi import APIRouter, Depends, Path, Query, Response, status
 
 from taskq_api.api.deps import Principal, auth_dep, check_scope
-from taskq_api.errors import ProblemError
 from taskq_api.service import tasks as tasks_service
 
 __all__ = ["router"]
@@ -31,7 +30,6 @@ router = APIRouter(prefix="/v1/tasks", tags=["tasks"])
 @router.post("", status_code=status.HTTP_201_CREATED, response_model=None)
 def create_task(
     body: dict,
-    response: Response,
     principal: Principal = Depends(auth_dep),
 ) -> dict:
     """``POST /v1/tasks`` — create a new task (scope: write)."""
@@ -40,7 +38,6 @@ def create_task(
         name=body.get("name", ""),
         command=body.get("command", ""),
     )
-    response.status_code = status.HTTP_201_CREATED
     return created.model_dump()
 
 
@@ -80,12 +77,3 @@ def delete_task(
     check_scope(principal, "admin")
     tasks_service.delete_task(task_id)
     return Response(status_code=status.HTTP_204_NO_CONTENT)
-
-
-def _reraise_problem(exc: ProblemError) -> None:
-    """Re-raise so the app-level exception handlers can render it.
-
-    Kept as a no-op shim so the import stays meaningful even when FastAPI's
-    dependency system has already promoted the exception to a response.
-    """
-    raise exc
