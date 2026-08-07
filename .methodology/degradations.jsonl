@@ -1,0 +1,2 @@
+{"ts": 1786105182.568429, "component": "mutation:scope", "what": "SAB scope_layers resolve to non-existent director(ies) ['03-development/src/taskq_api/repository', '03-development/src/taskq_api/service']", "why": "setup.cfg left unchanged; fix the layer→module mapping in the SAB"}
+{"ts": 1786109496.989959, "component": "run-fr-step:TDD-GREEN", "what": "step dispatch failed", "why": "FR-01 TDD-GREEN: INFRA_ERROR", "data": {"fr_id": "FR-01", "step": "TDD-GREEN", "signature": "bea0407620c1fa40", "tree": "b169094edb1a2ef8", "error_class": "INFRA_ERROR"}}

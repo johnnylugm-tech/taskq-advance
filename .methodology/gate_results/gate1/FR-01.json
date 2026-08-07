@@ -1,0 +1,86 @@
+{
+  "gate": 1,
+  "phase": 3,
+  "fr_id": "FR-01",
+  "overall_score": 100.0,
+  "quality_complete": true,
+  "rounds_used": 1,
+  "breakdown": {
+    "linting": {
+      "score": 100.0,
+      "threshold": 100,
+      "tool_evidence": "All checks passed!"
+    },
+    "type_safety": {
+      "score": 100.0,
+      "threshold": 100,
+      "tool_evidence": "{\"version\": \"1.1.409\", \"time\": \"1786114657368\", \"generalDiagnostics\": [], \"summary\": {\"filesAnalyzed\": 15, \"errorCount\": 0, \"warningCount\": 0, \"informationCount\": 0, \"timeInSec\": 0.933}}"
+    },
+    "test_coverage": {
+      "score": 100.0,
+      "threshold": 100,
+      "tests_passed": 18,
+      "tests_failed": 0,
+      "tests_skipped": 0,
+      "tool_evidence": "============================== test session starts ==============================\nplatform darwin -- Python 3.11.15, pytest-8.4.2, pluggy-1.6.0\nrootdir: /Users/johnny/projects/taskq-advance\nplugins: benchmark-5.2.3, cov-7.1.0, asyncio-1.4.0, anyio-4.14.2\ncollected 18 items\n\n03-development/tests/test_fr01.py ..................                     [100%]\n============================== 18 passed in 0.54s =============================="
+    },
+    "architecture_constraints": {
+      "score": 100.0,
+      "threshold": 100,
+      "tool_evidence": "Analyzed 28 files, 37 dependencies. Layering KEPT. SQLAlchemy in repository only KEPT. Contracts: 2 kept, 0 broken. (lint-imports exit 0)"
+    }
+  },
+  "enforcer_sha": "eab6a326b755b7b5f9f6384d41f2b616afc75972",
+  "enforcer_surface": {
+    "core/quality_gate": "2f36303585e948f41d2b372e127e013471cdc7ff",
+    "harness/harness_bridge.py": "9e737f9cdee109cd3fc55b3b170f811c0840f078",
+    "harness/gate_configs": "ceaa48942d7a61abaa8d1612061f6a8868ad7c5b"
+  },
+  "evidence_digest": {
+    "linting": {
+      "source": "tool_evidence (inline)",
+      "kind": "inline",
+      "sha256": "f0d0b1081d9d3ebb26c4c93543053ecdc0a58998f22c071dc4ddb26021b57645",
+      "bytes": 18,
+      "head": "All checks passed!"
+    },
+    "type_safety": {
+      "source": "tool_evidence (inline)",
+      "kind": "inline",
+      "sha256": "57353882f20e11a167f52d3716f26fb199ec4626f41b27260515198921741f27",
+      "bytes": 186,
+      "head": "{\"version\": \"1.1.409\", \"time\": \"1786114657368\", \"generalDiagnostics\": [], \"summary\": {\"filesAnalyzed\": 15, \"errorCount\": 0, \"warningCount\": 0, \"informationCount\": 0, \"timeInSec\": 0.933}}"
+    },
+    "test_coverage": {
+      "source": "tool_evidence (inline)",
+      "kind": "inline",
+      "sha256": "d47305c0078cee102481019945bd96146d8cc5c0677b276a110025063b633d29",
+      "bytes": 435,
+      "head": "============================== test session starts ==============================\nplatform darwin -- Python 3.11.15, pytest-8.4.2, pluggy-1.6.0\nrootdir: /Users/johnny/projects/taskq-advance\nplugins: benchmark-5.2.3, cov-7.1.0, asyncio-1.4.0, anyio-4.14.2\ncollected 18 items\n\n03-development/tests/test_fr01.py ..................                     [100%]\n============================== 18 passed in 0.54s =============================="
+    },
+    "architecture_constraints": {
+      "source": "tool_evidence (inline)",
+      "kind": "inline",
+      "sha256": "5fcee47de93b9acd41dc67cf01c0e64436947d1664cf611166a85e7615c5a86d",
+      "bytes": 137,
+      "head": "Analyzed 28 files, 37 dependencies. Layering KEPT. SQLAlchemy in repository only KEPT. Contracts: 2 kept, 0 broken. (lint-imports exit 0)"
+    }
+  },
+  "composite_score": 100.0,
+  "verdict": "PASS",
+  "passed": true,
+  "spec_undelivered": [],
+  "spec_declared": 0,
+  "measurement_scope": {
+    "weight_covered": 1.0,
+    "weight_total": 1.0,
+    "dimensions_scored": [
+      "architecture_constraints",
+      "linting",
+      "test_coverage",
+      "type_safety"
+    ],
+    "dimensions_unscored": [],
+    "dimensions_disabled": []
+  }
+}
