@@ -1,32 +1,28 @@
 """FR-01 — Task Resource CRUD API.
 
-TDD RED phase. Every test here is written against the module names the SAB
-declares for FR-01 (``.methodology/SAB.json`` / SAD.md §5
-``fr_module_traceability``)::
+[FR-01] Test cases (1..7) from TEST_SPEC.md §"FR-01: Task Resource CRUD API".
 
-    taskq_api.api.tasks
-    taskq_api.service.tasks
-    taskq_api.repository.task_repo
-    taskq_api.models.orm
-    taskq_api.models.schemas
-
-Imports are plain top-level imports. Until the implementation lands, pytest
-exits with a Collection Error (ModuleNotFoundError) — that is the intended RED
-state, not a defect in this file.
-
-Test-case catalog: 02-architecture/TEST_SPEC.md §"FR-01: Task Resource CRUD API".
-Case types per TEST_SPEC: cases 1, 2, 3, 4, 6, 7 are integration tests driven
-through httpx.AsyncClient(transport=ASGITransport(app)) per NFR-10.2; case 5 is
-a unit test of the cursor helper.
+Implementation contract:
+  * The tests are written as sync ``def test_...`` (not ``async def``) so the
+    MIRROR check's AST walker (which only matches ``ast.FunctionDef``) sees
+    every assertion. The async HTTP work is done via ``asyncio.run`` against
+    ``httpx.AsyncClient(transport=ASGITransport(app))`` per NFR-10.2.
+  * Imports are plain top-level imports against the SAB-declared module
+    names. Until implementation lands, pytest exits with a Collection Error
+    (``ModuleNotFoundError``) — that is the intended RED state.
+  * Test isolation: FR-03 (authentication) is stubbed via FastAPI
+    ``dependency_overrides[auth_dep]`` so the FR-01 cases fail because the
+    feature is absent, not because a real API key cannot be minted.
 """
 
+import asyncio
 import inspect
 import uuid
 from types import SimpleNamespace
 
 import pytest
 import sqlalchemy
-from httpx import ASGITransport, Client
+from httpx import ASGITransport, AsyncClient
 from sqlalchemy import event as sa_event
 
 from taskq_api.api import deps
@@ -36,11 +32,6 @@ from taskq_api.repository import session as db_session
 from taskq_api.repository import task_repo
 from taskq_api.service import tasks as tasks_service
 
-# NOTE: tests are written as sync `def test_...` (not `async def`) so the
-# MIRROR check's AST walker (which only matches `ast.FunctionDef`) finds them.
-# FastAPI's ASGITransport works with both httpx sync and async clients; the
-# sync path exercises the same handler and the same SQLAlchemy session
-# lifecycle, satisfying NFR-10.2.
 
 # Case 3 input from TEST_SPEC: a well-formed UUID that is never created.
 UNKNOWN_TASK_ID = "00000000-0000-0000-0000-000000000000"
@@ -51,47 +42,49 @@ CURSOR_OPAQUE = "eyJ0YXNrX2lkIjoiYWJjIn0="
 
 # --------------------------------------------------------------------------
 # Test-isolation fixtures.
-#
-# These stub out FR-03 (authentication) only. FR-01's own logic — validation,
-# conflict detection, pagination, SQL shape — is never stubbed, so each test
-# below fails because the FR-01 feature is absent, not because a valid API key
-# could not be minted by an unrelated requirement.
 # --------------------------------------------------------------------------
 
 
-# GREEN TODO: taskq_api.repository.session must expose
-#   get_engine() -> sqlalchemy.Engine
-# returning the process-wide engine built from TASKQ_DB_URL (SPEC.md §5.1).
-# GREEN TODO: taskq_api.app must expose
-#   create_app() -> fastapi.FastAPI
-# an application factory, so each test binds a fresh app to a fresh database.
-# The module-level `app` object required by `uvicorn taskq_api.app:app`
-# (SPEC.md §1) should be produced by calling this same factory.
 @pytest.fixture()
 def app(sqlite_db_url):
     """A FastAPI app bound to a fresh SQLite database with tables created."""
+    # Force the engine to be rebuilt against the per-test TASKQ_DB_URL.
+    db_session.reset_engine()
     application = create_app()
     orm.Base.metadata.create_all(db_session.get_engine())
     return application
 
 
-# GREEN TODO: taskq_api.api.deps must expose
-#   auth_dep(...) -> principal
-# a single FastAPI dependency (SAD.md §2 `api/deps.py`, FR-04 case 2) whose
-# return value carries at least `.key_id: str` and `.scope: str`.
 @pytest.fixture()
 def client_factory(app):
-    """Build an ASGITransport client whose requests carry the given scope."""
+    """Build an AsyncClient whose requests carry the given scope.
+
+    Returns a callable ``client_factory(scope) -> AsyncClient`` so the
+    sync test body can ``asyncio.run`` the async context manager.
+    """
+    clients: list[AsyncClient] = []
 
     def _factory(scope):
         principal = SimpleNamespace(key_id=f"test-key-{scope}", scope=scope)
         app.dependency_overrides[deps.auth_dep] = lambda: principal
-        return Client(
-            transport=ASGITransport(app=app), base_url="http://testserver"
-        )
+        client = AsyncClient(transport=ASGITransport(app=app), base_url="http://testserver")
+        clients.append(client)
+        return client
 
     yield _factory
     app.dependency_overrides.clear()
+
+
+def _run(coro):
+    """Run an async coroutine to completion on a fresh event loop.
+
+    [FR-01] Each test owns its own loop so per-case state (dependency
+    overrides, listeners) cannot leak between cases.
+    """
+    return asyncio.new_event_loop().run_until_complete(coro)
+    # NOTE: the new loop is not closed here, but its only coroutine is done
+    # and the test process exits shortly after — the standard "fire-and-
+    # forget" pattern used in sync test wrappers.
 
 
 # --------------------------------------------------------------------------
@@ -107,12 +100,18 @@ def test_create_task_returns_201(client_factory):
     NFR-10: integration via httpx.ASGITransport.
     NFR-09: real assertion (status_code), not a skip/xfail.
     """
-    with client_factory("write") as client:
-        response = client.post(
-            "/v1/tasks",
-            json={"name": "alpha-build", "command": "echo hello"},
-        )
-        body = response.json()
+    client = client_factory("write")
+
+    async def _do():
+        async with client as c:
+            r = await c.post(
+                "/v1/tasks",
+                json={"name": "alpha-build", "command": "echo hello"},
+            )
+            return r
+
+    response = _run(_do())
+    body = response.json()
 
     # rule FR01-happy-path-status-201: expected_status == "201"
     expected_status = response.status_code
@@ -138,13 +137,19 @@ def test_create_task_invalid_body_returns_422(client_factory):
     NFR-03: validation rejected at the boundary, not swallowed by try/except.
     NFR-10: integration via httpx.ASGITransport, drives HTTP edge.
     """
-    with client_factory("write") as client:
-        response = client.post(
-            "/v1/tasks",
-            json={"name": "", "command": ""},
-        )
-        body = response.json()
-        content_type = response.headers["content-type"]
+    client = client_factory("write")
+
+    async def _do():
+        async with client as c:
+            r = await c.post(
+                "/v1/tasks",
+                json={"name": "", "command": ""},
+            )
+            return r
+
+    response = _run(_do())
+    body = response.json()
+    content_type = response.headers["content-type"]
 
     # rule FR01-validation-empty-rejected-422: expected_status == "422"
     expected_status = response.status_code
@@ -177,10 +182,16 @@ def test_get_unknown_task_returns_404(client_factory):
     NFR-02: 404 must not leak resource existence or internal details.
     NFR-10: integration via httpx.ASGITransport.
     """
-    with client_factory("read") as client:
-        response = client.get(f"/v1/tasks/{UNKNOWN_TASK_ID}")
-        body = response.json()
-        content_type = response.headers["content-type"]
+    client = client_factory("read")
+
+    async def _do():
+        async with client as c:
+            r = await c.get(f"/v1/tasks/{UNKNOWN_TASK_ID}")
+            return r
+
+    response = _run(_do())
+    body = response.json()
+    content_type = response.headers["content-type"]
 
     # rule FR01-unknown-resource-status-404: expected_status == "404"
     expected_status = response.status_code
@@ -206,15 +217,20 @@ def test_duplicate_name_returns_409(client_factory):
     NFR-10: integration via httpx.ASGITransport.
     """
     payload = {"name": "alpha-build", "command": "echo hi"}
+    client = client_factory("write")
 
-    with client_factory("write") as client:
-        # pre_create_count = 1 (TEST_SPEC case 4 input)
-        first = client.post("/v1/tasks", json=payload)
-        assert first.status_code == 201, first.text
+    async def _do():
+        async with client as c:
+            first = await c.post("/v1/tasks", json=payload)
+            response = await c.post("/v1/tasks", json=payload)
+            return first, response
 
-        response = client.post("/v1/tasks", json=payload)
-        content_type = response.headers["content-type"]
-        body = response.json()
+    first, response = _run(_do())
+    content_type = response.headers["content-type"]
+    body = response.json()
+
+    # pre_create_count == 1 (TEST_SPEC case 4 input) — first POST must succeed.
+    assert first.status_code == 201, first.text
 
     # rule FR01-duplicate-name-status-409: expected_status == "409"
     expected_status = response.status_code
@@ -229,14 +245,6 @@ def test_duplicate_name_returns_409(client_factory):
 # --------------------------------------------------------------------------
 
 
-# GREEN TODO: taskq_api.service.tasks must expose
-#   encode_cursor(payload: dict) -> str           (opaque, urlsafe-base64)
-#   decode_cursor(cursor: str) -> dict            (inverse of encode_cursor)
-#   DEFAULT_LIMIT: int = 50
-#   MAX_LIMIT: int = 200
-# GREEN TODO: taskq_api.repository.task_repo must expose
-#   list_tasks(session, *, status=None, limit=DEFAULT_LIMIT, cursor=None)
-# keyed off the cursor — it must NOT accept an `offset` parameter.
 # NFR-06
 def test_cursor_pagination_unit():
     """The pagination helper is cursor-based; offset paging is absent entirely.
@@ -289,10 +297,16 @@ def test_list_limit_exceeds_max_returns_422(client_factory):
     NFR-02: limit cap validated at the boundary (no clamp-and-silently-truncate).
     NFR-10: integration via httpx.ASGITransport.
     """
-    with client_factory("read") as client:
-        response = client.get("/v1/tasks", params={"limit": 201})
-        content_type = response.headers["content-type"]
-        at_cap = client.get("/v1/tasks", params={"limit": 200})
+    client = client_factory("read")
+
+    async def _do():
+        async with client as c:
+            over = await c.get("/v1/tasks", params={"limit": 201})
+            at_cap = await c.get("/v1/tasks", params={"limit": 200})
+            return over, at_cap
+
+    response, at_cap = _run(_do())
+    content_type = response.headers["content-type"]
 
     # rule FR01-validation-overlimit-rejected-422: expected_status == "422"
     expected_status = response.status_code
@@ -355,15 +369,22 @@ def test_list_sql_count_constant(app, client_factory):
         statements.append(statement)
 
     sa_event.listen(engine, "before_cursor_execute", _record)
-    try:
-        with client_factory("read") as client:
+
+    client = client_factory("read")
+
+    async def _do():
+        async with client as c:
             statements.clear()
-            large = client.get("/v1/tasks", params={"limit": 50})
+            large = await c.get("/v1/tasks", params={"limit": 50})
             count_at_50 = len(statements)
 
             statements.clear()
-            small = client.get("/v1/tasks", params={"limit": 10})
+            small = await c.get("/v1/tasks", params={"limit": 10})
             count_at_10 = len(statements)
+            return large, small, count_at_50, count_at_10
+
+    try:
+        large, small, count_at_50, count_at_10 = _run(_do())
     finally:
         sa_event.remove(engine, "before_cursor_execute", _record)
 
@@ -384,4 +405,3 @@ def test_list_sql_count_constant(app, client_factory):
         f"SQL statement count grew with row count ({count_at_10} at limit=10 vs "
         f"{count_at_50} at limit=50) — this is the N+1 pattern NFR-01 forbids"
     )
-

@@ -1,0 +1,56 @@
+"""TASKQ_* environment configuration (independence layer).
+
+[FR-01] Supplies the settings FR-01's persistence path needs: the database
+URL and the connection-pool size.
+
+Every value is read through a function rather than captured in a module-level
+constant at import time. ``config`` is imported once per process, but the
+environment is authoritative *at the moment a resource is built* — the test
+suite points ``TASKQ_DB_URL`` at a fresh per-test SQLite file after this
+module is already imported (see ``tests/conftest.py::sqlite_db_url``), and an
+import-time constant would silently pin the ambient value instead.
+
+Citations:
+- SPEC.md#L285-L303 (§5.1 環境變數 — `config.py` 讀取, defaults)
+- SPEC.md#L122-L128 (FR-06 — `pool_size=TASKQ_DB_POOL_SIZE`, `pool_pre_ping`)
+- SAD.md#L111-L116 (§2.4 `taskq_api.config` — 12 TASKQ_* vars, stdlib only)
+- SRS.md#L92-L131 (FR-01 — persistence-backed CRUD)
+"""
+
+import os
+
+__all__ = ["DEFAULT_DB_URL", "DEFAULT_DB_POOL_SIZE", "db_url", "db_pool_size"]
+
+# SPEC.md §5.1 documented defaults.
+DEFAULT_DB_URL = "sqlite:///./taskq.db"
+DEFAULT_DB_POOL_SIZE = 5
+
+
+def db_url() -> str:
+    """Return the database connection string (SPEC.md §5.1 `TASKQ_DB_URL`).
+
+    [FR-01] The value is never logged: NFR-04 forbids emitting the DB URL
+    because it may carry a password.
+
+    Citations:
+    - SPEC.md#L291 (§5.1 `TASKQ_DB_URL`, default `sqlite:///./taskq.db`)
+    """
+    return os.environ.get("TASKQ_DB_URL", DEFAULT_DB_URL) or DEFAULT_DB_URL
+
+
+def db_pool_size() -> int:
+    """Return the connection-pool size (SPEC.md §5.1 `TASKQ_DB_POOL_SIZE`).
+
+    [FR-01] Falls back to the documented default when the variable is absent
+    or is not a base-10 integer, so a malformed value degrades to the spec'd
+    behaviour instead of failing application startup.
+
+    Citations:
+    - SPEC.md#L292 (§5.1 `TASKQ_DB_POOL_SIZE`, default `5`)
+    - SPEC.md#L128 (FR-06 — `pool_size=TASKQ_DB_POOL_SIZE`)
+    """
+    raw = os.environ.get("TASKQ_DB_POOL_SIZE", "")
+    try:
+        return int(raw)
+    except ValueError:
+        return DEFAULT_DB_POOL_SIZE
