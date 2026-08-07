@@ -22,9 +22,17 @@ dependency — every /v1 route passes through it, and the scope check is
 applied per-route via ``check_scope`` rather than scattered across
 handlers.
 
+[FR-05] ``rate_dep`` charges one token against the resolved principal's
+DB-persisted bucket and raises ``RateLimitedError`` → 429 +
+``application/problem+json`` + ``Retry-After`` when the bucket is empty. It
+is invoked from inside ``auth_dep`` so the routes keep the single-dependency
+shape AC-4.2 requires, and so unauthenticated probes (``/healthz``,
+``/readyz``) — which never run ``auth_dep`` — stay exempt (AC-5.3).
+
 Citations:
 - SPEC.md#L101-L107 (FR-03 — X-API-Key, hmac.compare_digest, revoked)
 - SPEC.md#L109-L113 (FR-04 — single dependency, no leak in 403)
+- SPEC.md#L115-L120 (FR-05 — per-token 令牌桶, 429 + Retry-After)
 - SAD.md#L161-L172 (§2.4 `api/deps.py` — auth_dep, scope check)
 - SRS.md#L92-L131 (AC-1.1..AC-1.7, scope per row of FR-01/02)
 - SRS.md (AC-4.1 / AC-4.2 / AC-4.3)
@@ -41,8 +49,9 @@ from taskq_api.errors import ForbiddenError, UnauthorizedError
 from taskq_api.repository import key_repo
 from taskq_api.repository.session import session_scope
 from taskq_api.service import auth as auth_service
+from taskq_api.service import ratelimit
 
-__all__ = ["Principal", "auth_dep", "check_scope"]
+__all__ = ["Principal", "auth_dep", "check_scope", "rate_dep"]
 
 
 # ---------------------------------------------------------------------------
@@ -109,20 +118,45 @@ def _resolve_principal(x_api_key: str) -> Principal:
     return Principal(key_id=row["id"], scope=row["scope"])
 
 
+def rate_dep(principal: Principal) -> Principal:
+    """Charge one rate-limit token to ``principal``; raise 429 when empty.
+
+    [FR-05] AC-5.1 / AC-5.3: the limit is per API key, so the charge happens
+    once the caller is identified — an unauthenticated request is rejected as
+    401 before it can spend (or create) any key's bucket. Because the charge
+    hangs off ``auth_dep``, it applies to exactly the routes that authenticate
+    (every ``/v1/*`` route) and to no others: the operator probes ``/healthz``
+    and ``/readyz`` are unauthenticated and therefore never rate limited.
+
+    Returning the principal keeps this composable inside ``auth_dep`` without
+    changing the single-dependency shape every ``/v1`` route relies on
+    (FR-04 AC-4.2).
+
+    Citations:
+    - SPEC.md#L115-L120 (FR-05 — per-token 令牌桶, healthz/readyz 不受限)
+    - SAD.md#L211-L217 (§3.1 — api/deps hosts auth_dep / scope_dep / rate_dep)
+    """
+    ratelimit.consume(principal.key_id)
+    return principal
+
+
 def auth_dep(
     x_api_key: str | None = Header(default=None, alias=_API_KEY_HEADER),
 ) -> Principal:
-    """Return the authenticated principal for the request.
+    """Return the authenticated, rate-limit-cleared principal for the request.
 
     [FR-03] AC-3.1: a missing ``X-API-Key`` header is rejected as 401 +
     ``/errors/unauthorized``. AC-3.4: a key whose ``api_keys`` row carries
     a non-null ``revoked_at`` is rejected the same way. The
     ``detail`` field stays generic so the response cannot be used to
     probe which keys exist (NFR-04).
+
+    [FR-05] Once the principal is resolved, ``rate_dep`` charges one token
+    against that key's bucket and raises 429 when it is empty (AC-5.1).
     """
     if not x_api_key:
         _reject_unauthorized()
-    return _resolve_principal(x_api_key)
+    return rate_dep(_resolve_principal(x_api_key))
 
 
 def check_scope(principal: Principal, needed: str) -> None:

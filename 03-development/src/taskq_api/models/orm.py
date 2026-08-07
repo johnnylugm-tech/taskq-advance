@@ -32,13 +32,14 @@ from typing import List
 from sqlalchemy import (
     Column,
     DateTime,
+    Float,
     ForeignKey,
     String,
     Table,
     Text,
     UniqueConstraint,
 )
-from sqlalchemy.orm import DeclarativeBase, Mapped, relationship
+from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
 
 
 class Base(DeclarativeBase):
@@ -119,6 +120,29 @@ class ApiKey(Base):
     key_hash = Column(String(64), nullable=False, unique=True)
     created_at = Column(DateTime(timezone=True), nullable=False, default=_utcnow)
     revoked_at = Column(DateTime(timezone=True), nullable=True)
+
+
+class RateBucket(Base):
+    """The persisted token bucket of one API key (FR-05).
+
+    [FR-05] The bucket lives in the database rather than in process memory
+    so every worker shares a single counter — a per-process bucket would let
+    N workers each grant the full burst. ``key_id`` is the primary key, which
+    both enforces one bucket per key and gives the refill path a single row
+    to lock (AC-5.2).
+
+    Citations:
+    - SPEC.md#L115-L120 (FR-05 — 令牌桶狀態存於資料庫, row-level lock)
+    - SAD.md#L129 (§2.4 `models/` — RateBucket is part of the ORM surface)
+    """
+
+    __tablename__ = "rate_buckets"
+
+    key_id: Mapped[str] = mapped_column(String(36), primary_key=True)
+    tokens: Mapped[float] = mapped_column(Float, nullable=False)
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), nullable=False, default=_utcnow
+    )
 
 
 class Task(Base):

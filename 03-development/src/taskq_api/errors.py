@@ -27,12 +27,14 @@ __all__ = [
     "TYPE_INTERNAL",
     "TYPE_UNAUTHORIZED",
     "TYPE_FORBIDDEN",
+    "TYPE_RATE_LIMITED",
     "ProblemError",
     "NotFoundError",
     "ConflictError",
     "ValidationProblem",
     "UnauthorizedError",
     "ForbiddenError",
+    "RateLimitedError",
     "problem",
 ]
 
@@ -48,6 +50,7 @@ TYPE_CONFLICT = "/errors/conflict"
 TYPE_INTERNAL = "/errors/internal"
 TYPE_UNAUTHORIZED = "/errors/unauthorized"
 TYPE_FORBIDDEN = "/errors/forbidden"
+TYPE_RATE_LIMITED = "/errors/rate-limited"
 
 
 class ProblemError(Exception):
@@ -69,6 +72,11 @@ class ProblemError(Exception):
     def __init__(self, detail: str) -> None:
         super().__init__(detail)
         self.detail = detail
+        # [FR-05] Extra response headers a subclass may need to carry. Most
+        # problems need none; a 429 needs ``Retry-After``. Declared on the
+        # base so the single handler in ``taskq_api.app`` can apply them
+        # uniformly without type-testing the exception.
+        self.headers: dict[str, str] = {}
 
 
 class NotFoundError(ProblemError):
@@ -157,6 +165,33 @@ class ForbiddenError(ProblemError):
     status = 403
     type_uri = TYPE_FORBIDDEN
     title = "Forbidden"
+
+
+class RateLimitedError(ProblemError):
+    """Token bucket exhausted for the calling key → HTTP 429 (FR-05 AC-5.1).
+
+    [FR-05] Raised by ``taskq_api.service.ratelimit.consume`` when the key's
+    bucket holds less than one token. ``retry_after`` is whole seconds and is
+    surfaced BOTH as the ``Retry-After`` response header (which is what a
+    well-behaved client obeys) and on the exception, so a caller inside the
+    process can read the value without parsing HTTP.
+
+    The ``detail`` string carries no key id and no bucket level — an attacker
+    must not be able to use 429 bodies to map which keys are in use (NFR-04).
+
+    Citations:
+    - SPEC.md#L115-L120 (FR-05 — 超限 → 429 + problem+json + Retry-After)
+    - SPEC.md#L400 (§7 — 超過流量限制 | 429)
+    """
+
+    status = 429
+    type_uri = TYPE_RATE_LIMITED
+    title = "Too Many Requests"
+
+    def __init__(self, detail: str, *, retry_after: int) -> None:
+        super().__init__(detail)
+        self.retry_after = retry_after
+        self.headers = {"Retry-After": str(retry_after)}
 
 
 def problem(

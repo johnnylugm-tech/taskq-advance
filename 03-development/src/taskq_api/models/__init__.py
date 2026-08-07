@@ -4,11 +4,12 @@
 this package once and call ``models.Task`` / ``models.TaskCreate`` directly.
 """
 
-from taskq_api.models.orm import Base, Tag, Task, TaskResult
+from taskq_api.models.orm import Base, RateBucket, Tag, Task, TaskResult
 from taskq_api.models.schemas import TaskCreate, TaskList, TaskRead, new_id
 
 __all__ = [
     "Base",
+    "RateBucket",
     "Tag",
     "Task",
     "TaskResult",

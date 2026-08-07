@@ -19,11 +19,22 @@ Citations:
 
 import os
 
-__all__ = ["DEFAULT_DB_URL", "DEFAULT_DB_POOL_SIZE", "db_url", "db_pool_size"]
+__all__ = [
+    "DEFAULT_DB_URL",
+    "DEFAULT_DB_POOL_SIZE",
+    "DEFAULT_RATE_BURST",
+    "DEFAULT_RATE_PER_SEC",
+    "db_url",
+    "db_pool_size",
+    "rate_burst",
+    "rate_per_sec",
+]
 
 # SPEC.md §5.1 documented defaults.
 DEFAULT_DB_URL = "sqlite:///./taskq.db"
 DEFAULT_DB_POOL_SIZE = 5
+DEFAULT_RATE_BURST = 20
+DEFAULT_RATE_PER_SEC = 5.0
 
 
 def db_url() -> str:
@@ -54,3 +65,39 @@ def db_pool_size() -> int:
         return int(raw)
     except ValueError:
         return DEFAULT_DB_POOL_SIZE
+
+
+def rate_burst() -> int:
+    """Return the token-bucket capacity (SPEC.md §5.1 `TASKQ_RATE_BURST`).
+
+    [FR-05] The capacity is how many requests a single API key may make
+    back-to-back before the refill rate becomes the binding constraint. A
+    non-integer or non-positive value falls back to the documented default:
+    a capacity of zero would reject every request including the first, which
+    is a misconfiguration, not a policy.
+
+    Citations:
+    - SPEC.md#L296 (§5.1 `TASKQ_RATE_BURST`, default `20`)
+    """
+    try:
+        value = int(os.environ.get("TASKQ_RATE_BURST", ""))
+    except ValueError:
+        return DEFAULT_RATE_BURST
+    return value if value > 0 else DEFAULT_RATE_BURST
+
+
+def rate_per_sec() -> float:
+    """Return the token refill rate (SPEC.md §5.1 `TASKQ_RATE_PER_SEC`).
+
+    [FR-05] Tokens per second. A non-numeric or non-positive value falls
+    back to the documented default — a rate of zero would make the bucket
+    unrefillable and the ``Retry-After`` computation undefined.
+
+    Citations:
+    - SPEC.md#L297 (§5.1 `TASKQ_RATE_PER_SEC`, default `5.0`)
+    """
+    try:
+        value = float(os.environ.get("TASKQ_RATE_PER_SEC", ""))
+    except ValueError:
+        return DEFAULT_RATE_PER_SEC
+    return value if value > 0 else DEFAULT_RATE_PER_SEC

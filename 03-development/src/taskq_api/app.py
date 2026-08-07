@@ -47,8 +47,13 @@ def _problem_response(
     title: str,
     detail: str,
     correlation_id: str,
+    headers: dict[str, str] | None = None,
 ) -> JSONResponse:
-    """Build an RFC 7807 JSON response with the spec-fixed media type."""
+    """Build an RFC 7807 JSON response with the spec-fixed media type.
+
+    [FR-05] ``headers`` carries the per-status extras a problem may need —
+    a 429 must ship ``Retry-After`` alongside the envelope (AC-5.1).
+    """
     return JSONResponse(
         status_code=status,
         content=problem(
@@ -60,6 +65,7 @@ def _problem_response(
             correlation_id=correlation_id,
         ),
         media_type=PROBLEM_MEDIA_TYPE,
+        headers=headers,
     )
 
 
@@ -152,6 +158,7 @@ def create_app() -> FastAPI:
             title=exc.title,
             detail=exc.detail,
             correlation_id=getattr(request.state, "correlation_id", _correlation_id()),
+            headers=exc.headers or None,
         )
 
     @application.exception_handler(RequestValidationError)
