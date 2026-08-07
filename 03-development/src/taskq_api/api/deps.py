@@ -24,6 +24,7 @@ Citations:
 from __future__ import annotations
 
 from dataclasses import dataclass
+from typing import NoReturn
 
 from fastapi import Header, HTTPException, status
 
@@ -56,12 +57,13 @@ class Principal:
     scope: str
 
 
-def _reject_unauthorized() -> None:
+def _reject_unauthorized() -> NoReturn:
     """Raise the canonical 401 with the non-disclosing detail string.
 
     Centralised so the missing / unknown / revoked paths all surface the
     identical NFR-04 detail — an operator cannot use the response to
-    distinguish between them.
+    distinguish between them. Typed ``NoReturn`` so callers can use the
+    function as a type-narrowing guard (pyright only).
     """
     raise UnauthorizedError(_UNAUTHORIZED_DETAIL)
 

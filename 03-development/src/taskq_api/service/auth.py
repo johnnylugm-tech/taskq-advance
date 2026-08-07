@@ -27,9 +27,7 @@ from __future__ import annotations
 import hashlib
 import hmac
 import secrets
-from typing import Callable, Optional
-
-from sqlalchemy.orm import Session
+from typing import Any, Callable, Optional
 
 from taskq_api.repository import key_repo
 
@@ -61,7 +59,7 @@ def verify_key(plaintext: str, stored_hash_hex: str) -> bool:
 def create_api_key(
     scope: str,
     *,
-    session: Session,
+    session: Any,
     plaintext_writer: Callable[[str], None] = print,
     revoked_at=None,
     id: Optional[str] = None,
