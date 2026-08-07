@@ -284,8 +284,7 @@ def test_hmac_compare_digest_unit():
 
     # rule FR03-compare-digest-constant-time: time_constant == "true" and
     # compare_function == "hmac.compare_digest"
-    assert time_constant == "true"
-    assert compare_function == "hmac.compare_digest"
+    assert (time_constant == "true" and compare_function == "hmac.compare_digest")
 
 
 # --------------------------------------------------------------------------
