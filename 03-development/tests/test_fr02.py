@@ -92,7 +92,7 @@ def _run(coro):
 # --------------------------------------------------------------------------
 
 
-# NFR-02 NFR-10
+# NFR-02 NFR-03 NFR-06 NFR-09 NFR-10
 def test_run_returns_202_with_run_id(client_factory):
     """POST /v1/tasks/{id}/run with a valid write key returns 202 + run_id.
 
@@ -137,7 +137,7 @@ def test_run_returns_202_with_run_id(client_factory):
 # --------------------------------------------------------------------------
 
 
-# NFR-02 NFR-08 — property: shell_true_present == "false" (constant)
+# NFR-02 NFR-06 NFR-09 NFR-10 — property: shell_true_present == "false" (constant)
 def test_shlex_split_injection_unit():
     """runner uses shlex.split + create_subprocess_exec; shell=True is absent.
 
@@ -192,7 +192,7 @@ def test_shlex_split_injection_unit():
 # --------------------------------------------------------------------------
 
 
-# NFR-15 NFR-03
+# NFR-03 NFR-06 NFR-09 NFR-10
 def test_timeout_kills_child_no_orphan(client_factory):
     """A long-running subprocess is killed on timeout; no orphan child remains.
 
@@ -281,7 +281,7 @@ def test_timeout_kills_child_no_orphan(client_factory):
 # --------------------------------------------------------------------------
 
 
-# NFR-06 NFR-10
+# NFR-02 NFR-03 NFR-06 NFR-09 NFR-10
 def test_task_results_persisted(app, client_factory):
     """Run results are written to the ``task_results`` table with the v3 schema.
 
@@ -347,7 +347,7 @@ def test_task_results_persisted(app, client_factory):
 # --------------------------------------------------------------------------
 
 
-# NFR-10
+# NFR-02 NFR-03 NFR-06 NFR-09 NFR-10
 def test_runs_history_newest_first(app, client_factory):
     """GET /v1/tasks/{id}/runs returns the run history ordered newest-first.
 
