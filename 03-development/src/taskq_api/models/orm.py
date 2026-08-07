@@ -135,6 +135,3 @@ class Task(Base):
         lazy="selectin",
     )
 
-    def __repr__(self) -> str:  # pragma: no cover - debugging helper
-        return f"Task(id={self.id!r}, name={self.name!r}, status={self.status!r})"
-

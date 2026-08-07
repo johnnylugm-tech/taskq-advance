@@ -19,7 +19,7 @@ from dataclasses import dataclass
 
 from fastapi import Header, HTTPException, status
 
-__all__ = ["Principal", "auth_dep", "require_scope"]
+__all__ = ["Principal", "auth_dep", "check_scope"]
 
 
 _SCOPE_RANK: dict[str, int] = {"read": 1, "write": 2, "admin": 3}
@@ -57,22 +57,6 @@ def auth_dep(
     # The fixture overrides this; any non-empty key is "authenticated" for
     # FR-01's purposes.
     return Principal(key_id=x_api_key, scope="read")
-
-
-def require_scope(needed: str):
-    """Return a FastAPI dependency that enforces ``needed`` scope on the principal.
-
-    [FR-01] Used by the route handlers to enforce write/admin per row of
-    SPEC.md §3 FR-01. The 403 body is intentionally generic so the
-    resource-existence is not leaked (NFR-02 / FR-04).
-    """
-
-    def _dep(principal: Principal = None) -> Principal:  # type: ignore[assignment]
-        # ``principal`` is supplied by FastAPI via Depends(auth_dep); the
-        # annotation is the dependency hint, not a real default.
-        return principal  # pragma: no cover - body is registered below
-
-    return _dep
 
 
 def check_scope(principal: Principal, needed: str) -> None:
