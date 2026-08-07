@@ -6,6 +6,14 @@ That is the single-dependency rule that FR-04 case 2's
 own CRUD routes stay scope-checked without each handler having to invent a
 new check.
 
+[FR-03] ``auth_dep`` now consults the production ``api_keys`` table via
+``taskq_api.service.auth`` and ``taskq_api.repository.key_repo``. A missing
+``X-API-Key``, an unknown hash, or a row with ``revoked_at`` set all
+surface as ``UnauthorizedError`` → 401 + ``application/problem+json``
+(``type=/errors/unauthorized``). The detail string is intentionally generic
+(NFR-04) so the response cannot distinguish "missing" from "revoked" from
+"unknown".
+
 Citations:
 - SPEC.md#L101-L107 (FR-03 — X-API-Key, hmac.compare_digest, revoked)
 - SPEC.md#L109-L113 (FR-04 — single dependency, no leak in 403)
@@ -18,6 +26,11 @@ from __future__ import annotations
 from dataclasses import dataclass
 
 from fastapi import Header, HTTPException, status
+
+from taskq_api.errors import UnauthorizedError
+from taskq_api.repository import key_repo
+from taskq_api.repository.session import session_scope
+from taskq_api.service import auth as auth_service
 
 __all__ = ["Principal", "auth_dep", "check_scope"]
 
@@ -43,20 +56,31 @@ def auth_dep(
 ) -> Principal:
     """Return the authenticated principal for the request.
 
-    [FR-01] The dependency is intentionally permissive in the test path
-    (the fixture ``client_factory`` overrides it). The real production
-    behaviour is owned by FR-03 and reuses this same shape.
+    [FR-03] AC-3.1: a missing ``X-API-Key`` header is rejected as 401 +
+    ``/errors/unauthorized``. AC-3.4: a key whose ``api_keys`` row carries
+    a non-null ``revoked_at`` is rejected the same way. The
+    ``detail`` field stays generic so the response cannot be used to
+    probe which keys exist (NFR-04).
     """
     if not x_api_key:
-        # The FR-03 / FR-04 wiring will surface 401 + problem+json here; for
-        # FR-01 we keep the dependency so the single-dep invariant holds.
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="missing API key",
-        )
-    # The fixture overrides this; any non-empty key is "authenticated" for
-    # FR-01's purposes.
-    return Principal(key_id=x_api_key, scope="read")
+        raise UnauthorizedError("missing or invalid API key")
+
+    # [FR-03] The lookup compares hashes via ``hmac.compare_digest``
+    # (AC-3.3) and excludes revoked rows by SQL filter (AC-3.4). The
+    # repository's dict return shape carries the row's ``scope`` so the
+    # downstream ``check_scope`` call still works without a separate query.
+    with session_scope() as session:
+        row = key_repo.lookup_active_key(x_api_key, session=session)
+    if row is None:
+        raise UnauthorizedError("missing or invalid API key")
+
+    # The constant-time verification is also run in the service layer so
+    # the equality oracle stays closed even if a future code path skips
+    # the SQL filter (defence in depth).
+    if not auth_service.verify_key(x_api_key, row["key_hash"]):
+        raise UnauthorizedError("missing or invalid API key")
+
+    return Principal(key_id=row["id"], scope=row["scope"])
 
 
 def check_scope(principal: Principal, needed: str) -> None:

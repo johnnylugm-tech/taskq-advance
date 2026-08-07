@@ -25,10 +25,12 @@ __all__ = [
     "TYPE_NOT_FOUND",
     "TYPE_CONFLICT",
     "TYPE_INTERNAL",
+    "TYPE_UNAUTHORIZED",
     "ProblemError",
     "NotFoundError",
     "ConflictError",
     "ValidationProblem",
+    "UnauthorizedError",
     "problem",
 ]
 
@@ -42,6 +44,7 @@ TYPE_VALIDATION = "/errors/validation"
 TYPE_NOT_FOUND = "/errors/not-found"
 TYPE_CONFLICT = "/errors/conflict"
 TYPE_INTERNAL = "/errors/internal"
+TYPE_UNAUTHORIZED = "/errors/unauthorized"
 
 
 class ProblemError(Exception):
@@ -112,6 +115,25 @@ class ValidationProblem(ProblemError):
     status = 422
     type_uri = TYPE_VALIDATION
     title = "Unprocessable Entity"
+
+
+class UnauthorizedError(ProblemError):
+    """Missing or invalid API key → HTTP 401 (FR-03 AC-3.1 / AC-3.4).
+
+    [FR-03] Raised by ``auth_dep`` when the ``X-API-Key`` header is absent,
+    the candidate hash does not match any stored ``api_keys`` row, or the
+    matched row carries a non-null ``revoked_at``. The detail string stays
+    deliberately generic (per NFR-04) so the response cannot be used to
+    distinguish "missing" from "revoked" from "unknown".
+
+    Citations:
+    - SPEC.md#L101-L107 (FR-03 — X-API-Key, hmac.compare_digest, revoked)
+    - SPEC.md#L391 (§7 — 缺少 / 無效 API key | 401 | `/errors/unauthorized`)
+    """
+
+    status = 401
+    type_uri = TYPE_UNAUTHORIZED
+    title = "Unauthorized"
 
 
 def problem(

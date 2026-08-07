@@ -98,6 +98,29 @@ class TaskResult(Base):
     finished_at = Column(String(64), nullable=True)
 
 
+class ApiKey(Base):
+    """An API key row used by FR-03 authentication.
+
+    [FR-03] Only the SHA-256 ``key_hash`` is persisted (64-char lowercase
+    hex). The plaintext key never touches the database — the service layer
+    hashes before write and the lookup path compares hashes via
+    ``hmac.compare_digest``. A non-null ``revoked_at`` disqualifies the key
+    from authentication (AC-3.4).
+
+    Citations:
+    - SPEC.md#L101-L107 (FR-03 — api_keys, SHA-256, revoked)
+    - SAD.md#L120-L135 (§2.4 `models/orm.py` — Base + per-table ORM classes)
+    """
+
+    __tablename__ = "api_keys"
+
+    id = Column(String(36), primary_key=True, default=_new_uuid)
+    scope = Column(String(32), nullable=False)
+    key_hash = Column(String(64), nullable=False, unique=True)
+    created_at = Column(DateTime(timezone=True), nullable=False, default=_utcnow)
+    revoked_at = Column(DateTime(timezone=True), nullable=True)
+
+
 class Task(Base):
     """A scheduled command to be executed by the FR-02 runner.
 

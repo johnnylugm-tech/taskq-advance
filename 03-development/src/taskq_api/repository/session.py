@@ -91,13 +91,29 @@ def get_engine() -> Engine:
 
 
 def reset_engine() -> None:
-    """Drop the cached engine so the next ``get_engine()`` rebuilds it.
+    """Drop the cached engine AND every table in ``Base.metadata`` from the DB.
 
-    [FR-01] Test isolation: every test case gets a fresh DB file, so the
-    engine pointing at the previous file must be discarded.
+    [FR-01/FR-03] Test isolation: every test case gets a fresh DB state,
+    so the engine pointing at the previous file (and any tables it created)
+    must be discarded. Dropping the schema makes the next ``create_all``
+    start from a clean slate — required by FR-03's
+    ``test_revoked_key_rejected_unit`` which seeds the same row twice
+    inside one test.
     """
     global _engine, _SessionLocal
     if _engine is not None:
+        # Drop schema before disposing so the on-disk SQLite file does not
+        # retain rows from the previous test (an in-process drop_all on a
+        # disposed engine would silently no-op).
+        from taskq_api.models.orm import Base
+
+        try:
+            Base.metadata.drop_all(_engine)
+        except Exception:
+            # ``drop_all`` against a half-built engine (e.g. one that has
+            # never connected) can raise; the test only requires the next
+            # ``create_all`` to start fresh, so swallow the failure.
+            pass
         _engine.dispose()
     _engine = None
     _SessionLocal = None
