@@ -76,15 +76,16 @@ def _build_engine() -> Engine:
     return engine
 
 
-def get_engine() -> Engine:
-    """Return the process-wide SQLAlchemy engine, building it on first use.
+def _ensure_sessionmaker() -> sessionmaker[Session]:
+    """Return the cached ``sessionmaker``, building engine + factory on first use.
 
-    [FR-01] Tests monkeypatch ``TASKQ_DB_URL`` before the first call; the
-    engine is built once per process but rebuilt when ``reset_engine()`` is
-    called, which the test fixtures do between cases.
+    [FR-01] The engine and its bound ``sessionmaker`` are a paired cache:
+    one process, one of each. Tests monkeypatch ``TASKQ_DB_URL`` before the
+    first call; the pair is built once per process but rebuilt together when
+    ``reset_engine()`` is called, which the test fixtures do between cases.
     """
     global _engine, _SessionLocal
-    if _engine is None:
+    if _SessionLocal is None:
         _engine = _build_engine()
         _SessionLocal = sessionmaker(
             bind=_engine,
@@ -93,6 +94,18 @@ def get_engine() -> Engine:
             expire_on_commit=False,
             future=True,
         )
+    return _SessionLocal
+
+
+def get_engine() -> Engine:
+    """Return the process-wide SQLAlchemy engine, building it on first use.
+
+    [FR-01] Initialises the paired ``sessionmaker`` as a side effect so
+    callers that only need the engine (e.g. ``create_all`` in tests) do not
+    leave the session factory half-built.
+    """
+    _ensure_sessionmaker()
+    assert _engine is not None  # invariant: set by _ensure_sessionmaker
     return _engine
 
 
@@ -133,10 +146,8 @@ def session_scope() -> Iterator[Session]:
     context manager (FR-06 / NFR-03). The unit of work is the route handler:
     one HTTP request → one ``session_scope`` → one commit.
     """
-    if _SessionLocal is None:
-        get_engine()  # ensures _SessionLocal is initialised
-    assert _SessionLocal is not None
-    session = _SessionLocal()
+    SessionLocal = _ensure_sessionmaker()
+    session = SessionLocal()
     try:
         yield session
         session.commit()

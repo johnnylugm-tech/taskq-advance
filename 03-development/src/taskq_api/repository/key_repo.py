@@ -108,8 +108,11 @@ def create_api_key(
     is always the SHA-256 hex digest of ``plaintext`` (64 lowercase hex
     chars).
     """
+    # Passing ``id=None`` (the caller-default when the service layer does not
+    # supply one) lets the ORM-level ``default=_new_uuid`` fire and mint a
+    # fresh id. Any non-None value the caller supplies is forwarded unchanged.
     row = ApiKey(
-        id=id if id is not None else None,  # let the ORM default kick in
+        id=id,
         scope=scope,
         key_hash=_hash(plaintext),
         revoked_at=_coerce_revoked_at(revoked_at),
