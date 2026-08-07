@@ -33,12 +33,18 @@ from __future__ import annotations
 import hashlib
 import hmac
 import secrets
-from typing import Any, Callable, Optional
+from collections.abc import Callable
+from datetime import datetime
+from typing import Any
 
 from taskq_api.repository import key_repo
 
 __all__ = ["verify_key", "create_api_key", "scope_satisfies"]
 
+
+# ---------------------------------------------------------------------------
+# Module-level constants — single source of truth for the auth service.
+# ---------------------------------------------------------------------------
 
 # [FR-04] AC-4.3: the read < write < admin hierarchy. A higher rank
 # "contains" the lower rank, so a route requiring ``write`` is satisfied
@@ -46,11 +52,20 @@ __all__ = ["verify_key", "create_api_key", "scope_satisfies"]
 # tier (e.g. ``owner``) only needs to be inserted in one place.
 _SCOPE_RANK: dict[str, int] = {"read": 1, "write": 2, "admin": 3}
 
-
 # The plaintext prefix is the visible marker an operator scans for in the
 # printed output. Keeping it constant lets the on-call rotate keys without
 # having to inspect ``scope`` rows in the DB.
 _PLAINTEXT_PREFIX = "sk-"
+
+# [FR-03] The hash algorithm used to fingerprint an API key plaintext.
+# Defined here (not inlined) so the storage layer and the verifier cannot
+# drift apart — they both reference the same constant.
+_HASH_ALGORITHM = "sha256"
+
+# Number of random bytes generated for the API-key plaintext. 32 bytes
+# (256 bits) of entropy from ``secrets.token_urlsafe`` is well past the
+# "unguessable" threshold and keeps the printed key within sane widths.
+_PLAINTEXT_RANDOM_BYTES = 32
 
 
 def verify_key(plaintext: str, stored_hash_hex: str) -> bool:
@@ -65,7 +80,7 @@ def verify_key(plaintext: str, stored_hash_hex: str) -> bool:
     the repository uses, so a match implies the caller is in possession of
     the original plaintext.
     """
-    candidate_digest = hashlib.sha256(plaintext.encode("utf-8")).hexdigest()
+    candidate_digest = hashlib.new(_HASH_ALGORITHM, plaintext.encode("utf-8")).hexdigest()
     return hmac.compare_digest(candidate_digest, stored_hash_hex)
 
 
@@ -74,8 +89,8 @@ def create_api_key(
     *,
     session: Any,
     plaintext_writer: Callable[[str], None] = print,
-    revoked_at=None,
-    id: Optional[str] = None,
+    revoked_at: datetime | None = None,
+    id: str | None = None,
 ) -> dict:
     """Mint a new API key: print the plaintext once, persist only the hash.
 
@@ -89,7 +104,7 @@ def create_api_key(
     ``secrets.token_urlsafe`` and prefixes the conventional ``sk-`` marker
     so an operator scanning a terminal can recognise it as an API key.
     """
-    plaintext = _PLAINTEXT_PREFIX + secrets.token_urlsafe(32)
+    plaintext = _PLAINTEXT_PREFIX + secrets.token_urlsafe(_PLAINTEXT_RANDOM_BYTES)
     plaintext_writer(plaintext)
     return key_repo.create_api_key(
         session,

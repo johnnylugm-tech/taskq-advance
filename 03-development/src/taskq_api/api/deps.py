@@ -45,6 +45,10 @@ from taskq_api.service import auth as auth_service
 __all__ = ["Principal", "auth_dep", "check_scope"]
 
 
+# ---------------------------------------------------------------------------
+# Module-level constants — shared response details and the auth header name.
+# ---------------------------------------------------------------------------
+
 # [FR-03 / NFR-04] The detail string is intentionally identical across every
 # 401 path so the response cannot be used to probe which keys exist (missing
 # vs. revoked vs. unknown all surface the same string).
@@ -54,6 +58,10 @@ _UNAUTHORIZED_DETAIL = "missing or invalid API key"
 # echo back the task id, the action, or any wording that would let an
 # attacker probe whether the resource exists (per AC-4.1).
 _FORBIDDEN_DETAIL = "insufficient scope"
+
+# [FR-03] The HTTP header that carries the API key. Aliased here so the
+# dependency signature and any future header rename stay in lock-step.
+_API_KEY_HEADER = "X-API-Key"
 
 
 @dataclass(frozen=True)
@@ -80,8 +88,29 @@ def _reject_unauthorized() -> NoReturn:
     raise UnauthorizedError(_UNAUTHORIZED_DETAIL)
 
 
+def _resolve_principal(x_api_key: str) -> Principal:
+    """Look up ``x_api_key`` and return its ``Principal``, or reject as 401.
+
+    [FR-03] AC-3.1 / AC-3.4: a key whose ``api_keys`` row carries a
+    non-null ``revoked_at``, or whose hash does not match, surfaces as a
+    generic 401 (NFR-04). AC-3.3: the constant-time ``hmac.compare_digest``
+    oracle in ``auth_service.verify_key`` is the timing-safe comparison.
+
+    The SQL filter and the constant-time verification are deliberately
+    chained: the SQL filter excludes revoked rows early (AC-3.4) and the
+    hash check is the closed-form equality oracle (defence in depth —
+    even a future code path that bypasses the SQL filter cannot accept
+    a wrong key without matching the stored hash).
+    """
+    with session_scope() as session:
+        row = key_repo.lookup_active_key(x_api_key, session=session)
+    if row is None or not auth_service.verify_key(x_api_key, row["key_hash"]):
+        _reject_unauthorized()
+    return Principal(key_id=row["id"], scope=row["scope"])
+
+
 def auth_dep(
-    x_api_key: str | None = Header(default=None, alias="X-API-Key"),
+    x_api_key: str | None = Header(default=None, alias=_API_KEY_HEADER),
 ) -> Principal:
     """Return the authenticated principal for the request.
 
@@ -93,23 +122,7 @@ def auth_dep(
     """
     if not x_api_key:
         _reject_unauthorized()
-
-    # [FR-03] The lookup compares hashes via ``hmac.compare_digest``
-    # (AC-3.3) and excludes revoked rows by SQL filter (AC-3.4). The
-    # repository's dict return shape carries the row's ``scope`` so the
-    # downstream ``check_scope`` call still works without a separate query.
-    with session_scope() as session:
-        row = key_repo.lookup_active_key(x_api_key, session=session)
-    if row is None:
-        _reject_unauthorized()
-
-    # The constant-time verification is also run in the service layer so
-    # the equality oracle stays closed even if a future code path skips
-    # the SQL filter (defence in depth).
-    if not auth_service.verify_key(x_api_key, row["key_hash"]):
-        _reject_unauthorized()
-
-    return Principal(key_id=row["id"], scope=row["scope"])
+    return _resolve_principal(x_api_key)
 
 
 def check_scope(principal: Principal, needed: str) -> None:
