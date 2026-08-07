@@ -1,20 +1,828 @@
-# TEST_INVENTORY.yaml — P1 Naming Authority
-# Maps every FR to expected test function names. These are the AUTHORITATIVE names
-# that derive_test_cases.md preserves in TEST_SPEC.md (P2 single source of truth).
-# Specified per FR and per test category (unit/integration/cross_cutting).
-# If no name is specified for a category, derive_test_cases.md fills the gap with
-# names derived via the 7-Question Protocol.
-format_version: "1.1"
+# TEST_INVENTORY.yaml — P1 Naming Authority (1:1 enumeration with TRACEABILITY_MATRIX.md §2)
+# Maps every AC in SRS.md §3/§4 to an independent tc_id; derive_test_cases.md (P2) preserves
+# these names in TEST_SPEC.md. Convention: TC-FR##-AC# for FR-##, TC-NFR##-AC# for NFR-##.
+# Layer assignment follows TRACEABILITY_MATRIX.md §4 Code→Test buckets.
+# 1:1 contract: every tc_id enumerated below = one contract item with its own asserts.
+# Range syntax in any forward-trace documentation is shorthand; this file enumerates each AC
+# independently (no collapsing, no omission — cross-cutting coverage is signalled via
+# cross_ref_frs / cross_ref_nfrs metadata, not by deletion).
 
-fr_tests:
-  FR-01:
+test_inventory:
+  metadata:
+    format_version: "2.0"
+    description: >-
+      P1 naming authority enumerating one tc_id per AC across all FR-01..FR-10 and
+      NFR-01..NFR-12. 1:1 mapping with TRACEABILITY_MATRIX.md §2 (FR↔SRS) forward trace.
+    traceability_source: "01-requirements/TRACEABILITY_MATRIX.md §2"
+    srs_source: "01-requirements/SRS.md §3 (FR) / §4 (NFR)"
+    spec_verification_source: "SPEC.md §8 / §10"
+    naming_convention: "TC-{FR##|NFR##}-AC#"
+    layers:
+      - unit
+      - integration
+      - cross_cutting
+  tests:
+    # ============================================================
+    # FR-01 — Task Resource CRUD API (7 ACs)
+    # ============================================================
+    - tc_id: TC-FR01-AC1
+      fr: FR-01
+      ac_ref: "AC-1.1"
+      layer: integration
+      test_function: test_create_task_returns_201
+      spec_rows: ["#4"]
+      assertion_summary: "POST /v1/tasks with valid write key + non-empty name/command (≤1000 chars) + no blacklist hits + non-duplicate name returns 201 + task id."
+    - tc_id: TC-FR01-AC2
+      fr: FR-01
+      ac_ref: "AC-1.2"
+      layer: integration
+      test_function: test_create_task_invalid_body_returns_422
+      spec_rows: ["#4"]
+      assertion_summary: "POST /v1/tasks with body failing TaskCreate pydantic model returns 422 + application/problem+json."
+    - tc_id: TC-FR01-AC3
+      fr: FR-01
+      ac_ref: "AC-1.3"
+      layer: integration
+      test_function: test_get_unknown_task_returns_404
+      spec_rows: ["#7"]
+      assertion_summary: "GET /v1/tasks/{unknown} returns 404 + application/problem+json."
+    - tc_id: TC-FR01-AC4
+      fr: FR-01
+      ac_ref: "AC-1.4"
+      layer: integration
+      test_function: test_duplicate_name_returns_409
+      spec_rows: ["#8"]
+      assertion_summary: "POST /v1/tasks with duplicate name returns 409 + application/problem+json."
+    - tc_id: TC-FR01-AC5
+      fr: FR-01
+      ac_ref: "AC-1.5"
+      layer: unit
+      test_function: test_cursor_pagination_unit
+      spec_rows: []
+      assertion_summary: "Pagination is cursor-based; offset/limit-based paging is not used (unit test of cursor decode/encode helper)."
+    - tc_id: TC-FR01-AC6
+      fr: FR-01
+      ac_ref: "AC-1.6"
+      layer: integration
+      test_function: test_list_limit_exceeds_max_returns_422
+      spec_rows: ["#4"]
+      assertion_summary: "Default limit=50, max=200; limit>200 returns 422."
+    - tc_id: TC-FR01-AC7
+      fr: FR-01
+      ac_ref: "AC-1.7"
+      layer: integration
+      test_function: test_list_sql_count_constant
+      spec_rows: ["#14"]
+      cross_ref_nfrs: ["NFR-01", "NFR-06"]
+      assertion_summary: "List endpoint SQL statement count is constant w.r.t. rows returned (N+1 guard)."
+
+    # ============================================================
+    # FR-02 — Task Execution Endpoint (5 ACs)
+    # ============================================================
+    - tc_id: TC-FR02-AC1
+      fr: FR-02
+      ac_ref: "AC-2.1"
+      layer: integration
+      test_function: test_run_returns_202_with_run_id
+      spec_rows: []
+      assertion_summary: "POST /v1/tasks/{id}/run with valid write key returns 202 + body contains run_id."
+    - tc_id: TC-FR02-AC2
+      fr: FR-02
+      ac_ref: "AC-2.2"
+      layer: unit
+      test_function: test_shlex_split_injection_unit
+      spec_rows: ["#16"]
+      cross_ref_nfrs: ["NFR-02"]
+      assertion_summary: "Process invocation uses asyncio.create_subprocess_exec(*shlex.split(...)); grep -rn 'shell=True' 03-development/src/ returns 0 hits."
+    - tc_id: TC-FR02-AC3
+      fr: FR-02
+      ac_ref: "AC-2.3"
+      layer: cross_cutting
+      test_function: test_timeout_kills_child_no_orphan
+      spec_rows: ["#25"]
+      cross_ref_frs: ["FR-08"]
+      cross_ref_nfrs: ["NFR-03"]
+      assertion_summary: "Subprocess that times out is terminated by process.kill() then await process.wait(); no orphan processes remain."
+    - tc_id: TC-FR02-AC4
+      fr: FR-02
+      ac_ref: "AC-2.4"
+      layer: integration
+      test_function: test_task_results_persisted
+      spec_rows: []
+      assertion_summary: "Terminal run status recorded in task_results with exit_code, stdout_tail, stderr_tail, duration_ms, finished_at."
+    - tc_id: TC-FR02-AC5
+      fr: FR-02
+      ac_ref: "AC-2.5"
+      layer: integration
+      test_function: test_runs_history_newest_first
+      spec_rows: []
+      assertion_summary: "GET /v1/tasks/{id}/runs returns run history ordered newest-first."
+
+    # ============================================================
+    # FR-03 — API Key Authentication (5 ACs)
+    # ============================================================
+    - tc_id: TC-FR03-AC1
+      fr: FR-03
+      ac_ref: "AC-3.1"
+      layer: integration
+      test_function: test_missing_api_key_returns_401
+      spec_rows: ["#5"]
+      assertion_summary: "POST /v1/tasks without X-API-Key returns 401 + problem+json."
+    - tc_id: TC-FR03-AC2
+      fr: FR-03
+      ac_ref: "AC-3.2"
+      layer: unit
+      test_function: test_sha256_hash_unit
+      spec_rows: ["#18"]
+      cross_ref_nfrs: ["NFR-02"]
+      assertion_summary: "api_keys.key_hash is 64-character hex (SHA-256); no plaintext stored."
+    - tc_id: TC-FR03-AC3
+      fr: FR-03
+      ac_ref: "AC-3.3"
+      layer: unit
+      test_function: test_hmac_compare_digest_unit
+      spec_rows: []
+      cross_ref_nfrs: ["NFR-02"]
+      assertion_summary: "Key comparison uses hmac.compare_digest (constant-time)."
+    - tc_id: TC-FR03-AC4
+      fr: FR-03
+      ac_ref: "AC-3.4"
+      layer: unit
+      test_function: test_revoked_key_rejected_unit
+      spec_rows: []
+      assertion_summary: "Key with non-null revoked_at is rejected as invalid."
+    - tc_id: TC-FR03-AC5
+      fr: FR-03
+      ac_ref: "AC-3.5"
+      layer: unit
+      test_function: test_key_create_prints_once_unit
+      spec_rows: []
+      cross_ref_nfrs: ["NFR-04"]
+      assertion_summary: "Plaintext key material printed exactly once at creation; never written to any persistent location."
+
+    # ============================================================
+    # FR-04 — Scope Authorisation (3 ACs)
+    # ============================================================
+    - tc_id: TC-FR04-AC1
+      fr: FR-04
+      ac_ref: "AC-4.1"
+      layer: integration
+      test_function: test_write_key_cannot_delete_returns_403
+      spec_rows: ["#6"]
+      cross_ref_nfrs: ["NFR-02"]
+      assertion_summary: "DELETE /v1/tasks/{id} with write key returns 403; body does not reveal whether id exists."
+    - tc_id: TC-FR04-AC2
+      fr: FR-04
+      ac_ref: "AC-4.2"
+      layer: cross_cutting
+      test_function: test_all_v1_routes_use_same_dep
+      spec_rows: ["#6"]
+      assertion_summary: "Authorisation enforced by single dependency (api/deps.py); every /v1 route passes through it."
+    - tc_id: TC-FR04-AC3
+      fr: FR-04
+      ac_ref: "AC-4.3"
+      layer: unit
+      test_function: test_scope_hierarchy_unit
+      spec_rows: []
+      assertion_summary: "Scope hierarchy read < write < admin (each higher tier contains the lower)."
+
+    # ============================================================
+    # FR-05 — Rate Limiting (3 ACs)
+    # ============================================================
+    - tc_id: TC-FR05-AC1
+      fr: FR-05
+      ac_ref: "AC-5.1"
+      layer: integration
+      test_function: test_exceed_burst_returns_429_with_retry_after
+      spec_rows: ["#9"]
+      assertion_summary: "Requests > TASKQ_RATE_BURST in a window return 429 + problem+json + Retry-After header."
+    - tc_id: TC-FR05-AC2
+      fr: FR-05
+      ac_ref: "AC-5.2"
+      layer: unit
+      test_function: test_row_level_lock_unit
+      spec_rows: []
+      assertion_summary: "Token bucket state persisted in DB; bucket updates in a single transaction with row-level lock."
+    - tc_id: TC-FR05-AC3
+      fr: FR-05
+      ac_ref: "AC-5.3"
+      layer: integration
+      test_function: test_healthz_readyz_not_rate_limited
+      spec_rows: []
+      cross_ref_frs: ["FR-09"]
+      assertion_summary: "/healthz and /readyz are not subject to rate limiting."
+
+    # ============================================================
+    # FR-06 — Persistence Layer & Tx Boundaries (5 ACs)
+    # ============================================================
+    - tc_id: TC-FR06-AC1
+      fr: FR-06
+      ac_ref: "AC-6.1"
+      layer: unit
+      test_function: test_repository_only_owns_session
+      spec_rows: []
+      cross_ref_nfrs: ["NFR-06"]
+      assertion_summary: "All ORM access reached via repository/; no Session held by service layer."
+    - tc_id: TC-FR06-AC2
+      fr: FR-06
+      ac_ref: "AC-6.2"
+      layer: unit
+      test_function: test_context_manager_commit_unit
+      spec_rows: []
+      cross_ref_nfrs: ["NFR-03"]
+      assertion_summary: "Each request bounded by single explicit tx: commit on success, rollback on exception, enforced by context manager."
+    - tc_id: TC-FR06-AC3
+      fr: FR-06
+      ac_ref: "AC-6.3"
+      layer: cross_cutting
+      test_function: test_no_string_concatenated_sql_grep
+      spec_rows: ["#17"]
+      cross_ref_nfrs: ["NFR-02"]
+      assertion_summary: "No f-string/%/+ concatenation of SQL strings anywhere in 03-development/src/."
+    - tc_id: TC-FR06-AC4
+      fr: FR-06
+      ac_ref: "AC-6.4"
+      layer: integration
+      test_function: test_list_endpoint_constant_sql_count
+      spec_rows: ["#14"]
+      cross_ref_nfrs: ["NFR-01"]
+      assertion_summary: "List endpoint executes constant number of SQL statements regardless of rows returned (N+1 guard)."
+    - tc_id: TC-FR06-AC5
+      fr: FR-06
+      ac_ref: "AC-6.5"
+      layer: unit
+      test_function: test_pool_pre_ping_unit
+      spec_rows: []
+      assertion_summary: "Engine configured with pool_size=TASKQ_DB_POOL_SIZE and pool_pre_ping=True."
+
+    # ============================================================
+    # FR-07 — Schema Migration (5 ACs)
+    # ============================================================
+    - tc_id: TC-FR07-AC1
+      fr: FR-07
+      ac_ref: "AC-7.1"
+      layer: integration
+      test_function: test_upgrade_head_succeeds
+      spec_rows: []
+      assertion_summary: "alembic upgrade head succeeds against a fresh empty database."
+    - tc_id: TC-FR07-AC2
+      fr: FR-07
+      ac_ref: "AC-7.2"
+      layer: integration
+      test_function: test_downgrade_base_leaves_no_residual
+      spec_rows: ["#13"]
+      assertion_summary: "alembic downgrade base succeeds and leaves no residual tables."
+    - tc_id: TC-FR07-AC3
+      fr: FR-07
+      ac_ref: "AC-7.3"
+      layer: integration
+      test_function: test_round_trip_byte_identical
+      spec_rows: ["#12"]
+      cross_ref_nfrs: ["NFR-09"]
+      assertion_summary: "Round-trip upgrade head → write sample → downgrade -1 → upgrade head against real SQLite leaves every column byte-identical."
+    - tc_id: TC-FR07-AC4
+      fr: FR-07
+      ac_ref: "AC-7.4"
+      layer: unit
+      test_function: test_no_drop_table_shortcut
+      spec_rows: []
+      assertion_summary: "No op.execute('DROP TABLE ...') is used to circumvent a real downgrade."
+    - tc_id: TC-FR07-AC5
+      fr: FR-07
+      ac_ref: "AC-7.5"
+      layer: cross_cutting
+      test_function: test_migration_offline_sql_render
+      spec_rows: []
+      cross_ref_nfrs: ["NFR-09"]
+      assertion_summary: "Migration logic covered by tests exercising offline SQL or a real DB; not skipped on grounds of 'hard to test'."
+
+    # ============================================================
+    # FR-08 — Asynchronous Executor (4 ACs)
+    # ============================================================
+    - tc_id: TC-FR08-AC1
+      fr: FR-08
+      ac_ref: "AC-8.1"
+      layer: unit
+      test_function: test_concurrency_cap_unit
+      spec_rows: []
+      assertion_summary: "At most TASKQ_MAX_CONCURRENT tasks execute concurrently; over-cap requests are queued."
+    - tc_id: TC-FR08-AC2
+      fr: FR-08
+      ac_ref: "AC-8.2"
+      layer: integration
+      test_function: test_drain_timeout_marks_interrupted
+      spec_rows: ["#25"]
+      assertion_summary: "On shutdown, in-flight tasks awaited up to TASKQ_DRAIN_TIMEOUT; over-budget tasks marked interrupted."
+    - tc_id: TC-FR08-AC3
+      fr: FR-08
+      ac_ref: "AC-8.3"
+      layer: cross_cutting
+      test_function: test_timeout_terminates_child
+      spec_rows: ["#25"]
+      cross_ref_frs: ["FR-02"]
+      cross_ref_nfrs: ["NFR-03"]
+      assertion_summary: "Timed-out task: process.kill() then await process.wait(); no orphan processes remain."
+    - tc_id: TC-FR08-AC4
+      fr: FR-08
+      ac_ref: "AC-8.4"
+      layer: cross_cutting
+      test_function: test_cancelled_error_propagates
+      spec_rows: ["#25"]
+      cross_ref_nfrs: ["NFR-03"]
+      assertion_summary: "asyncio.CancelledError never swallowed by except Exception; it propagates."
+
+    # ============================================================
+    # FR-09 — Health Checks & Observability (5 ACs)
+    # ============================================================
+    - tc_id: TC-FR09-AC1
+      fr: FR-09
+      ac_ref: "AC-9.1"
+      layer: integration
+      test_function: test_readyz_503_when_db_unreachable
+      spec_rows: ["#10"]
+      assertion_summary: "GET /readyz returns 503 with body naming DB-unavailable when DB unreachable."
+    - tc_id: TC-FR09-AC2
+      fr: FR-09
+      ac_ref: "AC-9.2"
+      layer: integration
+      test_function: test_readyz_503_when_migration_lag
+      spec_rows: ["#11"]
+      assertion_summary: "GET /readyz returns 503 with body naming migration-not-at-head when alembic current != head."
+    - tc_id: TC-FR09-AC3
+      fr: FR-09
+      ac_ref: "AC-9.3"
+      layer: integration
+      test_function: test_readyz_fails_closed_without_migration
+      spec_rows: []
+      assertion_summary: "Deployment omitting migration fails closed at /readyz."
+    - tc_id: TC-FR09-AC4
+      fr: FR-09
+      ac_ref: "AC-9.4"
+      layer: unit
+      test_function: test_healthz_readyz_no_auth_no_rate_limit
+      spec_rows: []
+      cross_ref_frs: ["FR-03", "FR-05"]
+      assertion_summary: "/healthz and /readyz not subject to authentication or rate limiting."
+    - tc_id: TC-FR09-AC5
+      fr: FR-09
+      ac_ref: "AC-9.5"
+      layer: integration
+      test_function: test_metrics_requires_admin
+      spec_rows: []
+      assertion_summary: "/v1/metrics requires admin scope; exposes task counts, execution latency percentiles, rate-limit rejection counts."
+
+    # ============================================================
+    # FR-10 — Error Contract RFC 7807 (4 ACs)
+    # ============================================================
+    - tc_id: TC-FR10-AC1
+      fr: FR-10
+      ac_ref: "AC-10.1"
+      layer: unit
+      test_function: test_problem_json_fields_unit
+      spec_rows: []
+      assertion_summary: "Every non-2xx response is application/problem+json with type, title, status, detail, instance, correlation_id."
+    - tc_id: TC-FR10-AC2
+      fr: FR-10
+      ac_ref: "AC-10.2"
+      layer: integration
+      test_function: test_500_body_no_stack_or_path
+      spec_rows: ["#19"]
+      cross_ref_nfrs: ["NFR-02"]
+      assertion_summary: "Triggered 500 response body contains no stack trace, no SQL, no file path."
+    - tc_id: TC-FR10-AC3
+      fr: FR-10
+      ac_ref: "AC-10.3"
+      layer: integration
+      test_function: test_correlation_id_matches_header_and_log
+      spec_rows: []
+      assertion_summary: "correlation_id in response body matches X-Correlation-Id response header and a log entry."
+    - tc_id: TC-FR10-AC4
+      fr: FR-10
+      ac_ref: "AC-10.4"
+      layer: unit
+      test_function: test_status_code_mapping_unit
+      spec_rows: []
+      assertion_summary: "Status code mapping matches §7 table (422 / 401 / 403 / 404 / 409 / 429 / 503 / 500)."
+
+    # ============================================================
+    # NFR-01 — Performance & Query Efficiency (3 ACs)
+    # ============================================================
+    - tc_id: TC-NFR01-AC1
+      nfr: NFR-01
+      ac_ref: "AC-N01.1"
+      layer: integration
+      test_function: test_get_task_p95_under_30ms_at_10k_rows
+      spec_rows: ["#15"]
+      assertion_summary: "GET /v1/tasks/{id} p95 < 30 ms at 10,000 rows (ASGI transport, network excluded)."
+    - tc_id: TC-NFR01-AC2
+      nfr: NFR-01
+      ac_ref: "AC-N01.2"
+      layer: integration
+      test_function: test_list_p95_under_80ms_at_10k_rows
+      spec_rows: []
+      assertion_summary: "GET /v1/tasks?limit=50 p95 < 80 ms at 10,000 rows."
+    - tc_id: TC-NFR01-AC3
+      nfr: NFR-01
+      ac_ref: "AC-N01.3"
+      layer: integration
+      test_function: test_sql_count_constant_via_event_listener
+      spec_rows: ["#14"]
+      cross_ref_frs: ["FR-06"]
+      assertion_summary: "List endpoint SQL statement count is constant w.r.t. rows returned (N+1 guard) via SQLAlchemy event listener count."
+
+    # ============================================================
+    # NFR-02 — HTTP & Data-Layer Security (7 ACs)
+    # ============================================================
+    - tc_id: TC-NFR02-AC1
+      nfr: NFR-02
+      ac_ref: "AC-N02.1"
+      layer: cross_cutting
+      test_function: test_grep_shell_eval_exec_zero_hits
+      spec_rows: ["#16"]
+      cross_ref_frs: ["FR-02"]
+      assertion_summary: "grep -rn 'shell=True\\|eval(\\|exec(' 03-development/src/ returns 0 hits."
+    - tc_id: TC-NFR02-AC2
+      nfr: NFR-02
+      ac_ref: "AC-N02.2"
+      layer: cross_cutting
+      test_function: test_grep_string_concat_sql_zero_hits
+      spec_rows: ["#17"]
+      cross_ref_frs: ["FR-06"]
+      assertion_summary: "No string-concatenated SQL (f-string / % / +) anywhere in 03-development/src/."
+    - tc_id: TC-NFR02-AC3
+      nfr: NFR-02
+      ac_ref: "AC-N02.3"
+      layer: unit
+      test_function: test_api_keys_table_no_plaintext
+      spec_rows: ["#18"]
+      cross_ref_frs: ["FR-03"]
+      assertion_summary: "API keys stored hashed and compared with hmac.compare_digest (FR-03)."
+    - tc_id: TC-NFR02-AC4
+      nfr: NFR-02
+      ac_ref: "AC-N02.4"
+      layer: integration
+      test_function: test_403_body_no_resource_leak
+      spec_rows: ["#6"]
+      cross_ref_frs: ["FR-04"]
+      assertion_summary: "403 responses do not reveal resource existence (FR-04)."
+    - tc_id: TC-NFR02-AC5
+      nfr: NFR-02
+      ac_ref: "AC-N02.5"
+      layer: integration
+      test_function: test_500_body_no_leak
+      spec_rows: ["#19"]
+      cross_ref_frs: ["FR-10"]
+      assertion_summary: "Error bodies contain no stack / SQL / path (FR-10)."
+    - tc_id: TC-NFR02-AC6
+      nfr: NFR-02
+      ac_ref: "AC-N02.6"
+      layer: unit
+      test_function: test_cors_denies_default_origin
+      spec_rows: []
+      assertion_summary: "CORS denies all origins by default; allowlist taken from TASKQ_CORS_ORIGINS."
+    - tc_id: TC-NFR02-AC7
+      nfr: NFR-02
+      ac_ref: "AC-N02.7"
+      layer: cross_cutting
+      test_function: test_bandit_zero_high_medium
+      spec_rows: ["#23"]
+      assertion_summary: "bandit -r 03-development/src/ reports 0 HIGH and 0 MEDIUM issues."
+
+    # ============================================================
+    # NFR-03 — Error Handling, Tx, Async Correctness (6 ACs)
+    # ============================================================
+    - tc_id: TC-NFR03-AC1
+      nfr: NFR-03
+      ac_ref: "AC-N03.1"
+      layer: unit
+      test_function: test_transaction_rollback_on_exception
+      spec_rows: []
+      cross_ref_frs: ["FR-06"]
+      assertion_summary: "Each request's transaction boundaries are explicit: commit on success, rollback on exception, enforced by context manager (FR-06)."
+    - tc_id: TC-NFR03-AC2
+      nfr: NFR-03
+      ac_ref: "AC-N03.2"
+      layer: unit
+      test_function: test_no_bare_except_unit
+      spec_rows: []
+      assertion_summary: "No bare except: or except Exception: pass in codebase."
+    - tc_id: TC-NFR03-AC3
+      nfr: NFR-03
+      ac_ref: "AC-N03.3"
+      layer: cross_cutting
+      test_function: test_cancelled_error_propagates_unit
+      spec_rows: ["#25"]
+      cross_ref_frs: ["FR-08"]
+      assertion_summary: "asyncio.CancelledError never swallowed — re-raised."
+    - tc_id: TC-NFR03-AC4
+      nfr: NFR-03
+      ac_ref: "AC-N03.4"
+      layer: integration
+      test_function: test_db_failure_readyz_503
+      spec_rows: ["#10"]
+      cross_ref_frs: ["FR-09"]
+      assertion_summary: "DB connection failure surfaces as /readyz 503 with explicit detail; no silent infinite retry."
+    - tc_id: TC-NFR03-AC5
+      nfr: NFR-03
+      ac_ref: "AC-N03.5"
+      layer: cross_cutting
+      test_function: test_timeout_terminates_child
+      spec_rows: ["#25"]
+      cross_ref_frs: ["FR-08"]
+      assertion_summary: "Task timeout terminates child process without leaving orphans (FR-08)."
+    - tc_id: TC-NFR03-AC6
+      nfr: NFR-03
+      ac_ref: "AC-N03.6"
+      layer: integration
+      test_function: test_migration_failure_rolls_back
+      spec_rows: []
+      cross_ref_frs: ["FR-07"]
+      assertion_summary: "Failed migration rolls DB back to previous revision (FR-07)."
+
+    # ============================================================
+    # NFR-04 — Sensitive Data Redaction (3 ACs)
+    # ============================================================
+    - tc_id: TC-NFR04-AC1
+      nfr: NFR-04
+      ac_ref: "AC-N04.1"
+      layer: unit
+      test_function: test_redaction_regex_unit
+      spec_rows: []
+      assertion_summary: "stdout_tail, stderr_tail, log lines, error bodies checked against redaction regex (sk-/token=/Bearer/postgres); matches replaced wholesale with [REDACTED]."
+    - tc_id: TC-NFR04-AC2
+      nfr: NFR-04
+      ac_ref: "AC-N04.2"
+      layer: integration
+      test_function: test_db_url_password_not_logged_unit
+      spec_rows: ["#20"]
+      assertion_summary: "DB connection string (including password) does not appear in any log, error message, or /v1/metrics response."
+    - tc_id: TC-NFR04-AC3
+      nfr: NFR-04
+      ac_ref: "AC-N04.3"
+      layer: cross_cutting
+      test_function: test_key_plaintext_printed_once
+      spec_rows: []
+      cross_ref_frs: ["FR-03"]
+      assertion_summary: "API key plaintext printed exactly once at key create; never written to any persistent location."
+
+    # ============================================================
+    # NFR-05 — Documentation Coverage (2 ACs)
+    # ============================================================
+    - tc_id: TC-NFR05-AC1
+      nfr: NFR-05
+      ac_ref: "AC-N05.1"
+      layer: unit
+      test_function: test_docstring_coverage_unit
+      spec_rows: []
+      assertion_summary: "Every public function/class has docstring referencing [FR-XX] or [NFR-XX]; coverage 100%."
+    - tc_id: TC-NFR05-AC2
+      nfr: NFR-05
+      ac_ref: "AC-N05.2"
+      layer: integration
+      test_function: test_openapi_json_complete
+      spec_rows: []
+      assertion_summary: "Every API endpoint has summary and description in OpenAPI schema; /openapi.json asserted in tests."
+
+    # ============================================================
+    # NFR-06 — Architecture Layering Contract (3 ACs)
+    # ============================================================
+    - tc_id: TC-NFR06-AC1
+      nfr: NFR-06
+      ac_ref: "AC-N06.1"
+      layer: cross_cutting
+      test_function: test_lint_imports_exit_zero
+      spec_rows: ["#21"]
+      assertion_summary: ".importlinter declares layers contract api > service > repository > models; upper may import lower, lower must not import upper; config/errors are independence modules."
+    - tc_id: TC-NFR06-AC2
+      nfr: NFR-06
+      ac_ref: "AC-N06.2"
+      layer: cross_cutting
+      test_function: test_sqlalchemy_forbidden_outside_repository
+      spec_rows: ["#21"]
+      cross_ref_frs: ["FR-06"]
+      assertion_summary: ".importlinter forbidden contract bans sqlalchemy imports outside repository/."
+    - tc_id: TC-NFR06-AC3
+      nfr: NFR-06
+      ac_ref: "AC-N06.3"
+      layer: cross_cutting
+      test_function: test_lint_imports_not_downgraded
+      spec_rows: ["#21"]
+      assertion_summary: "lint-imports exits 0; deleting .importlinter, wildcard ignore_imports, or downgrading the contract are not permitted substitution paths."
+
+    # ============================================================
+    # NFR-07 — Dependency & License Compliance (4 ACs)
+    # ============================================================
+    - tc_id: TC-NFR07-AC1
+      nfr: NFR-07
+      ac_ref: "AC-N07.1"
+      layer: cross_cutting
+      test_function: test_requirements_pinned_with_eq
+      spec_rows: []
+      assertion_summary: "All runtime dependencies pinned with == in requirements.txt; transitive deps fully pinned in requirements.lock."
+    - tc_id: TC-NFR07-AC2
+      nfr: NFR-07
+      ac_ref: "AC-N07.2"
+      layer: cross_cutting
+      test_function: test_licenses_in_allowlist
+      spec_rows: []
+      assertion_summary: "Allowed licenses: MIT / BSD-2-Clause / BSD-3-Clause / Apache-2.0 / PSF; any other license disqualifies the dependency."
+    - tc_id: TC-NFR07-AC3
+      nfr: NFR-07
+      ac_ref: "AC-N07.3"
+      layer: cross_cutting
+      test_function: test_requirements_lock_full
+      spec_rows: ["#22"]
+      assertion_summary: "License scan covers entire dependency tree (direct + transitive), evidenced by pip-licenses --format=json --with-system."
+    - tc_id: TC-NFR07-AC4
+      nfr: NFR-07
+      ac_ref: "AC-N07.4"
+      layer: cross_cutting
+      test_function: test_sbom_present
+      spec_rows: []
+      assertion_summary: "SBOM emitted at 08-config/SBOM.json containing name, version, license, and direct|transitive per dependency."
+
+    # ============================================================
+    # NFR-08 — Mutation Testing (3 ACs)
+    # ============================================================
+    - tc_id: TC-NFR08-AC1
+      nfr: NFR-08
+      ac_ref: "AC-N08.1"
+      layer: cross_cutting
+      test_function: test_harness_config_mutation_testing_enabled
+      spec_rows: []
+      assertion_summary: ".methodology/harness_config.json sets features.mutation_testing: true."
+    - tc_id: TC-NFR08-AC2
+      nfr: NFR-08
+      ac_ref: "AC-N08.2"
+      layer: cross_cutting
+      test_function: test_mutmut_score_geq_70
+      spec_rows: ["#24"]
+      assertion_summary: "mutmut run followed by mutmut results reports mutation score ≥ 70."
+    - tc_id: TC-NFR08-AC3
+      nfr: NFR-08
+      ac_ref: "AC-N08.3"
+      layer: cross_cutting
+      test_function: test_mutmut_scope_recorded
+      spec_rows: []
+      assertion_summary: "Mutation run scoped to service/ and repository/; scope recorded in harness_config.json with a runtime-budget rationale."
+
+    # ============================================================
+    # NFR-09 — Verification Honesty / Zero-Skip Rule (6 ACs)
+    # ============================================================
+    - tc_id: TC-NFR09-AC1
+      nfr: NFR-09
+      ac_ref: "AC-N09.1"
+      layer: cross_cutting
+      test_function: test_zero_skipped
+      spec_rows: ["#1"]
+      assertion_summary: "No verification test for any FR/NFR is pytest.skip / skipif / xfail / assertion-free stub."
+    - tc_id: TC-NFR09-AC2
+      nfr: NFR-09
+      ac_ref: "AC-N09.2"
+      layer: cross_cutting
+      test_function: test_pytest_zero_skipped
+      spec_rows: ["#1"]
+      assertion_summary: "pytest 03-development/tests -q reports skipped = 0."
+    - tc_id: TC-NFR09-AC3
+      nfr: NFR-09
+      ac_ref: "AC-N09.3"
+      layer: cross_cutting
+      test_function: test_zero_assertion_free
+      spec_rows: []
+      assertion_summary: "Every test function contains at least one assert (zero_assert == 0)."
+    - tc_id: TC-NFR09-AC4
+      nfr: NFR-09
+      ac_ref: "AC-N09.4"
+      layer: cross_cutting
+      test_function: test_no_deselect_or_k_filter
+      spec_rows: []
+      assertion_summary: "Anti-fabrication: tests not excluded via --ignore / -k / --deselect / collect_ignore / removing a directory from testpaths."
+    - tc_id: TC-NFR09-AC5
+      nfr: NFR-09
+      ac_ref: "AC-N09.5"
+      layer: cross_cutting
+      test_function: test_migration_real_db_not_in_memory
+      spec_rows: ["#12"]
+      cross_ref_frs: ["FR-07"]
+      assertion_summary: "Three-step migration tested against a real SQLite database file (not in-memory mock); round-trip reversibility verified by actual data comparison."
+    - tc_id: TC-NFR09-AC6
+      nfr: NFR-09
+      ac_ref: "AC-N09.6"
+      layer: cross_cutting
+      test_function: test_no_collect_ignore
+      spec_rows: []
+      assertion_summary: "TRACEABILITY_MATRIX.md VERIFIED flags only set after tests actually run and pass."
+
+    # ============================================================
+    # NFR-10 — Integration Coverage (3 ACs)
+    # ============================================================
+    - tc_id: TC-NFR10-AC1
+      nfr: NFR-10
+      ac_ref: "AC-N10.1"
+      layer: integration
+      test_function: test_full_crud_chain
+      spec_rows: ["#3"]
+      assertion_summary: "03-development/tests/integration/ line coverage ≥ 80%."
+    - tc_id: TC-NFR10-AC2
+      nfr: NFR-10
+      ac_ref: "AC-N10.2"
+      layer: integration
+      test_function: test_one_example_each_401_403_404_409_422_429_503
+      spec_rows: []
+      assertion_summary: "Integration tests driven via httpx.AsyncClient(transport=ASGITransport(app)); no direct handler-function calls."
+    - tc_id: TC-NFR10-AC3
+      nfr: NFR-10
+      ac_ref: "AC-N10.3"
+      layer: integration
+      test_function: test_migration_round_trip_integration
+      spec_rows: []
+      assertion_summary: "Coverage includes: full CRUD chain, one example each of 401/403/404/409/422/429/503, migration round-trip, rate-limit trigger and recovery, graceful drain."
+
+    # ============================================================
+    # NFR-11 — Readability (4 ACs)
+    # ============================================================
+    - tc_id: TC-NFR11-AC1
+      nfr: NFR-11
+      ac_ref: "AC-N11.1"
+      layer: cross_cutting
+      test_function: test_mi_geq_80
+      spec_rows: []
+      assertion_summary: "Project MI (LLOC-weighted) ≥ 80."
+    - tc_id: TC-NFR11-AC2
+      nfr: NFR-11
+      ac_ref: "AC-N11.2"
+      layer: cross_cutting
+      test_function: test_cc_leq_10
+      spec_rows: []
+      assertion_summary: "Per-function CC ≤ 10."
+    - tc_id: TC-NFR11-AC3
+      nfr: NFR-11
+      ac_ref: "AC-N11.3"
+      layer: cross_cutting
+      test_function: test_file_lines_leq_400
+      spec_rows: []
+      assertion_summary: "Each file ≤ 400 lines; each directory ≤ 15 files."
+    - tc_id: TC-NFR11-AC4
+      nfr: NFR-11
+      ac_ref: "AC-N11.4"
+      layer: cross_cutting
+      test_function: test_api_handler_leq_40_lines
+      spec_rows: []
+      assertion_summary: "Each API handler ≤ 40 lines; business logic lives in service/."
+
+    # ============================================================
+    # NFR-12 — System Verification Target (2 ACs)
+    # ============================================================
+    - tc_id: TC-NFR12-AC1
+      nfr: NFR-12
+      ac_ref: "AC-N12.1"
+      layer: cross_cutting
+      test_function: test_verify_system_exits_zero
+      spec_rows: ["#27"]
+      assertion_summary: "Makefile verify-system target chains: alembic upgrade head → full test suite → service start + /healthz, /readyz smoke → alembic downgrade base then upgrade head (round-trip)."
+    - tc_id: TC-NFR12-AC2
+      nfr: NFR-12
+      ac_ref: "AC-N12.2"
+      layer: cross_cutting
+      test_function: test_verify_system_prints_pass
+      spec_rows: ["#27"]
+      assertion_summary: "make verify-system exits 0 and prints verify-system: PASS."
+
+  # ============================================================
+  # Coverage Summary
+  # ============================================================
+  by_fr:
+    FR-01: { tc_count: 7,  ac_range: "AC-1.1..AC-1.7" }
+    FR-02: { tc_count: 5,  ac_range: "AC-2.1..AC-2.5" }
+    FR-03: { tc_count: 5,  ac_range: "AC-3.1..AC-3.5" }
+    FR-04: { tc_count: 3,  ac_range: "AC-4.1..AC-4.3" }
+    FR-05: { tc_count: 3,  ac_range: "AC-5.1..AC-5.3" }
+    FR-06: { tc_count: 5,  ac_range: "AC-6.1..AC-6.5" }
+    FR-07: { tc_count: 5,  ac_range: "AC-7.1..AC-7.5" }
+    FR-08: { tc_count: 4,  ac_range: "AC-8.1..AC-8.4" }
+    FR-09: { tc_count: 5,  ac_range: "AC-9.1..AC-9.5" }
+    FR-10: { tc_count: 4,  ac_range: "AC-10.1..AC-10.4" }
+    NFR-01: { tc_count: 3, ac_range: "AC-N01.1..AC-N01.3" }
+    NFR-02: { tc_count: 7, ac_range: "AC-N02.1..AC-N02.7" }
+    NFR-03: { tc_count: 6, ac_range: "AC-N03.1..AC-N03.6" }
+    NFR-04: { tc_count: 3, ac_range: "AC-N04.1..AC-N04.3" }
+    NFR-05: { tc_count: 2, ac_range: "AC-N05.1..AC-N05.2" }
+    NFR-06: { tc_count: 3, ac_range: "AC-N06.1..AC-N06.3" }
+    NFR-07: { tc_count: 4, ac_range: "AC-N07.1..AC-N07.4" }
+    NFR-08: { tc_count: 3, ac_range: "AC-N08.1..AC-N08.3" }
+    NFR-09: { tc_count: 6, ac_range: "AC-N09.1..AC-N09.6" }
+    NFR-10: { tc_count: 3, ac_range: "AC-N10.1..AC-N10.3" }
+    NFR-11: { tc_count: 4, ac_range: "AC-N11.1..AC-N11.4" }
+    NFR-12: { tc_count: 2, ac_range: "AC-N12.1..AC-N12.2" }
+  by_fr_total: 92
+
+  by_layer:
     unit:
-      - test_fr01_example_unit
+      count: 22
     integration:
-      - test_fr01_example_integration
+      count: 36
+    cross_cutting:
+      count: 34
+  by_layer_total: 92
 
-cross_cutting:
-  security:
-    - test_security_example
-  deployment:
-    - test_deployment_example
+  total_test_cases: 92
