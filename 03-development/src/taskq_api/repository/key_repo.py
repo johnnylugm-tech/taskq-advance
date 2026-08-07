@@ -1,5 +1,9 @@
 """Repository functions for the ``api_keys`` table.
 
+[FR-06] ``api_keys`` reads and writes are owned exclusively by this module
+— the service layer hands session-free contracts to the HTTP edge, and no
+SQLAlchemy import escapes ``repository/`` (NFR-06 / FR-06 AC-6.1).
+
 [FR-03] Owns every read and write of the ``api_keys`` row. Plaintext never
 crosses this boundary — the SHA-256 hash is computed in the service layer
 before the row is constructed, and the lookup path compares hashes (never

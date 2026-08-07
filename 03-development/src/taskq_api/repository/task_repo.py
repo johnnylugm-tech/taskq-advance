@@ -1,5 +1,11 @@
 """Repository functions for the ``tasks`` table.
 
+[FR-06] Every task-table read/write is reached via this module — the
+service layer never holds a ``Session`` (NFR-06). The list query is the
+N+1 guard: ``selectinload`` on the eagerly-loaded relationships keeps the
+SQL statement count constant regardless of how many rows the page returns
+(NFR-01 / FR-06 AC-6.4).
+
 [FR-01] Every read and write of a task row goes through this module — the
 service layer never reaches into ``Session`` directly, and the API layer
 never writes SQL. Pagination is cursor-based: ``list_tasks`` accepts an

@@ -1,5 +1,11 @@
 """SQLAlchemy engine + session factory (independence layer).
 
+[FR-06] The repository owns the SQLAlchemy engine and the per-request
+``session_scope`` — every transaction boundary in the system is funnelled
+through this module. The session helper enforces commit-on-exit /
+rollback-on-exception (NFR-03) and the engine is configured with
+``pool_pre_ping=True`` plus ``pool_size=TASKQ_DB_POOL_SIZE`` (SPEC §3 FR-06).
+
 [FR-01] ``get_engine()`` is the single entry point the rest of the code base
 uses to reach the database. The engine is process-wide and built from
 ``TASKQ_DB_URL``; the test fixture flips the env var per case so each test

@@ -1,5 +1,11 @@
 """Repository functions for the ``rate_buckets`` table.
 
+[FR-06] ``rate_buckets`` reads and writes are owned exclusively by this
+module — the service layer never holds a ``Session`` (NFR-06 / FR-06 AC-6.1).
+The token-bucket refill-and-decrement happens inside the caller's single
+transaction, which is the explicit transaction boundary FR-06 / NFR-03
+require.
+
 [FR-05] Owns every read and write of the per-key token-bucket row. The
 bucket lives in the database (not in process memory) so every worker shares
 one counter — a per-process bucket would let N workers each grant the full
