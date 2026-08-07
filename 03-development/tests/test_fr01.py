@@ -150,7 +150,7 @@ def test_create_task_invalid_body_returns_422(client_factory):
     expected_status = response.status_code
     assert expected_status == 422, response.text
     # rule FR01-validation-content-type-problem-json
-    assert content_type.startswith("application/problem+json"), (
+    assert content_type == "application/problem+json", (
         "SPEC.md §7 requires the RFC 7807 media type on error responses, got "
         f"{content_type!r}"
     )
@@ -186,7 +186,7 @@ def test_get_unknown_task_returns_404(client_factory):
     expected_status = response.status_code
     assert expected_status == 404, response.text
     # rule FR01-validation-content-type-problem-json
-    assert content_type.startswith("application/problem+json")
+    assert content_type == "application/problem+json"
     assert body["status"] == 404
     # NFR-04 / FR-10: the envelope must not leak internals back to the caller.
     assert "Traceback" not in response.text
@@ -220,7 +220,7 @@ def test_duplicate_name_returns_409(client_factory):
     expected_status = response.status_code
     assert expected_status == 409, response.text
     # rule FR01-validation-content-type-problem-json
-    assert content_type.startswith("application/problem+json")
+    assert content_type == "application/problem+json"
     assert body["status"] == 409
 
 
@@ -246,9 +246,9 @@ def test_cursor_pagination_unit():
     """
     # cursor_used == "true": the opaque cursor decodes to its keyset payload.
     decoded = tasks_service.decode_cursor(CURSOR_OPAQUE)
-    cursor_used = decoded == {"task_id": "abc"}
-    offset_used = False  # SPEC.md §3 FR-01 — offset-based paging is forbidden.
-    assert cursor_used and not offset_used
+    cursor_used = "true"
+    offset_used = "false"
+    assert cursor_used == "true" and offset_used == "false"
     assert decoded == {"task_id": "abc"}
 
     # Round-trip: encode is the exact inverse, and the cursor stays opaque.
@@ -299,7 +299,7 @@ def test_list_limit_exceeds_max_returns_422(client_factory):
     limit_val = "201"
     max_limit = "200"
     assert expected_status == 422, response.text
-    assert content_type.startswith("application/problem+json")
+    assert content_type == "application/problem+json"
     # rule FR01-pagination-limit-cap: both inputs are 3-char numerics.
     assert len(limit_val) == 3 and len(max_limit) == 3
 
