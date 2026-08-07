@@ -35,6 +35,11 @@ from taskq_api.models.orm import RateBucket
 
 __all__ = ["ConsumeResult", "consume_token"]
 
+# [FR-05] What one admitted request costs. Named so the "can we afford it?"
+# test and the debit below cannot drift apart, and so the bare ``1.0`` that
+# used to appear in both places reads as a price rather than a magic number.
+TOKEN_COST = 1.0
+
 
 class ConsumeResult(NamedTuple):
     """Outcome of one ``consume_token`` attempt.
@@ -72,6 +77,26 @@ def _as_aware(value: datetime) -> datetime:
     return value
 
 
+def _refilled_tokens(
+    tokens: float,
+    since: datetime,
+    now: datetime,
+    *,
+    bucket_size: int,
+    refill_rate_per_sec: float,
+) -> float:
+    """Token level after continuous refill from ``since`` to ``now``.
+
+    [FR-05] Refill is continuous (``tokens + rate * elapsed``) and clamped at
+    ``bucket_size`` so an idle key cannot bank more than one burst. Kept as a
+    pure function of its arguments — no ORM row, no clock — so the clamp is
+    readable on its own and ``consume_token`` below is left holding only the
+    lock-and-mutate story.
+    """
+    elapsed_sec = (now - _as_aware(since)).total_seconds()
+    return min(float(bucket_size), tokens + refill_rate_per_sec * elapsed_sec)
+
+
 def consume_token(
     session: Session,
     key_id: str,
@@ -88,9 +113,8 @@ def consume_token(
     the decision is final.
 
     A key with no bucket row yet starts at the full ``bucket_size`` — a new
-    key is entitled to its whole burst. Refill is continuous
-    (``tokens + rate * elapsed``) and clamped at ``bucket_size`` so an idle
-    key cannot accumulate more than one burst.
+    key is entitled to its whole burst. An existing row is advanced by
+    ``_refilled_tokens`` before the debit is considered.
     """
     now = _utcnow()
     stmt = select(RateBucket).where(RateBucket.key_id == key_id).with_for_update()
@@ -104,14 +128,17 @@ def consume_token(
         # would queue a duplicate INSERT (an IntegrityError at commit).
         session.flush()
     else:
-        elapsed = (now - _as_aware(row.updated_at)).total_seconds()
-        row.tokens = min(
-            float(bucket_size), row.tokens + refill_rate_per_sec * elapsed
+        row.tokens = _refilled_tokens(
+            row.tokens,
+            row.updated_at,
+            now,
+            bucket_size=bucket_size,
+            refill_rate_per_sec=refill_rate_per_sec,
         )
         row.updated_at = now
 
-    if row.tokens < 1.0:
+    if row.tokens < TOKEN_COST:
         return ConsumeResult(allowed=False, tokens=row.tokens)
 
-    row.tokens -= 1.0
+    row.tokens -= TOKEN_COST
     return ConsumeResult(allowed=True, tokens=row.tokens)

@@ -33,13 +33,14 @@ RATE_LIMITED_DETAIL = "rate limit exceeded"
 
 
 def _retry_after_seconds(tokens: float, refill_rate_per_sec: float) -> int:
-    """Whole seconds until the bucket holds one token again (never below 1).
+    """Whole seconds until the bucket can afford one request again (min 1).
 
     [FR-05] AC-5.1: ``Retry-After`` is expressed in seconds, so the fractional
-    wait ``(1 - tokens) / rate`` is rounded UP — rounding down would invite the
+    wait ``deficit / rate`` is rounded UP — rounding down would invite the
     caller back before a token exists and produce a second 429.
     """
-    return max(1, math.ceil((1.0 - tokens) / refill_rate_per_sec))
+    deficit = rate_repo.TOKEN_COST - tokens
+    return max(1, math.ceil(deficit / refill_rate_per_sec))
 
 
 def consume(key_id: str) -> None:
@@ -58,12 +59,12 @@ def consume(key_id: str) -> None:
     per_sec = rate_per_sec()
 
     with session_scope() as session:
-        result = rate_repo.consume_token(
+        outcome = rate_repo.consume_token(
             session, key_id, bucket_size=burst, refill_rate_per_sec=per_sec
         )
 
-    if not result.allowed:
+    if not outcome.allowed:
         raise RateLimitedError(
             RATE_LIMITED_DETAIL,
-            retry_after=_retry_after_seconds(result.tokens, per_sec),
+            retry_after=_retry_after_seconds(outcome.tokens, per_sec),
         )

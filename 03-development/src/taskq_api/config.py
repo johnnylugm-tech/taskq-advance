@@ -18,6 +18,11 @@ Citations:
 """
 
 import os
+from typing import Callable, TypeVar
+
+# Bound to the numeric types the TASKQ_* readers parse (``int`` / ``float``),
+# so ``_positive_env`` returns the same type its ``parse`` argument produces.
+_NumberT = TypeVar("_NumberT", int, float)
 
 __all__ = [
     "DEFAULT_DB_URL",
@@ -67,6 +72,24 @@ def db_pool_size() -> int:
         return DEFAULT_DB_POOL_SIZE
 
 
+def _positive_env(
+    name: str, default: _NumberT, parse: Callable[[str], _NumberT]
+) -> _NumberT:
+    """Read ``name`` as a positive number, falling back to ``default``.
+
+    [FR-05] ``rate_burst`` and ``rate_per_sec`` had the identical
+    parse-then-guard shape; the rule lives here once. Absent, unparseable,
+    zero and negative all degrade to the SPEC §5.1 default rather than
+    disabling or deadlocking the limiter — a bucket that cannot hold or
+    cannot refill a token is a misconfiguration, not a policy.
+    """
+    try:
+        value = parse(os.environ.get(name, ""))
+    except ValueError:
+        return default
+    return value if value > 0 else default
+
+
 def rate_burst() -> int:
     """Return the token-bucket capacity (SPEC.md §5.1 `TASKQ_RATE_BURST`).
 
@@ -79,11 +102,7 @@ def rate_burst() -> int:
     Citations:
     - SPEC.md#L296 (§5.1 `TASKQ_RATE_BURST`, default `20`)
     """
-    try:
-        value = int(os.environ.get("TASKQ_RATE_BURST", ""))
-    except ValueError:
-        return DEFAULT_RATE_BURST
-    return value if value > 0 else DEFAULT_RATE_BURST
+    return _positive_env("TASKQ_RATE_BURST", DEFAULT_RATE_BURST, int)
 
 
 def rate_per_sec() -> float:
@@ -96,8 +115,4 @@ def rate_per_sec() -> float:
     Citations:
     - SPEC.md#L297 (§5.1 `TASKQ_RATE_PER_SEC`, default `5.0`)
     """
-    try:
-        value = float(os.environ.get("TASKQ_RATE_PER_SEC", ""))
-    except ValueError:
-        return DEFAULT_RATE_PER_SEC
-    return value if value > 0 else DEFAULT_RATE_PER_SEC
+    return _positive_env("TASKQ_RATE_PER_SEC", DEFAULT_RATE_PER_SEC, float)
