@@ -474,3 +474,92 @@ def test_metrics_requires_admin(sqlite_db_url, monkeypatch):
         f"/v1/metrics body must expose the task_count metric (AC-9.5), "
         f"got {admin_response.text!r}"
     )
+
+
+# --------------------------------------------------------------------------
+# Coverage tests — direct in-process unit tests for the FR-09 internals.
+#
+# The five spec cases above monkeypatch ``check_db_ready`` /
+# ``migration_at_head`` so they exercise the ``/readyz`` decision surface
+# without depending on a particular Alembic state. The cases below call
+# those two helpers against a real per-test SQLite file, and drive the
+# ``/readyz`` 200 branch, so Gate 1's coverage dimension can score the
+# implementation lines the spec cases stub out.
+# --------------------------------------------------------------------------
+# NFR-03 NFR-09
+
+
+def test_check_db_ready_returns_true_on_live_engine(sqlite_db_url):
+    """``check_db_ready`` round-trips ``SELECT 1`` on a reachable database.
+
+    [FR-09] AC-9.1: the readiness signal is a real query through the
+    connection pool, not a cached flag — a database that answers the
+    trivial query is reported ready.
+    """
+    db_session.reset_engine()
+    assert db_session.check_db_ready() is True
+
+
+def test_migration_at_head_reports_none_when_table_absent(sqlite_db_url):
+    """A database that never ran Alembic reports ``current is None``.
+
+    [FR-09] AC-9.3: the ``alembic_version`` table does not exist on a
+    fresh deployment, so ``migration_at_head`` MUST surface ``None`` as
+    the current revision rather than raising — that is what lets
+    ``/readyz`` fail closed instead of returning a 500.
+    """
+    db_session.reset_engine()
+    current, head = db_session.migration_at_head()
+    assert current is None
+    assert head
+
+
+def test_migration_at_head_reads_applied_revision(sqlite_db_url):
+    """The applied ``alembic_version`` row is returned as the current revision.
+
+    [FR-09] AC-9.2: the probe compares this value against the head
+    revision, so it MUST reflect what is actually recorded in the
+    database rather than a build constant.
+    """
+    from sqlalchemy import text as sa_text
+
+    db_session.reset_engine()
+    engine = db_session.get_engine()
+    with engine.begin() as connection:
+        connection.execute(
+            sa_text("CREATE TABLE alembic_version (version_num VARCHAR(32))")
+        )
+        connection.execute(
+            sa_text("INSERT INTO alembic_version (version_num) VALUES ('v2_tags')")
+        )
+
+    current, head = db_session.migration_at_head()
+    assert current == "v2_tags"
+    assert current != head
+
+
+def test_readyz_returns_200_when_db_and_migration_healthy(
+    sqlite_db_url, monkeypatch
+):
+    """``/readyz`` returns 200 once both readiness signals are healthy.
+
+    [FR-09] AC-9.1 / AC-9.2: the failure branches are covered by cases
+    1-3; this pins the positive branch so a probe that never returns
+    ready (and would keep a healthy pod out of the load balancer) is
+    caught.
+    """
+    monkeypatch.setattr(db_session, "check_db_ready", lambda: True, raising=False)
+    monkeypatch.setattr(
+        db_session, "migration_at_head", lambda: ("v3", "v3"), raising=False
+    )
+    application = _build_app()
+
+    async def _probe():
+        async with AsyncClient(
+            transport=ASGITransport(app=application), base_url="http://testserver"
+        ) as c:
+            return await c.get("/readyz")
+
+    response = _run(_probe())
+    assert response.status_code == 200
+    assert response.json()["status"] == "ready"
