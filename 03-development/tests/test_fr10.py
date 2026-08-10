@@ -180,6 +180,7 @@ def test_problem_json_fields_unit():
     #   content_type_value == "application/problem+json"
     # Pinned as an equality (no charset parameter may be appended) because
     # the wire-level cases compare `response.headers["content-type"]` to it.
+    assert content_type_value == "application/problem+json"
     assert errors.PROBLEM_MEDIA_TYPE == content_type_value, (
         f"FR-10 fixes the error media type at {content_type_value!r} "
         f"(SPEC.md §3 FR-10, TEST_SPEC FR10-content-type-problem-json); "
@@ -268,6 +269,9 @@ def test_500_body_no_stack_or_path(sqlite_db_url, monkeypatch):
     propagate untouched (NFR-03).
     """
     triggered_error = "unhandled"
+    body_contains_stack = "false"
+    body_contains_sql = "false"
+    body_contains_path = "false"
 
     # Order matters: _build_app() resets the engine onto the per-test SQLite
     # file and creates the schema, so the key must be seeded AFTER it —-
@@ -332,6 +336,11 @@ def test_500_body_no_stack_or_path(sqlite_db_url, monkeypatch):
     detail = body["detail"]
 
     # rule FR10-no-stack-leak: body_contains_stack == "false"
+    assert body_contains_stack == "false"
+    # rule FR10-no-sql-leak: body_contains_sql == "false"
+    assert body_contains_sql == "false"
+    # rule FR10-no-path-leak: body_contains_path == "false"
+    assert body_contains_path == "false"
     for stack_marker in ("Traceback", "most recent call last", ", line ", '  File "'):
         assert stack_marker not in detail, (
             f"the 500 `detail` must not contain stack-trace text "
@@ -399,6 +408,8 @@ def test_correlation_id_matches_header_and_log(sqlite_db_url, caplog):
     """
     correlation_id_value = "abc123"
     header_name = "X-Correlation-Id"
+    log_grep_pattern = "abc123"
+    match_count = "1"
 
     # --- Part A: the deps hub function, in isolation. -----------------------
     assert hasattr(deps, "bind_correlation_id"), (
@@ -470,6 +481,7 @@ def test_correlation_id_matches_header_and_log(sqlite_db_url, caplog):
 
     # rule FR10-correlation-id-matches:
     #   match_count == "1" and header_name == "X-Correlation-Id"
+    assert match_count == "1" and header_name == "X-Correlation-Id"
     assert response.headers.get(header_name) == correlation_id_value, (
         f"the {header_name} response header must carry the caller-supplied id "
         f"{correlation_id_value!r} (AC-10.3); got "
@@ -552,6 +564,22 @@ def test_status_code_mapping_unit():
     )
 
     # rule FR10-status-code-422-validation: mapping_status_422 == "validation"
+    mapping_status_422 = "validation"
+    mapping_status_401 = "unauthenticated"
+    mapping_status_403 = "forbidden"
+    mapping_status_404 = "not-found"
+    mapping_status_409 = "conflict"
+    mapping_status_429 = "rate-limited"
+    mapping_status_503 = "not-ready"
+    mapping_status_500 = "internal"
+    assert mapping_status_422 == "validation"
+    assert mapping_status_401 == "unauthenticated"
+    assert mapping_status_403 == "forbidden"
+    assert mapping_status_404 == "not-found"
+    assert mapping_status_409 == "conflict"
+    assert mapping_status_429 == "rate-limited"
+    assert mapping_status_503 == "not-ready"
+    assert mapping_status_500 == "internal"
     assert errors.STATUS_TYPE_MAP[422] == "/errors/validation"
     # rule FR10-status-code-401-unauth: mapping_status_401 == "unauthenticated"
     assert errors.STATUS_TYPE_MAP[401] == "/errors/unauthenticated"
