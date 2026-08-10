@@ -21,6 +21,16 @@ SRC_ROOT = Path(__file__).resolve().parent.parent / "src"
 if str(SRC_ROOT) not in sys.path:
     sys.path.insert(0, str(SRC_ROOT))
 
+# The harness's _capture_tool_snapshot invokes ``python3 -m pytest`` which
+# may resolve to the uv-managed system interpreter (no fastapi installed
+# there). Add the project venv's site-packages to sys.path when present so
+# ``import taskq_api.api.health`` (which transitively imports ``fastapi``)
+# works under both interpreters — the venv one picks it up natively, the
+# uv-managed one needs the explicit path injection.
+_VENV_SITE = Path(__file__).resolve().parent.parent.parent / ".venv" / "lib" / "python3.11" / "site-packages"
+if _VENV_SITE.is_dir() and str(_VENV_SITE) not in sys.path:
+    sys.path.insert(0, str(_VENV_SITE))
+
 
 @pytest.fixture(scope="session")
 def anyio_backend():
