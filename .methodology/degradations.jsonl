@@ -24,3 +24,4 @@
 {"ts": 1786352154.5976, "component": "agent:developer:3", "what": "wall-clock timeout at 600s", "why": ""}
 {"ts": 1786352154.697728, "component": "run-fr-step:TDD-GREEN", "what": "step dispatch failed", "why": "FR-10 TDD-GREEN: TIMEOUT", "data": {"fr_id": "FR-10", "step": "TDD-GREEN", "signature": "ee0c72175119e69e", "tree": "3cd00ec2ca3f5c5c", "error_class": "TIMEOUT"}}
 {"ts": 1786352154.6978009, "component": "run-fr-step:TDD-GREEN", "what": "task_timeout escalated 600 -> 1200", "why": "FR-10 TDD-GREEN hit its wall-clock budget; re-dispatching at the same budget cannot finish what did not fit"}
+{"ts": 1786353094.1016269, "component": "ci:verdict", "what": "no CI verdict for 4aac9752", "why": "no workflow run has appeared for 4aac9752 yet"}

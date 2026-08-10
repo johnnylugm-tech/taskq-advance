@@ -50,10 +50,8 @@ Citations:
 from __future__ import annotations
 
 import asyncio
-import os
 import uuid
 
-import pytest
 from httpx import ASGITransport, AsyncClient
 
 # SAB-declared FR-09 module. The package ``taskq_api.api`` exists; the
@@ -130,7 +128,7 @@ def test_readyz_503_when_db_unreachable(sqlite_db_url, monkeypatch):
     module — the helper does not exist yet, so the import attempt is
     the binding red signal for the entire file).
     """
-    db_state = "unreachable"
+    _db_state = "unreachable"
     expected_status = "503"
     detail_contains = "database"
 

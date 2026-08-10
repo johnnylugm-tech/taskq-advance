@@ -408,7 +408,7 @@ def test_correlation_id_matches_header_and_log(sqlite_db_url, caplog):
     """
     correlation_id_value = "abc123"
     header_name = "X-Correlation-Id"
-    log_grep_pattern = "abc123"
+    _log_grep_pattern = "abc123"
     match_count = "1"
 
     # --- Part A: the deps hub function, in isolation. -----------------------

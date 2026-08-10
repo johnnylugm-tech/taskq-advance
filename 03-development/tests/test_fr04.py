@@ -96,7 +96,7 @@ def test_write_key_cannot_delete_returns_403(app):
     """
     api_key_scope = "write"
     task_id = "any"
-    method = "DELETE"
+    _method = "DELETE"
     expected_status = "403"
     expected_body_leaks_existence = "false"
 

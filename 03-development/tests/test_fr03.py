@@ -27,7 +27,6 @@ from __future__ import annotations
 import asyncio
 import contextlib
 import hashlib
-import hmac
 import inspect
 import io
 import os
@@ -42,7 +41,6 @@ from httpx import ASGITransport, AsyncClient
 # SAB-declared FR-03 module paths (the GREEN agent creates the auth + key_repo
 # leaves). Imports are top-level on purpose: a missing module surfaces as a
 # Collection Error (Exit Code 2), which is the intended RED state.
-from taskq_api.api import deps  # FR-03 reuses the existing deps package.
 from taskq_api.app import create_app
 from taskq_api.repository import session as db_session
 from taskq_api.repository import key_repo  # FR-03 RED until implementation lands.
@@ -277,10 +275,10 @@ def test_hmac_compare_digest_unit():
     # byte strings, so we hash the candidate the same way the repository would.
     stored_hash = hashlib.sha256(candidate_key.encode("utf-8")).hexdigest()
     assert auth.verify_key(candidate_key, stored_hash) is True, (
-        f"verify_key must return True when the candidate matches the stored hash"
+        "verify_key must return True when the candidate matches the stored hash"
     )
     assert auth.verify_key(candidate_key, stored_hash_hex) is False, (
-        f"verify_key must return False when the candidate does not match the stored hash"
+        "verify_key must return False when the candidate does not match the stored hash"
     )
 
     # rule FR03-compare-digest-constant-time: time_constant == "true" and
@@ -317,7 +315,7 @@ def test_revoked_key_rejected_unit(sqlite_db_url):
     orm.Base.metadata.create_all(db_session.get_engine())
 
     # Seed a revoked key row whose key_hash is sha256(sk-XYZ).
-    candidate_hash = hashlib.sha256(candidate_key.encode("utf-8")).hexdigest()
+    _candidate_hash = hashlib.sha256(candidate_key.encode("utf-8")).hexdigest()
     revoked_row_id = str(uuid.uuid4())
     with db_session.session_scope() as session:
         key_repo.create_api_key(

@@ -31,7 +31,6 @@ state and must not be masked by ``try/except ImportError``.
 from __future__ import annotations
 
 import asyncio
-import os
 import subprocess
 import time
 from pathlib import Path
@@ -252,8 +251,8 @@ def test_drain_timeout_marks_interrupted(monkeypatch):
     # Persistence is orthogonal to the drain mechanic — stub it.
     monkeypatch.setattr(runner, "_persist_result", lambda **_kw: None)
 
-    drain_timeout_sec = "0.5"
-    in_flight_sleep_sec = "5"
+    _drain_timeout_sec = "0.5"
+    _in_flight_sleep_sec = "5"
     interrupted_count = 1
     orphan_pids = "0"
     drain_over_budget = "true"
@@ -369,8 +368,8 @@ def test_timeout_terminates_child(monkeypatch, db_schema):
         "(SPEC.md §3 FR-08 / §8 #25, AC-8.3)"
     )
 
-    task_timeout_sec = "0.3"
-    sleep_cmd = "sleep 5"
+    _task_timeout_sec = "0.3"
+    _sleep_cmd = "sleep 5"
     child_terminated = "true"
     orphan_pids = "0"
 

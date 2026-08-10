@@ -49,7 +49,6 @@ from taskq_api.app import create_app
 from taskq_api.config import db_pool_size
 from taskq_api.models import orm
 from taskq_api.repository import session as db_session
-from taskq_api.repository import task_repo
 
 
 # --------------------------------------------------------------------------
@@ -138,7 +137,7 @@ def test_repository_only_owns_session():
     (SAD §2.4 / SAB.json §models).
     """
     import_search_root = "03-development/src/"
-    forbidden_layer_imports = "sqlalchemy"
+    _forbidden_layer_imports = "sqlalchemy"
     allowed_layer = "repository"
 
     src_root = (
