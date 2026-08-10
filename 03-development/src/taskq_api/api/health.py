@@ -16,29 +16,31 @@ no principal and consume no bucket.
   :func:`taskq_api.repository.session.migration_at_head` so a pod whose
   dependency surface is degraded keeps itself out of the load balancer
   (SPEC.md §3 FR-09, AC-9.1 / AC-9.2 / AC-9.3). Returns 200 with
-  ``{"status":"ready"}`` on success; 503 with a body that names the
-  failed component on any failure so an operator can act on it
-  (SPEC.md §8 #10 / #11).
+  ``{"status":"ready"}`` on success; 503 with a problem+json envelope
+  carrying the failed component as the ``detail`` on any failure so an
+  operator can act on it (SPEC.md §8 #10 / #11). The 503 surfaces as
+  ``NotReadyError`` → ``/errors/not-ready`` so it falls under FR-10
+  AC-10.1's "every non-2xx response is ``application/problem+json``"
+  rule.
 
-The 503 body shape is ``{"status":"not ready","detail":...}`` — the test
-contract pins ``"database"`` / ``"migration"`` substrings on the wire
-(TEST_SPEC rules ``FR09-readyz-503-db-down`` /
-``FR09-readyz-503-migration-lag`` / ``FR09-readyz-fails-closed``) so the
-diagnostic substrings stay explicit.
+The ``detail`` strings are deliberately chosen so the FR-09 test contract
+(``"database"`` / ``"migration"`` substrings on the wire) stays explicit
+while the body itself is now the spec-fixed RFC 7807 envelope.
 
 Citations:
 - SPEC.md#L151-L157 (FR-09 — /healthz, /readyz, /v1/metrics)
+- SPEC.md#L162-L168 (FR-10 — problem+json envelope on every non-2xx)
 - SPEC.md#L210-L213 (§8 #10 / #11 — 503 with the failed component named)
+- SPEC.md#L395 (§7 — DB 不可用 / migration 未到 head | 503 | `/errors/not-ready`)
 - SAD.md#L166-L175 (§2.4 `api/health.py` — included by `create_app`)
 - TEST_SPEC.md §FR-09 cases 1-4 and sub-assertion table
 """
 
 from __future__ import annotations
 
-import json
-
 from fastapi import APIRouter, Response, status
 
+from taskq_api.errors import NotReadyError
 from taskq_api.repository import session as db_session
 
 __all__ = ["router"]
@@ -46,28 +48,9 @@ __all__ = ["router"]
 router = APIRouter(tags=["health"])
 
 
-def _not_ready(*, detail: str) -> Response:
-    """Build the spec-fixed 503 body that names the failed component.
-
-    [FR-09] §8 #10 / #11 — the body MUST include ``"database"`` /
-    ``"migration"`` as substrings so an operator reading
-    ``kubectl describe pod`` can act on the probe failure.
-    """
-    body = json.dumps({"status": "not ready", "detail": detail})
-    return Response(
-        status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
-        content=body,
-        media_type="application/json",
-    )
-
-
-def _ready() -> Response:
+def _ready() -> dict:
     """Build the 200 readiness envelope. [FR-09] AC-9.1."""
-    return Response(
-        status_code=status.HTTP_200_OK,
-        content=json.dumps({"status": "ready"}),
-        media_type="application/json",
-    )
+    return {"status": "ready"}
 
 
 def _is_database_ready() -> bool:
@@ -93,18 +76,23 @@ def healthz() -> dict:
 
 @router.get("/readyz", response_model=None)
 def readyz() -> Response:
-    """Return the readiness verdict — 200 ready or 503 with a detail body.
+    """Return the readiness verdict — 200 ready or 503 + problem+json.
 
     [FR-09] AC-9.1 / AC-9.2 / AC-9.3: the readiness probe MUST report
     503 (not 200) whenever the database is unreachable, the migration
-    revision is behind head, or no migration has been applied. The body
-    names the failed component so an operator reading
-    ``kubectl describe pod`` can act on the probe failure.
+    revision is behind head, or no migration has been applied. The 503
+    surfaces as ``NotReadyError`` so AC-10.1 (every non-2xx response is
+    ``application/problem+json``) holds.
+
+    The ``detail`` is a caller-facing sentence naming the failed
+    component (database / migration) so an operator reading
+    ``kubectl describe pod`` can act on the probe failure (SPEC.md §8
+    #10 / #11).
     """
     # [FR-09] AC-9.1: a database that cannot answer ``SELECT 1`` fails
-    # closed with a body that names the database as the failed component.
+    # closed with a detail naming the database as the failed component.
     if not _is_database_ready():
-        return _not_ready(detail="database unreachable")
+        raise NotReadyError("database unavailable")
 
     # [FR-09] AC-9.2 / AC-9.3: a migration that is not at the head
     # revision (or that has never been applied — ``current_revision``
@@ -112,11 +100,13 @@ def readyz() -> Response:
     # ``(current, head)`` tuple the handler compares.
     current_revision, head_revision = db_session.migration_at_head()
     if current_revision != head_revision:
-        return _not_ready(
-            detail=(
-                f"migration not at head: current={current_revision!r} "
-                f"head={head_revision!r}"
-            )
+        raise NotReadyError(
+            f"migration not at head: current={current_revision!r} "
+            f"head={head_revision!r}"
         )
 
-    return _ready()
+    return Response(
+        status_code=status.HTTP_200_OK,
+        content='{"status":"ready"}',
+        media_type="application/json",
+    )

@@ -6,16 +6,33 @@ once at process start. The module-level ``app`` symbol required by
 ``uvicorn taskq_api.app:app`` is wired up at import time so the entrypoint
 contract from SPEC.md §1 holds.
 
+[FR-10] The exception handlers below translate domain failures
+(``ProblemError`` subclasses), pydantic validation failures, and any
+un-modelled exception escaping a handler into ``application/problem+json``
+responses. The catch-all ``Exception`` handler is registered AFTER the
+``ProblemError`` / ``RequestValidationError`` handlers — Starlette matches
+handlers by exception class, so the more specific ones fire first. The
+catch-all explicitly re-raises ``asyncio.CancelledError`` so SPEC.md §7's
+"NFR-03: cancellation propagates untouched" rule holds (the cancelled
+request reaches the ASGI server's cancel handling, not a 500 envelope).
+
+Every response carries an ``X-Correlation-Id`` header for end-to-end
+stitching (AC-10.3): the middleware adopts an inbound value via
+``api.deps.bind_correlation_id`` and writes one server log line per
+request so a log-grep can find exactly that request.
+
 Citations:
 - SPEC.md#L52-L57 (§1 概述 — ASGI service, `uvicorn taskq_api.app:app`)
-- SPEC.md#L385-L402 (§7 — error → application/problem+json envelope)
+- SPEC.md#L162-L168 (FR-10 — problem+json + correlation_id)
+- SPEC.md#L385-L402 (§7 — error → application/problem+json envelope, NFR-03)
 - SAD.md#L168-L175 (§2.4 `api/tasks.py` — included by `create_app`)
 - SAD.md#L235 (session_scope commit/rollback, FR-06 / NFR-03)
 """
 
 from __future__ import annotations
 
-import uuid
+import asyncio
+import logging
 
 from fastapi import FastAPI, Request
 from fastapi.exceptions import RequestValidationError
@@ -23,11 +40,13 @@ from fastapi.responses import JSONResponse
 from fastapi.routing import APIRoute, APIRouter
 
 from taskq_api import __version__
+from taskq_api.api.deps import bind_correlation_id
 from taskq_api.api.health import router as health_router
 from taskq_api.api.metrics import router as metrics_router
 from taskq_api.api.tasks import router as tasks_router
 from taskq_api.errors import (
     PROBLEM_MEDIA_TYPE,
+    STATUS_TYPE_MAP,
     ProblemError,
     problem,
 )
@@ -35,10 +54,11 @@ from taskq_api.repository.session import get_engine
 
 __all__ = ["create_app", "app"]
 
-
-def _correlation_id() -> str:
-    """Generate a fresh correlation id (one per response)."""
-    return str(uuid.uuid4())
+# [FR-10] Server logger. One INFO line per request, carrying the correlation
+# id, so a log-grep for an id taken from a client response yields exactly
+# one server-side record (AC-10.3, TEST_SPEC FR10-correlation-id-matches
+# match_count == '1').
+_logger = logging.getLogger("taskq_api.access")
 
 
 def _problem_response(
@@ -48,12 +68,18 @@ def _problem_response(
     title: str,
     detail: str,
     correlation_id: str,
+    instance: str = "",
     headers: dict[str, str] | None = None,
 ) -> JSONResponse:
     """Build an RFC 7807 JSON response with the spec-fixed media type.
 
     [FR-05] ``headers`` carries the per-status extras a problem may need —
     a 429 must ship ``Retry-After`` alongside the envelope (AC-5.1).
+
+    [FR-10] ``instance`` is threaded through from the handler so it
+    identifies the request that failed (RFC 7807 §3.1) — AC-10.1's
+    "instance" field is empty by default and is filled with the request
+    path by the registered handlers.
     """
     return JSONResponse(
         status_code=status,
@@ -62,7 +88,7 @@ def _problem_response(
             type_uri=type_uri,
             title=title,
             detail=detail,
-            instance="",
+            instance=instance,
             correlation_id=correlation_id,
         ),
         media_type=PROBLEM_MEDIA_TYPE,
@@ -145,10 +171,19 @@ def create_app() -> FastAPI:
 
     @application.middleware("http")
     async def _correlation_id_middleware(request: Request, call_next):  # type: ignore[no-untyped-def]
-        cid = _correlation_id()
-        request.state.correlation_id = cid
+        cid = bind_correlation_id(request)
         response = await call_next(request)
         response.headers["X-Correlation-Id"] = cid
+        # [FR-10] AC-10.3 / TEST_SPEC FR10-correlation-id-matches: one
+        # log line per request carrying the correlation id, so a
+        # client-supplied id can be grep'd to find exactly this request.
+        _logger.info(
+            "%s %s -> %s correlation_id=%s",
+            request.method,
+            request.url.path,
+            response.status_code,
+            cid,
+        )
         return response
 
     @application.exception_handler(ProblemError)
@@ -158,7 +193,8 @@ def create_app() -> FastAPI:
             type_uri=exc.type_uri,
             title=exc.title,
             detail=exc.detail,
-            correlation_id=getattr(request.state, "correlation_id", _correlation_id()),
+            correlation_id=getattr(request.state, "correlation_id", ""),
+            instance=request.url.path,
             headers=exc.headers or None,
         )
 
@@ -166,10 +202,34 @@ def create_app() -> FastAPI:
     async def _validation_handler(request: Request, exc: RequestValidationError) -> JSONResponse:  # type: ignore[no-untyped-def]
         return _problem_response(
             status=422,
-            type_uri="/errors/validation",
+            type_uri=STATUS_TYPE_MAP[422],
             title="Unprocessable Entity",
             detail="request body failed validation",
-            correlation_id=getattr(request.state, "correlation_id", _correlation_id()),
+            correlation_id=getattr(request.state, "correlation_id", ""),
+            instance=request.url.path,
+        )
+
+    @application.exception_handler(Exception)
+    async def _unhandled_exception_handler(request: Request, exc: Exception) -> JSONResponse:  # type: ignore[no-untyped-def]
+        # [FR-10 / NFR-03] SPEC.md §7 requires ``asyncio.CancelledError`` to
+        # propagate untouched so a cancelled request reaches the ASGI
+        # server's cancel handling. Re-raising it from the catch-all
+        # handler is what honours that contract — Starlette's default
+        # ``ServerErrorMiddleware`` would otherwise answer plain-text 500.
+        if isinstance(exc, asyncio.CancelledError):
+            raise exc
+        cid = getattr(request.state, "correlation_id", "")
+        # [FR-10] AC-10.2 / §8 #19: the 500 body is a fixed,
+        # caller-facing sentence — it MUST NOT echo the exception (no
+        # stack, no SQL, no filesystem path) because that detail string
+        # is what a downstream operator or attacker reads first.
+        return _problem_response(
+            status=500,
+            type_uri=STATUS_TYPE_MAP[500],
+            title="Internal Server Error",
+            detail="an internal error occurred",
+            correlation_id=cid,
+            instance=request.url.path,
         )
 
     _register_router(application, tasks_router)

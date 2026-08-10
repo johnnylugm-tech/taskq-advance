@@ -40,10 +40,12 @@ Citations:
 
 from __future__ import annotations
 
+import uuid
 from dataclasses import dataclass
 from typing import NoReturn
 
 from fastapi import Header
+from starlette.requests import Request
 
 from taskq_api.errors import ForbiddenError, UnauthorizedError
 from taskq_api.repository import key_repo
@@ -51,7 +53,13 @@ from taskq_api.repository.session import session_scope
 from taskq_api.service import auth as auth_service
 from taskq_api.service import ratelimit
 
-__all__ = ["Principal", "auth_dep", "check_scope", "rate_dep"]
+__all__ = ["Principal", "auth_dep", "check_scope", "rate_dep", "bind_correlation_id"]
+
+
+# [FR-10 / FR-09] Header carrying the correlation id. Aliased here so the
+# dependency signature, the middleware that echoes it on the response, and
+# any future header rename stay in lock-step.
+CORRELATION_ID_HEADER = "X-Correlation-Id"
 
 
 # ---------------------------------------------------------------------------
@@ -174,3 +182,29 @@ def check_scope(principal: Principal, needed: str) -> None:
     """
     if not auth_service.scope_satisfies(needed, principal.scope):
         raise ForbiddenError(_FORBIDDEN_DETAIL)
+
+
+def bind_correlation_id(request: Request) -> str:
+    """Resolve the correlation id for ``request`` and bind it to its state.
+
+    [FR-10] SAD.md §2.5 names this as one of the two required ``api/`` hub
+    functions — alongside ``problem_response`` — so the correlation id is
+    resolved in exactly one place. The middleware that echoes it on the
+    response, the log line that records it, and every problem envelope that
+    surfaces it all read from the same source.
+
+    Inbound wins: an ``X-Correlation-Id`` request header is adopted verbatim
+    so a caller can stitch its own id end to end (AC-10.3). When the header
+    is absent, a fresh uuid4 is minted so every response stays stitchable.
+    The resolved id is stored on ``request.state.correlation_id`` for the
+    rest of the ASGI chain to read.
+
+    Citations:
+    - SPEC.md#L162-L168 (FR-10 — correlation_id in header + log)
+    - SPEC.md#L208-L213 (NFR-10 — observability)
+    - SAD.md §2.5 (`api/` hub functions — bind_correlation_id, problem_response)
+    """
+    inbound = request.headers.get(CORRELATION_ID_HEADER)
+    cid = inbound if inbound else str(uuid.uuid4())
+    request.state.correlation_id = cid
+    return cid

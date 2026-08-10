@@ -28,6 +28,8 @@ __all__ = [
     "TYPE_UNAUTHORIZED",
     "TYPE_FORBIDDEN",
     "TYPE_RATE_LIMITED",
+    "TYPE_NOT_READY",
+    "STATUS_TYPE_MAP",
     "ProblemError",
     "NotFoundError",
     "ConflictError",
@@ -35,6 +37,7 @@ __all__ = [
     "UnauthorizedError",
     "ForbiddenError",
     "RateLimitedError",
+    "NotReadyError",
     "problem",
 ]
 
@@ -48,9 +51,30 @@ TYPE_VALIDATION = "/errors/validation"
 TYPE_NOT_FOUND = "/errors/not-found"
 TYPE_CONFLICT = "/errors/conflict"
 TYPE_INTERNAL = "/errors/internal"
-TYPE_UNAUTHORIZED = "/errors/unauthorized"
+TYPE_UNAUTHORIZED = "/errors/unauthenticated"
 TYPE_FORBIDDEN = "/errors/forbidden"
 TYPE_RATE_LIMITED = "/errors/rate-limited"
+# [FR-10] 503 row of §7 — DB 不可用 / migration 未到 head. No earlier FR
+# needed this row, so it is new in FR-10.
+TYPE_NOT_READY = "/errors/not-ready"
+
+
+# [FR-10] Canonical §7 status -> `type` URI registry (AC-10.1, AC-10.4).
+# Exposing the table as a single dict lets every non-2xx response be built
+# from one source so no status can silently acquire a second, divergent
+# envelope. The keys are the HTTP statuses FR-10 enumerates; the values are
+# the `type` URIs the §7 rows spell out verbatim — including the SPEC.md §7
+# canonical spelling `/errors/unauthenticated` for HTTP 401.
+STATUS_TYPE_MAP: dict[int, str] = {
+    422: TYPE_VALIDATION,
+    401: TYPE_UNAUTHORIZED,
+    403: TYPE_FORBIDDEN,
+    404: TYPE_NOT_FOUND,
+    409: TYPE_CONFLICT,
+    429: TYPE_RATE_LIMITED,
+    503: TYPE_NOT_READY,
+    500: TYPE_INTERNAL,
+}
 
 
 class ProblemError(Exception):
@@ -192,6 +216,26 @@ class RateLimitedError(ProblemError):
         super().__init__(detail)
         self.retry_after = retry_after
         self.headers = {"Retry-After": str(retry_after)}
+
+
+class NotReadyError(ProblemError):
+    """Database unavailable / migration not at head → HTTP 503 (FR-09 / §7).
+
+    [FR-10] AC-10.1 / AC-10.4: the 503 row of SPEC.md §7 — DB 不可用 /
+    migration 未到 head — now ships as a problem+json envelope. Raising this
+    exception (rather than answering ``application/json`` directly) is what
+    brings ``/readyz`` under AC-10.1's "every non-2xx response" rule.
+
+    Citations:
+    - SPEC.md#L151-L157 (FR-09 — /readyz must fail closed when DB/migration
+      is degraded)
+    - SPEC.md#L395 (§7 — DB 不可用 / migration 未到 head | 503 |
+      `/errors/not-ready`)
+    """
+
+    status = 503
+    type_uri = TYPE_NOT_READY
+    title = "Service Not Ready"
 
 
 def problem(
