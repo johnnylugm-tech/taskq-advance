@@ -861,6 +861,37 @@ def test_list_results_returns_history(db_schema):
     assert returned_ids == {"run-list-1", "run-list-2"}
 
 
+def test_executor_submit_accepts_coroutine_object(monkeypatch):
+    """``Executor.submit`` coroutine-object branch (runner.py line 327).
+
+    ``submit`` accepts both coroutine *functions* (invoked once) and
+    already-built coroutine *objects* (awaited directly). The pre-existing
+    ``test_cancelled_error_propagates`` exercises the function path; this
+    case exercises the object path so both branches of the
+    ``inspect.iscoroutinefunction`` guard are covered.
+    """
+    from taskq_api.service.runner import Executor
+
+    monkeypatch.setenv("TASKQ_MAX_CONCURRENT", "8")
+    monkeypatch.setenv("TASKQ_DRAIN_TIMEOUT", "30.0")
+    monkeypatch.setenv("TASKQ_TASK_TIMEOUT", "30")
+
+    async def _drive():
+        executor = Executor()  # type: ignore[call-arg]
+
+        async def _value():
+            return "from-coroutine-object"
+
+        coro = _value()
+        # Pass the already-built coroutine — not the function. The
+        # ``inspect.iscoroutinefunction`` check is False on the object, so
+        # control flows to the ``return await cast(...)`` branch.
+        async with executor:
+            return await executor.submit(coro)
+
+    assert _run(_drive()) == "from-coroutine-object"
+
+
 def test_run_task_delegates_to_execute_task(monkeypatch, db_schema):
     """``run_task`` body (line 375) — compatibility shim.
 
