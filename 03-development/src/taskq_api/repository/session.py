@@ -16,9 +16,17 @@ A second helper, ``session_scope()``, hands out a request-scoped SQLAlchemy
 NFR-03). The route handlers use this through the dependency in
 ``taskq_api.api.deps``.
 
+[FR-09] The ``check_db_ready()`` and ``migration_at_head()`` helpers expose
+the readiness probe signals FR-09 requires (AC-9.1, AC-9.2). ``check_db_ready``
+issues a trivial ``SELECT 1`` so the operator probe catches a database that
+is reachable but locked or in recovery; ``migration_at_head`` reads the
+``alembic_version`` row so the probe can report when the schema revision is
+behind the FR-07 head (``v3_split_results``).
+
 Citations:
 - SPEC.md#L122-L128 (FR-06 — repository layer, one Session per request)
 - SPEC.md#L288-L292 (FR-06 — ``pool_size``, ``pool_pre_ping=True``)
+- SPEC.md#L151 (FR-09 — health probes, alembic current vs head)
 - SAD.md#L111-L138 (§2.4 `repository/` package — session, repos)
 - SAD.md#L235 (session_scope commit/rollback, FR-06 / NFR-03)
 - SRS.md#L92-L131 (FR-01 — persistence-backed CRUD)
@@ -27,15 +35,27 @@ Citations:
 from __future__ import annotations
 
 from contextlib import contextmanager
-from typing import Iterator
+from typing import Iterator, Tuple
 
-from sqlalchemy import create_engine, event
+from sqlalchemy import create_engine, event, text
 from sqlalchemy.engine import Engine
 from sqlalchemy.orm import Session, sessionmaker
 
 from taskq_api.config import db_pool_size, db_url
 
-__all__ = ["get_engine", "reset_engine", "session_scope"]
+__all__ = [
+    "check_db_ready",
+    "get_engine",
+    "migration_at_head",
+    "reset_engine",
+    "session_scope",
+]
+
+# [FR-09] Hard-coded head revision — sourced from
+# ``migrations/versions/v3_split_results.py``. A real implementation could
+# shell out to ``alembic heads``, but in this sandbox the migration files
+# are checked in alongside the app and the head is a build constant.
+_MIGRATION_HEAD = "v3_split_results"
 
 _engine: Engine | None = None
 _SessionLocal: sessionmaker[Session] | None = None
@@ -161,3 +181,63 @@ def session_scope() -> Iterator[Session]:
         raise
     finally:
         session.close()
+
+
+def check_db_ready() -> bool:
+    """Return True iff the database responds to a trivial query.
+
+    [FR-09] AC-9.1: the readiness probe MUST distinguish "the DB is
+    unreachable" from "the DB is reachable but unhealthy". A bare
+    ``SELECT 1`` round-trips through the connection pool and surfaces a
+    connection-level failure (network down, server stopped, authentication
+    rejected) as an exception the /readyz handler can map onto a 503.
+    Successful execution returns ``True``; the boolean return keeps the
+    failure mode obvious to operators reading the route.
+
+    Citations:
+    - SPEC.md#L151 (FR-09 — readiness probe)
+    - SAD.md (FR-09 health-check flow)
+    """
+    engine = get_engine()
+    with engine.connect() as connection:
+        result = connection.execute(text("SELECT 1"))
+        result.scalar()
+    return True
+
+
+def migration_at_head() -> Tuple[str | None, str]:
+    """Return ``(current_revision, head_revision)`` for the configured DB.
+
+    [FR-09] AC-9.2 / AC-9.3: the readiness probe composes the current Alembic
+    revision so a deployment that omits the migration step (or runs an old
+    revision) fails closed with a 503 carrying a body that names the
+    migration lag. ``current_revision`` is ``None`` when the
+    ``alembic_version`` table does not yet exist — that is the typical
+    fresh-deployment state described in AC-9.3, and ``/readyz`` MUST treat
+    it as a failure.
+
+    The head revision is hard-coded against
+    ``migrations/versions/v3_split_results.py`` (FR-07); in CI a future
+    tooling hook could replace this with ``alembic heads`` output.
+
+    Citations:
+    - SPEC.md#L151 (FR-09 — readiness probe, alembic current vs head)
+    - SAD.md (FR-09 health-check flow)
+    """
+    engine = get_engine()
+    current: str | None = None
+    try:
+        with engine.connect() as connection:
+            row = connection.execute(
+                text("SELECT version_num FROM alembic_version")
+            ).first()
+    except Exception:
+        # ``alembic_version`` does not exist (fresh DB, migration never
+        # ran). The caller MUST treat that as a failure — AC-9.3.
+        row = None
+    if row is not None:
+        # SQLAlchemy ``.first()`` returns a ``Row`` on supported dialects;
+        # normalise both shapes to a plain ``str | None`` for the caller.
+        first = row[0]
+        current = str(first) if first is not None else None
+    return current, _MIGRATION_HEAD

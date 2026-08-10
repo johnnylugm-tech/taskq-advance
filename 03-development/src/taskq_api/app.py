@@ -23,6 +23,7 @@ from fastapi.responses import JSONResponse
 from fastapi.routing import APIRoute, APIRouter
 
 from taskq_api import __version__
+from taskq_api.api.health import router as health_router
 from taskq_api.api.metrics import router as metrics_router
 from taskq_api.api.tasks import router as tasks_router
 from taskq_api.errors import (
@@ -173,6 +174,7 @@ def create_app() -> FastAPI:
 
     _register_router(application, tasks_router)
     _register_router(application, metrics_router)
+    _register_router(application, health_router)
     return application
 
 

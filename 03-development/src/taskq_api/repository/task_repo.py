@@ -31,7 +31,7 @@ from __future__ import annotations
 
 from typing import Any, Optional, Sequence, cast
 
-from sqlalchemy import select
+from sqlalchemy import func, select
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session, selectinload
 
@@ -45,6 +45,7 @@ __all__ = [
     "delete_task",
     "save_result",
     "get_results",
+    "count_tasks_by_status",
 ]
 
 
@@ -168,3 +169,29 @@ def get_results(session: Session, task_id: str) -> list[TaskResult]:
         .order_by(TaskResult.finished_at.desc())
     )
     return list(session.execute(statement).scalars().all())
+
+
+def count_tasks_by_status(session: Session) -> dict[str, int]:
+    """Return ``{status: count, ..., "total": N}`` for the ``tasks`` table.
+
+    [FR-09] AC-9.5: the metrics endpoint exposes task counts so an operator
+    can confirm the system is recording work. The aggregate is computed in
+    the repository layer (NFR-06 / FR-06) and returns a plain dict the HTTP
+    edge serialises — the API layer never imports SQLAlchemy.
+
+    The ``"total"`` key is added on top of the per-status breakdown so the
+    /v1/metrics body can expose a single ``task_count`` field an operator
+    can read without iterating the breakdown.
+
+    Citations:
+    - SPEC.md#L151-L157 (FR-09 — /v1/metrics, task counts)
+    - SAD.md#L131-L145 (§2.4 `task_repo.py` — repository owns SQL)
+    """
+    rows = session.execute(
+        select(Task.status, func.count(Task.id)).group_by(Task.status)
+    ).all()
+    counts: dict[str, int] = {"total": 0}
+    for status_value, count in rows:
+        counts[str(status_value)] = int(count)
+        counts["total"] = counts["total"] + int(count)
+    return counts
