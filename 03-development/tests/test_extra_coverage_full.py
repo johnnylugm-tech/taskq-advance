@@ -18,11 +18,9 @@ branches of the source tree are never executed by any test in the
 
 from __future__ import annotations
 
-import subprocess
 import sys
 from pathlib import Path
 
-import pytest
 from fastapi.exceptions import RequestValidationError
 from starlette.requests import Request
 
@@ -70,7 +68,6 @@ def test_migrations_env_file_config_branch(tmp_path, monkeypatch):
     # Any error from fileConfig (e.g. logging format missing) or from
     # downstream context.is_offline_mode() is irrelevant to the coverage
     # question; line 36 already executed.
-    import importlib
 
     try:
         import migrations.env as _env  # noqa: F401
@@ -89,7 +86,7 @@ def test_main_module_entry_point_invokes_main():
 
     main_path = Path("/Users/johnny/projects/taskq-advance/03-development/src/taskq_api/__main__.py")
     spec = importlib.util.spec_from_file_location("__main__test__", main_path)
-    module = importlib.util.module_from_spec(spec)
+    importlib.util.module_from_spec(spec)
 
     # We can't actually execute the if-guard directly via spec.loader.exec_module
     # (it checks __name__ != "__main__"), so instead invoke main() and the

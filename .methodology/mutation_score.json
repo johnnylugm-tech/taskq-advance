@@ -1,9 +1,9 @@
 {
-  "generated_at": "2026-08-10T19:04:30.281229+00:00",
+  "generated_at": "2026-08-10T20:32:14.195290+00:00",
   "tool": "mutmut",
-  "score": 74.4,
-  "killed": 256,
-  "survived": 88,
+  "score": 74.7,
+  "killed": 257,
+  "survived": 87,
   "paths_to_mutate": "03-development/src",
   "paths_to_exclude": [
     "__init__.py",
@@ -20,6 +20,6 @@
     "v3_split_results.py"
   ],
   "mutated_files": 29,
-  "cache_sha256": "271c2281a0e20e629e8c388d71930b4bb88ea53f5a43cbf5964a67fd44c2fd1d",
+  "cache_sha256": "7cfacae0c1ef5928a52b08d7aefc16276f08c318993f9106c6d2879ba6f726e2",
   "enforcer_sha": "db16717e4e7be7853f72a9c354da71be132ae3ec"
 }

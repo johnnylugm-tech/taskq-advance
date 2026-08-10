@@ -9,17 +9,12 @@ integration folder so they feed the integration_coverage measurement.
 
 from __future__ import annotations
 
-import os
-import shutil
 import subprocess
 import sys
-import tempfile
 from pathlib import Path
 
 import pytest
 
-from taskq_api.repository import session as db_session
-from taskq_api.models import orm
 
 
 @pytest.fixture()
@@ -209,7 +204,7 @@ def test_migrations_env_run_migrations_online(monkeypatch, tmp_path):
     from alembic.runtime import migration
     from alembic.script import ScriptDirectory
 
-    script = ScriptDirectory.from_config(cfg)
+    ScriptDirectory.from_config(cfg)
 
     def _do_run_online():
         from migrations.env import run_migrations_online

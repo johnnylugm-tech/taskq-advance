@@ -265,14 +265,18 @@
       }
     },
     "gate2": {
-      "score": 92.70636704119853,
-      "quality_complete": false,
+      "score": 94.84,
+      "quality_complete": true,
       "rounds_used": 2,
       "open_critical": 0,
       "open_high": 0,
       "dimensions_disabled": [
         "mutation_testing"
-      ]
+      ],
+      "phase": 3,
+      "gate": 2,
+      "fr_scope": "all",
+      "overall_score": 94.84
     },
     "gate3": null,
     "gate4": null

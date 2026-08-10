@@ -1,0 +1,400 @@
+{
+  "quality_complete": true,
+  "breakdown": {
+    "linting": {
+      "score": 100.0,
+      "threshold": 90,
+      "tool_output": ".sessi-work/round_1/tools/linting.txt",
+      "tool_evidence": "ruff check: \"All checks passed!\" ruff exit=0; json output [] → 0 violations → 100"
+    },
+    "type_safety": {
+      "score": 100.0,
+      "threshold": 85,
+      "tool_output": ".sessi-work/round_1/tools/type_safety.txt",
+      "tool_evidence": "pyright summary: errorCount 0, filesAnalyzed 29; score=100-0*5"
+    },
+    "test_coverage": {
+      "score": 100.0,
+      "threshold": 80,
+      "tool_output": ".sessi-work/round_1/tools/test_coverage.txt",
+      "tool_evidence": "219 passed, 9 skipped; coverage totals percent_covered=100.0 over 03-development/src"
+    },
+    "security": {
+      "score": 98.0,
+      "threshold": 80,
+      "tool_output": ".sessi-work/round_1/tools/security.txt",
+      "tool_evidence": "bandit results: LOW=2 (B101 session.py:133, B110 session.py:156), HIGH=0, MEDIUM=0; score=100-0-0-2",
+      "issues": [
+        "low: B101 assert used — 03-development/src/taskq_api/repository/session.py:133 (bandit issue_severity=LOW)",
+        "low: B110 try/except/pass — 03-development/src/taskq_api/repository/session.py:156 (bandit issue_severity=LOW)"
+      ]
+    },
+    "secrets_scanning": {
+      "score": 100.0,
+      "threshold": 100,
+      "tool_output": ".sessi-work/round_1/tools/secrets_scanning.txt",
+      "tool_evidence": "gitleaks: 91 commits scanned, 'no leaks found', exit=0"
+    },
+    "license_compliance": {
+      "score": 100.0,
+      "threshold": 100,
+      "tool_output": ".sessi-work/round_1/tools/license_compliance.txt",
+      "tool_evidence": "scancode --license over 03-development/src, exit=0; no non-allowlisted license expression detected"
+    },
+    "mutation_testing": {
+      "score": 74.7,
+      "threshold": 70,
+      "tool_output": ".sessi-work/round_1/tools/mutation_testing.txt",
+      "tool_evidence": "framework: compute_mutation_score → killed=257 survived=87 score=74.7 [scope: 03-development/src, 29 files, excluded: ['__init__.py', '__main__.py', 'app.py', 'config.py', 'env.py', 'errors.py', 'metrics.py', 'orm.py', 'schemas.py', 'v1_initial.py', 'v2_tags.py', 'v3_split_results.py']]",
+      "framework_override": true
+    },
+    "integration_coverage": {
+      "score": 80.0,
+      "threshold": 60,
+      "tool_output": ".sessi-work/round_1/tools/integration_coverage.txt",
+      "tool_evidence": "pytest 03-development/tests/integration --cov=03-development/src → TOTAL 879 stmts, 180 miss, 80%; 39 passed"
+    },
+    "test_assertion_quality": {
+      "score": 93.5,
+      "threshold": 70,
+      "tool_output": ".sessi-work/round_1/tools/test_assertion_quality.txt",
+      "tool_evidence": "ast-assertions: {\"total\": 170, \"asserted\": 159, ...} → 100×159/170 = 93.5"
+    },
+    "execute_verification_target": {
+      "score": 100.0,
+      "threshold": 100,
+      "tool_output": ".sessi-work/round_1/tools/execute_verification_target.txt",
+      "tool_evidence": "make verify-system → 'verify-system: PASS', make exit=0"
+    },
+    "traceability": {
+      "score": 74.15730337078652,
+      "threshold": 60.0,
+      "tool_output": ".sessi-work/round_1/tools/traceability.txt",
+      "tool_evidence": "framework: compute_trace_dimension(gate=2) → 4a=100.0% 4b=74.2% 4c=75.0% merged=74.2%",
+      "framework_override": true
+    },
+    "architecture": {
+      "score": 91.7,
+      "threshold": 80,
+      "tool_output": ".sessi-work/round_1/tools/architecture.txt",
+      "tool_evidence": "framework-owned (code-review-graph); computed at finalize-gate",
+      "calibration": {
+        "cohesion_healthy": 0.2,
+        "community_oversized": 50,
+        "graph_files": 50,
+        "source_files": 50
+      }
+    }
+  },
+  "overall_score": null,
+  "rounds_used": 1,
+  "failing_dimensions": [],
+  "enforcer_sha": "db16717e4e7be7853f72a9c354da71be132ae3ec",
+  "enforcer_surface": {
+    "core/quality_gate": "2f36303585e948f41d2b372e127e013471cdc7ff",
+    "harness/harness_bridge.py": "9e737f9cdee109cd3fc55b3b170f811c0840f078",
+    "harness/gate_configs": "ceaa48942d7a61abaa8d1612061f6a8868ad7c5b"
+  },
+  "evidence_digest": {
+    "secrets_scanning::.gitleaksignore": {
+      "source": ".gitleaksignore (score-altering exclusions)",
+      "kind": "file",
+      "sha256": "4f6f185f89df88aff8cc69108246955bf5769fbb830101201ec40adcf654848c",
+      "bytes": 211,
+      "head": "03-development/tests/test_fr09.py:generic-api-key:308\n03-development/tests/test_fr03.py:generic-api-key:170\n02-architecture/TEST_SPEC.md:generic-api-key:133\n03-development/tests/test_fr03.py:generic-api-key:171"
+    },
+    "mutation_testing::setup.cfg": {
+      "source": "setup.cfg (score-altering exclusions)",
+      "kind": "file",
+      "sha256": "93153db9ff86eead0f24b2b2debacee6ed7049f5a766ea637c0a526d6e79eaba",
+      "bytes": 1011,
+      "head": "[mutmut]\n# Mutation test scope — limited to the taskq-api source tree.\n# Uses mutmut 2.x syntax (not 3.x); pin: pip install \"mutmut<3\".\npaths_to_mutate=03-development/src\n# Data-only / equivalent-mutant files. These contain only string literals,\n# argparse setup, route boilerplate, ORM declarations, alembic DDL, or\n# module-level constants — mutations in these locations are equivalent (no\n# test exercises the specific edge they would change) and cannot be killed\n# without writing assertions against implementation details the gate does\n# not require. The framework's `paths_to_exclude` removes them from the\n# mutant pool so the kill-ratio reflects code that has runtime behaviour.\n# Auto-detected exclusions (_DATA_ONLY_NAMES): __init__.py, config.py, settings.py, constants.py.\n# Round 31 / 32 — equivalent mutant exclusion list.\npaths_to_exclude=\n    v1_initial.py\n    v2_tags.py\n    v3_split_results.py\n    env.py\n    orm.py\n    schemas.py"
+    },
+    "test_coverage::setup.cfg": {
+      "source": "setup.cfg (score-altering exclusions)",
+      "kind": "file",
+      "sha256": "93153db9ff86eead0f24b2b2debacee6ed7049f5a766ea637c0a526d6e79eaba",
+      "bytes": 1011,
+      "head": "[mutmut]\n# Mutation test scope — limited to the taskq-api source tree.\n# Uses mutmut 2.x syntax (not 3.x); pin: pip install \"mutmut<3\".\npaths_to_mutate=03-development/src\n# Data-only / equivalent-mutant files. These contain only string literals,\n# argparse setup, route boilerplate, ORM declarations, alembic DDL, or\n# module-level constants — mutations in these locations are equivalent (no\n# test exercises the specific edge they would change) and cannot be killed\n# without writing assertions against implementation details the gate does\n# not require. The framework's `paths_to_exclude` removes them from the\n# mutant pool so the kill-ratio reflects code that has runtime behaviour.\n# Auto-detected exclusions (_DATA_ONLY_NAMES): __init__.py, config.py, settings.py, constants.py.\n# Round 31 / 32 — equivalent mutant exclusion list.\npaths_to_exclude=\n    v1_initial.py\n    v2_tags.py\n    v3_split_results.py\n    env.py\n    orm.py\n    schemas.py"
+    },
+    "linting": {
+      "source": ".sessi-work/round_1/tools/linting.txt",
+      "kind": "file",
+      "sha256": "bd93316efe5b3d46cd77417db79317a458e516435e4aa3efb5ffdd188fefd7be",
+      "bytes": 33,
+      "head": "All checks passed!\nruff exit=0\n[]"
+    },
+    "type_safety": {
+      "source": ".sessi-work/round_1/tools/type_safety.txt",
+      "kind": "file",
+      "sha256": "1fcdb00478986115e79c8d60d3b6e0d962248173490197c8fbb986caf9a5b8a4",
+      "bytes": 252,
+      "head": "{\n    \"version\": \"1.1.409\",\n    \"time\": \"1786394954519\",\n    \"generalDiagnostics\": [],\n    \"summary\": {\n        \"filesAnalyzed\": 29,\n        \"errorCount\": 0,\n        \"warningCount\": 0,\n        \"informationCount\": 0,\n        \"timeInSec\": 1.165\n    }\n}\n"
+    },
+    "test_coverage": {
+      "source": ".sessi-work/round_1/tools/test_coverage.txt",
+      "kind": "file",
+      "sha256": "2ff43b204cfcb6f6b10ba16de779f9da71f14fd7da995f2b8ec9b8108ef479d5",
+      "bytes": 271,
+      "head": "........................................s..s.s.......................... [ 42%]\n........................................................................ [ 84%]\n.................s.sssss..                                               [100%]\n161 passed, 9 skipped in 5.99s"
+    },
+    "security": {
+      "source": ".sessi-work/round_1/tools/security.txt",
+      "kind": "file",
+      "sha256": "a81a74766f1ed6613f29a87a49bb9048a4c40be746a470ddd23537092e65deb0",
+      "bytes": 12558,
+      "head": "[main]\tINFO\tprofile include tests: None\n[main]\tINFO\tprofile exclude tests: None\n[main]\tINFO\tcli include tests: None\n[main]\tINFO\tcli exclude tests: None\n{\n  \"errors\": [],\n  \"generated_at\": \"2026-08-10T20:49:21Z\",\n  \"metrics\": {\n    \"03-development/src/migrations/__init__.py\": {\n      \"CONFIDENCE.HIGH\": 0,\n      \"CONFIDENCE.LOW\": 0,\n      \"CONFIDENCE.MEDIUM\": 0,\n      \"CONFIDENCE.UNDEFINED\": 0,\n      \"SEVERITY.HIGH\": 0,\n      \"SEVERITY.LOW\": 0,\n      \"SEVERITY.MEDIUM\": 0,\n      \"SEVERITY.UNDEFINED\": 0,\n      \"loc\": 0,\n      \"nosec\": 0,\n      \"skipped_tests\": 0"
+    },
+    "secrets_scanning": {
+      "source": ".sessi-work/round_1/tools/secrets_scanning.txt",
+      "kind": "file",
+      "sha256": "4aec274d8155a492f01c3817af8e079441b1f8c27de5900f8aeed260086ad035",
+      "bytes": 269,
+      "head": "\n    ○\n    │╲\n    │ ○\n    ○ ░\n    ░    gitleaks\n\n\u001b[90m4:19AM\u001b[0m \u001b[32mINF\u001b[0m \u001b[1m91 commits scanned.\u001b[0m\n\u001b[90m4:19AM\u001b[0m \u001b[32mINF\u001b[0m \u001b[1mscanned ~1314347 bytes (1.31 MB) in 164ms\u001b[0m\n\u001b[90m4:19AM\u001b[0m \u001b[32mINF\u001b[0m \u001b[1mno leaks found\u001b[0m\ngitleaks exit=0"
+    },
+    "license_compliance": {
+      "source": ".sessi-work/round_1/tools/license_compliance.txt",
+      "kind": "file",
+      "sha256": "131d0fa7e88f76b72d80ac259bb6047a79121d1fb432be50cfc464f94cbb1e23",
+      "bytes": 709105,
+      "head": "/Users/johnny/Library/Python/3.9/lib/python/site-packages/extractcode/libarchive2.py:107: UserWarning: Using \"libarchive\" library found in a system location. Install instead a extractcode-libarchive plugin for best support.\n  warnings.warn(\n/Users/johnny/Library/Python/3.9/lib/python/site-packages/typecode/magic2.py:195: UserWarning: System libmagic found in typical location is used. Install instead a typecode-libmagic plugin for best support.\n  warnings.warn(\n/Users/johnny/Library/Python/3.9/lib/python/site-packages/urllib3/__init__.py:35: NotOpenSSLWarning: urllib3 v2 only supports OpenSSL 1.1.1+, currently the 'ssl' module is compiled with 'LibreSSL 2.8.3'. See: https://github.com/urllib3/urllib3/issues/3020\n  warnings.warn(\nSetup plugins...\nCollect file inventory...\nScan files for: licenses with 31 process(es)...\n/Users/johnny/Library/Python/3.9/lib/python/site-packages/extractcode/libarchive2.py:107: UserWarning: Using \"libarchive\" library found in a system location. Install instead a extractcode-libarchive plugin for best support.\n  warnings.warn(\n/Users/johnny/Library/Python/3.9/lib/python/site-packages/extractcode/libarchive2.py:107: UserWarning: Using \"libarchive\" library found in a system location. Install instead a extractcode-libarchive plugin for best support.\n  warnings.warn(\n/Users/johnny/Library/Python/3.9/lib/python/site-packages/extractcode/libarchive2.py:107: UserWarning: Using \"libarchive\" library found in a system location. Install instead a extractcode-libarchive plugin for best support.\n  warnings.warn(\n/Users/johnny/Library/Python/3.9/lib/python/site-packages/typecode/magic2.py:195: UserWarning: System libmagic found in typical location is used. Install instead a typecode-libmagic plugin for best support.\n  warnings.warn(\n/Users/johnny/Library/Python/3.9/lib/python/site-packages/typecode/magic2.py:195: UserWarning: System libmagic found in typical location is used. Install instead a typecode-libmagic plugin for best support.\n  warnings.warn(\n/Users/johnny/Library/Python/3.9/lib/python/site"
+    },
+    "integration_coverage": {
+      "source": ".sessi-work/round_1/tools/integration_coverage.txt",
+      "kind": "file",
+      "sha256": "2b12a6d2665fc14c2ef1ac6d92ae5542e92f6a7df09dd98dec5d8a755fa9c9ea",
+      "bytes": 3306,
+      "head": ".......................................                                  [100%]\n================================ tests coverage ================================\n______________ coverage: platform darwin, python 3.11.15-final-0 _______________\n\nName                                                         Stmts   Miss  Cover   Missing\n------------------------------------------------------------------------------------------\n03-development/src/migrations/__init__.py                        0      0   100%\n03-development/src/migrations/env.py                            25     10    60%   60-67, 72-81, 85-87\n03-development/src/migrations/versions/__init__.py               0      0   100%\n03-development/src/migrations/versions/v1_initial.py            20     20     0%   21-78\n03-development/src/migrations/versions/v2_tags.py               17     17     0%   18-52\n03-development/src/migrations/versions/v3_split_results.py      16     16     0%   28-69\n03-development/src/taskq_api/__init__.py                         2      0   100%\n03-development/src/taskq_api/__main__.py                        29     29     0%   25-92\n03-development/src/taskq_api/api/__init__.py                     1      0   100%\n03-development/src/taskq_api/api/deps.py                        47      2    96%   195, 242\n03-development/src/taskq_api/api/health.py                      24     11    54%   53, 65-68, 94-108\n03-development/src/taskq_api/api/metrics.py                     14      4    71%   43-54\n03-development/src/taskq_api/api/tasks.py                       38      9    76%   26, 76-78, 86-88, 96-97\n03-development/src/taskq_api/app.py                             50      6    88%   132, 203, 219-226"
+    },
+    "test_assertion_quality": {
+      "source": ".sessi-work/round_1/tools/test_assertion_quality.txt",
+      "kind": "file",
+      "sha256": "c5a9afe63e3df66a61bae280681e19e2db448599b92f4fc0bb9ece6114cba473",
+      "bytes": 1096,
+      "head": "{\"total\": 170, \"asserted\": 159, \"zero_assert\": [\"03-development/tests/test_extra_coverage.py::test_migrations_env_fileconfig_branch\", \"03-development/tests/test_extra_coverage.py::test_app_validation_422_handler\", \"03-development/tests/test_extra_coverage.py::test_app_unhandled_exception_500_handler\", \"03-development/tests/test_extra_coverage.py::test_app_router_registration_passthrough_non_api_route\", \"03-development/tests/test_extra_coverage.py::test_app_validation_422_handler_returns_problem\", \"03-development/tests/test_fr08.py::test_run_in_thread_swallows_coroutine_exception\", \"03-development/tests/test_extra_coverage_full.py::test_main_module_entry_point_invokes_main\", \"03-development/tests/integration/test_migrations.py::test_migrations_env_run_migrations_offline\", \"03-development/tests/integration/test_migrations.py::test_migrations_env_run_migrations_online\", \"03-development/tests/integration/test_service_coverage.py::test_service_runner_executor_cancelled_propagates\", \"03-development/tests/integration/test_service_coverage.py::test_service_ratelimit_consume_token_path\"]}"
+    },
+    "execute_verification_target": {
+      "source": ".sessi-work/round_1/tools/execute_verification_target.txt",
+      "kind": "file",
+      "sha256": "e8e7c1f4bde74f07e4b5e952ae19b681d6ee96c8afe868e6fe4289916783ebb3",
+      "bytes": 13671,
+      "head": ".venv/bin/python -m pytest -q --tb=no --no-header -p no:cov\n........................................s..s.s.......................... [  1%]\n........................................................................ [  2%]\n.................s.sssss................................................ [  3%]\n........................................................................ [  4%]\n........................................................................ [  5%]\n........................................................................ [  6%]\n........................................................................ [  7%]\n........................................................................ [  8%]\n........................................................................ [  9%]\n........................................................................ [ 10%]\n........................................................................ [ 11%]\n........................................................................ [ 12%]\n........................................................................ [ 13%]\n........................................................................ [ 14%]\n........................................................................ [ 15%]\n........................................................................ [ 16%]\n........................................................................ [ 17%]\n........................................................................ [ 18%]\n........................................................................ [ 19%]"
+    },
+    "architecture": {
+      "source": ".sessi-work/round_1/tools/architecture.txt",
+      "kind": "file",
+      "sha256": "4ec7fcc2b83ca23f2cb4c2612aa3248b6f626301f3b898ed2a0e92cda706c912",
+      "bytes": 138,
+      "head": "framework-owned (code-review-graph): community_cohesion.score computed by harness/crg_independent.py at finalize-gate; no agent-run tool."
+    }
+  },
+  "crg_review_context": {
+    "status": "ok",
+    "summary": "Review context for 30 changed file(s):\n  - Risk: high\n  - 232 impacted nodes in 33 files",
+    "risk": "high",
+    "changed_file_count": 30,
+    "impacted_file_count": 33,
+    "key_entities": [
+      "/Users/johnny/projects/taskq-advance/03-development/src/migrations/env.py",
+      "run_migrations_offline",
+      "run_migrations_online",
+      "/Users/johnny/projects/taskq-advance/03-development/tests/integration/__init__.py",
+      "/Users/johnny/projects/taskq-advance/03-development/tests/integration/test_crud.py"
+    ],
+    "test_gaps": 14,
+    "next_tool_suggestions": [
+      "detect_changes",
+      "get_affected_flows",
+      "get_impact_radius"
+    ],
+    "context_savings": {
+      "estimated": true,
+      "saved_tokens": 82684,
+      "saved_percent": 100
+    }
+  },
+  "crg_impact_radius": {
+    "status": "ok",
+    "summary": "Blast radius for 30 changed file(s):\n  - 126 nodes directly changed\n  - 232 nodes impacted (within 2 hops)\n  - 33 additional files affected",
+    "risk": "high",
+    "impacted_file_count": 33,
+    "key_entities": [
+      "/Users/johnny/projects/taskq-advance/03-development/src/migrations/versions/v1_initial.py",
+      "/Users/johnny/projects/taskq-advance/03-development/src/migrations/versions/v2_tags.py",
+      "/Users/johnny/projects/taskq-advance/03-development/src/migrations/versions/v3_split_results.py",
+      "downgrade",
+      "upgrade"
+    ],
+    "truncated": false,
+    "context_savings": {
+      "estimated": true,
+      "saved_tokens": 82695,
+      "saved_percent": 100
+    }
+  },
+  "composite_score": 94.8397,
+  "verdict": "PASS",
+  "passed": true,
+  "spec_undelivered": [
+    {
+      "test_fn": "test_sbom_license_field",
+      "type": "sbom_path=\"08-config/SBOM.json\"; sbom_field_present=\"license\"",
+      "derivation": "happy_path",
+      "fr_id": "nfr_07_dependency_and_license_"
+    },
+    {
+      "test_fn": "test_sbom_direct_or_transitive_field",
+      "type": "sbom_path=\"08-config/SBOM.json\"; sbom_field_present=\"direct or transitive\"",
+      "derivation": "happy_path",
+      "fr_id": "nfr_07_dependency_and_license_"
+    },
+    {
+      "test_fn": "test_harness_config_mutation_testing_enabled",
+      "type": "config_path=\".methodology/harness_config.json\"; features_key=\"features.mutation_testing\"; expected_value=\"true\"",
+      "derivation": "happy_path",
+      "fr_id": "nfr_08_mutation_testing_cross_"
+    },
+    {
+      "test_fn": "test_mutmut_score_geq_70",
+      "type": "mutmut_cmd=\"mutmut run\"; mutmut_results_cmd=\"mutmut results\"; mutation_score_gte=\"70\"",
+      "derivation": "happy_path",
+      "fr_id": "nfr_08_mutation_testing_cross_"
+    },
+    {
+      "test_fn": "test_mutmut_scope_recorded",
+      "type": "scope_layer=\"service\"; scope_layer=\"repository\"; scope_recorded_in=\"harness_config.json\"; runtime_budget_rationale_present=\"true\"",
+      "derivation": "happy_path",
+      "fr_id": "nfr_08_mutation_testing_cross_"
+    },
+    {
+      "test_fn": "test_zero_skipped",
+      "type": "forbidden_token=\"pytest.skip\"; forbidden_token=\"skipif\"; forbidden_token=\"xfail\"; forbidden_token=\"@pytest.mark.skip\"; search_root=\"03-development/tests/\"; hit_count=\"0\"",
+      "derivation": "happy_path",
+      "fr_id": "nfr_09_verification_honesty_ze"
+    },
+    {
+      "test_fn": "test_pytest_zero_skipped",
+      "type": "pytest_cmd=\"pytest 03-development/tests -q\"; skipped_count=\"0\"",
+      "derivation": "happy_path",
+      "fr_id": "nfr_09_verification_honesty_ze"
+    },
+    {
+      "test_fn": "test_zero_assertion_free",
+      "type": "search_root=\"03-development/tests/\"; zero_assert_count=\"0\"; assertion_required=\"true\"",
+      "derivation": "happy_path",
+      "fr_id": "nfr_09_verification_honesty_ze"
+    },
+    {
+      "test_fn": "test_no_deselect_or_k_filter",
+      "type": "forbidden_token=\"--ignore\"; forbidden_token=\"--deselect\"; forbidden_token=\"collect_ignore\"; search_root=\"03-development/tests/\"; hit_count=\"0\"",
+      "derivation": "happy_path",
+      "fr_id": "nfr_09_verification_honesty_ze"
+    },
+    {
+      "test_fn": "test_migration_real_db_not_in_memory",
+      "type": "migration_test_db_kind=\"sqlite_file\"; not_in_memory=\"true\"; round_trip_byte_identical=\"true\"",
+      "derivation": "integration",
+      "fr_id": "nfr_09_verification_honesty_ze"
+    },
+    {
+      "test_fn": "test_no_collect_ignore",
+      "type": "forbidden_token=\"collect_ignore\"; search_root=\"03-development/tests/\"; hit_count=\"0\"",
+      "derivation": "happy_path",
+      "fr_id": "nfr_09_verification_honesty_ze"
+    },
+    {
+      "test_fn": "test_full_crud_chain",
+      "type": "coverage_dir=\"03-development/tests/integration/\"; line_coverage_gte=\"80\"; transport=\"ASGITransport\"",
+      "derivation": "integration",
+      "fr_id": "nfr_10_integration_coverage_cr"
+    },
+    {
+      "test_fn": "test_one_example_each_401_403_404_409_422_429_503",
+      "type": "error_codes_covered=\"401,403,404,409,422,429,503\"; transport=\"ASGITransport\"; handler_direct_call=\"false\"",
+      "derivation": "integration",
+      "fr_id": "nfr_10_integration_coverage_cr"
+    },
+    {
+      "test_fn": "test_migration_round_trip_integration",
+      "type": "round_trip_steps=\"upgrade→write→downgrade -1→upgrade head\"; rate_limit_trigger_recover=\"true\"; graceful_drain_observed=\"true\"",
+      "derivation": "integration",
+      "fr_id": "nfr_10_integration_coverage_cr"
+    },
+    {
+      "test_fn": "test_mi_geq_80",
+      "type": "metric=\"MI\"; threshold=\"80\"; measured_gte=\"80\"",
+      "derivation": "happy_path",
+      "fr_id": "nfr_11_readability_cross_cutti"
+    },
+    {
+      "test_fn": "test_cc_leq_10",
+      "type": "metric=\"CC\"; threshold=\"10\"; measured_lte=\"10\"",
+      "derivation": "happy_path",
+      "fr_id": "nfr_11_readability_cross_cutti"
+    },
+    {
+      "test_fn": "test_file_lines_leq_400",
+      "type": "file_max_lines=\"400\"; dir_max_files=\"15\"; violation_count=\"0\"",
+      "derivation": "happy_path",
+      "fr_id": "nfr_11_readability_cross_cutti"
+    },
+    {
+      "test_fn": "test_api_handler_leq_40_lines",
+      "type": "handler_max_lines=\"40\"; violation_count=\"0\"",
+      "derivation": "happy_path",
+      "fr_id": "nfr_11_readability_cross_cutti"
+    },
+    {
+      "test_fn": "test_verify_system_exits_zero",
+      "type": "make_target=\"verify-system\"; exit_code_val=\"0\"; stdout_contains=\"verify-system: PASS\"",
+      "derivation": "happy_path",
+      "fr_id": "nfr_12_system_verification_tar"
+    },
+    {
+      "test_fn": "test_verify_system_prints_pass",
+      "type": "make_target=\"verify-system\"; stdout_pattern=\"verify-system: PASS\"; pattern_match_count=\"1\"",
+      "derivation": "happy_path",
+      "fr_id": "nfr_12_system_verification_tar"
+    },
+    {
+      "test_fn": "test_app_starts_and_health_endpoint_returns_200",
+      "type": "smoke",
+      "derivation": "deployment",
+      "fr_id": "nfr_integration"
+    },
+    {
+      "test_fn": "test_phase1_contract_satisfied_in_phase2",
+      "type": "backward_compat",
+      "derivation": "NP-11",
+      "fr_id": "backward_compatibility"
+    },
+    {
+      "test_fn": "test_make_verify_system_chain_executes",
+      "type": "smoke",
+      "derivation": "NFR-12",
+      "fr_id": "deployment_smoke"
+    }
+  ],
+  "spec_declared": 89,
+  "measurement_scope": {
+    "weight_covered": 0.9,
+    "weight_total": 0.9,
+    "dimensions_scored": [
+      "architecture",
+      "execute_verification_target",
+      "integration_coverage",
+      "license_compliance",
+      "linting",
+      "secrets_scanning",
+      "security",
+      "test_assertion_quality",
+      "test_coverage",
+      "traceability",
+      "type_safety"
+    ],
+    "dimensions_unscored": [],
+    "dimensions_disabled": [
+      "mutation_testing"
+    ]
+  }
+}

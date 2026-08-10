@@ -16,7 +16,6 @@ suite's coverage to the floor without depending on auth_dep being green.
 from __future__ import annotations
 
 import asyncio
-import os
 import uuid
 
 import pytest
@@ -82,7 +81,6 @@ def test_repository_key_repo_roundtrip_direct():
 
 def test_service_tasks_list_and_metrics_direct():
     """service/tasks.py — list path via the public service surface."""
-    from taskq_api.service import tasks as service_tasks
     from taskq_api.repository import task_repo
 
     name = "int-tasks-" + uuid.uuid4().hex
@@ -222,15 +220,13 @@ def test_service_runner_drain_one_base_exception():
     asyncio.new_event_loop().run_until_complete(_drive())
 
 
-def test_repository_session_engine_helpers():
-    """repository/session.py — helper paths (engine / sessionmaker lifecycle)."""
-    from taskq_api.repository import session as db_session
-
-    # Touch the db_url / db_pool_size / db_echo helpers (lines 156-160 etc).
-    from taskq_api.config import db_pool_size, db_echo
+def test_repository_config_helpers():
+    """config.py — db_url / db_pool_size helpers."""
+    # Touch the db_url / db_pool_size helpers (lines 156-160 etc).
+    from taskq_api.config import db_pool_size, db_url
 
     assert isinstance(db_pool_size(), int)
-    assert isinstance(db_echo(), bool)
+    assert isinstance(db_url(), str)
 
 
 def test_repository_session_migration_at_head_and_db_ready():
@@ -250,7 +246,6 @@ def test_repository_session_migration_at_head_and_db_ready():
 def test_repository_task_repo_update_status_and_delete():
     """repository/task_repo.py — update_task_status + delete_task branches."""
     from taskq_api.repository import task_repo
-    from taskq_api.service import tasks as service_tasks
 
     name = "int-update-" + uuid.uuid4().hex
     with db_session.session_scope() as s:
@@ -279,7 +274,7 @@ def test_repository_key_repo_revoked_at_iso_string():
 
     plaintext = "sk-int-revoke-" + uuid.uuid4().hex
     with db_session.session_scope() as s:
-        created = key_repo.create_api_key(s, scope="read", plaintext=plaintext)
+        key_repo.create_api_key(s, scope="read", plaintext=plaintext)
         s.flush()
         # Cover the str branch of _coerce_revoked_at by passing an ISO-8601
         # string. key_repo only exposes _coerce_revoked_at as a private
@@ -293,8 +288,6 @@ def test_repository_key_repo_revoked_at_iso_string():
 
 def test_repository_session_engine_helpers():
     """repository/session.py — helper paths (engine / sessionmaker lifecycle)."""
-    from taskq_api.repository import session as db_session
-
     engine = db_session.get_engine()
     assert engine is not None
     SessionLocal = db_session._ensure_sessionmaker()

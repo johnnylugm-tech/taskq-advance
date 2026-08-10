@@ -12,17 +12,81 @@ names from TEST_SPEC.md and counts them when implemented here).
 
 from __future__ import annotations
 
+import asyncio
 import json
 import os
 import re
 import subprocess
 import sys
+import uuid
 from pathlib import Path
 
 import pytest
+from httpx import ASGITransport, AsyncClient
 
 SRC_ROOT = Path(__file__).resolve().parent.parent / "src"
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
+
+
+# --------------------------------------------------------------------------
+# In-process request helpers (shared by the NFR-04 / NFR-05 cases below).
+# --------------------------------------------------------------------------
+
+
+def _db_session():
+    """Return the repository session module (imported lazily, post-fixture)."""
+    from taskq_api.repository import session as db_session
+
+    return db_session
+
+
+def _app_with_key(scope: str):
+    """Build a fresh app on the per-test SQLite file and seed a key of ``scope``."""
+    from taskq_api.app import create_app
+    from taskq_api.models import orm
+    from taskq_api.repository import key_repo
+
+    db_session = _db_session()
+    db_session.reset_engine()
+    application = create_app()
+    orm.Base.metadata.create_all(db_session.get_engine())
+
+    plaintext = "sk-nfr-" + uuid.uuid4().hex
+    with db_session.session_scope() as session:
+        key_repo.create_api_key(session, scope=scope, plaintext=plaintext)
+    return application, plaintext
+
+
+def _request(application, method: str, path: str, *, headers=None):
+    """Drive one in-process request through the ASGI stack."""
+
+    async def _drive():
+        transport = ASGITransport(app=application, raise_app_exceptions=False)
+        async with AsyncClient(transport=transport, base_url="http://testserver") as client:
+            return await client.request(method, path, headers=headers or {})
+
+    return asyncio.new_event_loop().run_until_complete(_drive())
+
+
+def _forbidden_body(application, plaintext: str, task_id: str) -> str:
+    """Return the 403 body for DELETE /v1/tasks/{task_id}, minus per-request ids.
+
+    ``correlation_id`` and ``instance`` are request-scoped by design (FR-10),
+    so they are normalised out before the two bodies are compared.
+    """
+    response = _request(
+        application,
+        "DELETE",
+        f"/v1/tasks/{task_id}",
+        headers={"X-API-Key": plaintext},
+    )
+    assert response.status_code == 403, (
+        f"a read-scope key must be refused on DELETE; got {response.status_code}"
+    )
+    body = response.json()
+    body.pop("correlation_id", None)
+    body.pop("instance", None)
+    return json.dumps(body, sort_keys=True)
 
 
 # --------------------------------------------------------------------------
@@ -48,11 +112,59 @@ def test_list_p95_under_80ms_at_10k_rows() -> None:
     assert p95_budget_ms <= 200
 
 
-def test_sql_count_constant_via_event_listener() -> None:
-    """SQL statement count must remain constant under load (NFR-01)."""
-    # The actual event-listener assertion is in test_fr01.py; this stub
-    # documents the invariant the listener protects.
-    assert True
+def test_sql_count_constant_via_event_listener(sqlite_db_url) -> None:
+    """SQL statement count must remain constant under load (NFR-01).
+
+    A SQLAlchemy ``before_cursor_execute`` listener counts the statements a
+    single ``list_tasks`` page emits. The count must not grow with the number
+    of rows in the table — that is what the ``selectinload`` eager loads buy
+    (no N+1). Measured at 3 rows and again at 30.
+    """
+    from sqlalchemy import event
+
+    from taskq_api.models import orm
+    from taskq_api.repository import session as db_session
+    from taskq_api.repository import task_repo
+
+    db_session.reset_engine()
+    engine = db_session.get_engine()
+    orm.Base.metadata.create_all(engine)
+
+    statements: list[str] = []
+
+    def _count(conn, cursor, statement, parameters, context, executemany):
+        statements.append(statement)
+
+    def _seed(count: int) -> None:
+        with db_session.session_scope() as session:
+            for _ in range(count):
+                task_repo.create_task(
+                    session,
+                    name=f"nfr01-{uuid.uuid4().hex}",
+                    command="echo nfr01",
+                )
+
+    def _page_statement_count() -> int:
+        statements.clear()
+        event.listen(engine, "before_cursor_execute", _count)
+        try:
+            with db_session.session_scope() as session:
+                rows, _cursor = task_repo.list_tasks(session, limit=50)
+                assert rows is not None
+        finally:
+            event.remove(engine, "before_cursor_execute", _count)
+        return len([s for s in statements if s.lstrip().upper().startswith("SELECT")])
+
+    _seed(3)
+    small = _page_statement_count()
+    _seed(27)
+    large = _page_statement_count()
+
+    assert small > 0, "the list query must emit at least one SELECT"
+    assert large == small, (
+        "NFR-01: the per-page SELECT count must be constant regardless of row "
+        f"count (N+1 regression); 3 rows -> {small}, 30 rows -> {large}"
+    )
 
 
 # --------------------------------------------------------------------------
@@ -100,18 +212,65 @@ def test_grep_string_concat_sql_zero_hits() -> None:
 # --------------------------------------------------------------------------
 
 
-def test_403_body_no_resource_leak() -> None:
-    """403 error body MUST be byte-identical regardless of resource existence (NFR-04)."""
-    # The actual byte-identicality test lives in test_fr04.py; here we assert
-    # the invariant is documented.
-    assert True
+def test_403_body_no_resource_leak(sqlite_db_url) -> None:
+    """403 body MUST be byte-identical whether or not the resource exists (NFR-04).
+
+    A read-scope key hitting a write route gets 403. If the body differed for
+    an existing vs a missing task id, the 403 would leak resource existence to
+    a caller that is not allowed to know.
+    """
+    application, plaintext = _app_with_key("read")
+
+    with _db_session().session_scope() as session:
+        from taskq_api.repository import task_repo
+
+        task = task_repo.create_task(
+            session, name=f"nfr04-{uuid.uuid4().hex}", command="echo nfr04"
+        )
+        session.flush()
+        existing_id = task.id
+
+    missing_id = "task-does-not-exist-" + uuid.uuid4().hex
+
+    existing_body = _forbidden_body(application, plaintext, existing_id)
+    missing_body = _forbidden_body(application, plaintext, missing_id)
+
+    assert existing_body == missing_body, (
+        "NFR-04: the 403 envelope must not vary with resource existence; "
+        f"existing={existing_body!r} missing={missing_body!r}"
+    )
 
 
-def test_500_body_no_leak() -> None:
-    """500 error body MUST NOT contain stack/SQL/path internals (NFR-04)."""
-    # The actual no-leak test lives in test_fr10.py; here we assert the
-    # invariant is documented.
-    assert True
+def test_500_body_no_leak(sqlite_db_url, monkeypatch) -> None:
+    """500 body MUST NOT contain stack/SQL/path internals (NFR-04).
+
+    A fault is injected into the list handler's service call so the request
+    reaches the unhandled-exception handler; the response body is then scanned
+    for the three leak classes NFR-04 names.
+    """
+    from taskq_api.service import tasks as service_tasks
+
+    application, plaintext = _app_with_key("read")
+
+    def _boom(*_args, **_kwargs):
+        raise RuntimeError(
+            "SELECT * FROM tasks failed at /Users/secret/path/task_repo.py"
+        )
+
+    monkeypatch.setattr(service_tasks, "list_tasks", _boom)
+
+    response = _request(
+        application, "GET", "/v1/tasks", headers={"X-API-Key": plaintext}
+    )
+
+    assert response.status_code == 500, (
+        f"the injected fault must surface as 500; got {response.status_code}"
+    )
+    body = response.text
+    for leak in ("Traceback", "SELECT", "/Users/", "task_repo.py"):
+        assert leak not in body, (
+            f"NFR-04: the 500 envelope leaked {leak!r}; body={body!r}"
+        )
 
 
 # --------------------------------------------------------------------------
@@ -160,11 +319,51 @@ def test_db_failure_readyz_503() -> None:
 # --------------------------------------------------------------------------
 
 
-def test_migration_failure_rolls_back() -> None:
-    """Injected v3 upgrade failure MUST leave DB at v2 (NFR-03)."""
-    # The actual rollback test lives in test_fr07.py; here we assert the
-    # invariant is documented.
-    assert True
+def test_migration_failure_rolls_back(tmp_path, monkeypatch) -> None:
+    """A failed v3 upgrade MUST leave the DB at v2 (NFR-03).
+
+    The failure is injected the way a real one arrives — from the database:
+    ``task_results`` is pre-created so v3's ``CREATE TABLE`` raises. Alembic
+    runs each revision in a transaction, so ``alembic_version`` must still
+    read ``v2_tags`` afterwards, never a half-applied v3.
+    """
+    from alembic import command
+    from alembic.config import Config
+    from sqlalchemy import create_engine, text
+    from sqlalchemy.exc import OperationalError
+
+    db_path = tmp_path / "rollback.db"
+    url = f"sqlite:///{db_path}"
+    monkeypatch.setenv("TASKQ_DB_URL", url)
+
+    cfg = Config()
+    cfg.set_main_option("script_location", str(SRC_ROOT / "migrations"))
+    cfg.set_main_option("sqlalchemy.url", url)
+
+    command.upgrade(cfg, "v2_tags")
+
+    engine = create_engine(url)
+    with engine.begin() as conn:
+        conn.execute(text("CREATE TABLE task_results (task_id TEXT PRIMARY KEY)"))
+
+    with pytest.raises(OperationalError, match="task_results"):
+        command.upgrade(cfg, "head")
+
+    with engine.connect() as conn:
+        version = conn.execute(text("SELECT version_num FROM alembic_version")).scalar()
+        columns = {
+            row[1]
+            for row in conn.execute(text("PRAGMA table_info(tasks)")).fetchall()
+        }
+    engine.dispose()
+
+    assert version == "v2_tags", (
+        "NFR-03: a failed v3 upgrade must leave the DB stamped at v2_tags; "
+        f"got {version!r}"
+    )
+    assert "result_json" in columns, (
+        "NFR-03: the rolled-back upgrade must not have dropped tasks.result_json"
+    )
 
 
 # --------------------------------------------------------------------------
@@ -173,10 +372,28 @@ def test_migration_failure_rolls_back() -> None:
 
 
 def test_db_url_password_not_logged_unit() -> None:
-    """DB password MUST NOT appear in log output or metric output (NFR-04)."""
-    # The actual log/metric scan lives in test_fr03.py; here we assert the
-    # invariant is documented.
-    assert True
+    """The DB URL MUST never reach a log or metric call site (NFR-04).
+
+    The URL may carry a password, so no source line may pass ``db_url()`` or
+    ``TASKQ_DB_URL`` into a logging / metrics emitter. This is checked
+    statically: a runtime scan only sees the URLs the test happens to use.
+    """
+    emitters = re.compile(
+        r"\b(?:log(?:ger|ging)?\.(?:debug|info|warning|error|exception|critical)"
+        r"|print|observe|set|inc|labels)\s*\([^)]*"
+        r"(?:db_url\s*\(\)|TASKQ_DB_URL)",
+        re.IGNORECASE,
+    )
+    assert SRC_ROOT.exists(), f"src root not found: {SRC_ROOT}"
+    offenders = [
+        f"{path}:{i}"
+        for path in SRC_ROOT.rglob("*.py")
+        for i, line in enumerate(path.read_text(encoding="utf-8").splitlines(), 1)
+        if emitters.search(line)
+    ]
+    assert offenders == [], (
+        f"NFR-04: the DB URL must not be logged or exported as a metric: {offenders}"
+    )
 
 
 # --------------------------------------------------------------------------
@@ -184,11 +401,26 @@ def test_db_url_password_not_logged_unit() -> None:
 # --------------------------------------------------------------------------
 
 
-def test_openapi_json_complete() -> None:
-    """OpenAPI doc MUST list every FR-01..FR-09 route with summary + description."""
-    # The actual OpenAPI scan lives in test_fr01.py; here we assert the
-    # invariant is documented.
-    assert True
+def test_openapi_json_complete(sqlite_db_url) -> None:
+    """Every /v1 operation in the OpenAPI doc MUST carry summary + description (NFR-05)."""
+    from taskq_api.app import create_app
+
+    schema = create_app().openapi()
+    v1_paths = {p: item for p, item in schema["paths"].items() if p.startswith("/v1")}
+
+    assert v1_paths, "the OpenAPI document must expose the /v1 surface"
+
+    missing: list[str] = []
+    for path, item in v1_paths.items():
+        for method, operation in item.items():
+            if method.lower() not in {"get", "post", "put", "patch", "delete"}:
+                continue
+            if not operation.get("summary") or not operation.get("description"):
+                missing.append(f"{method.upper()} {path}")
+
+    assert missing == [], (
+        f"NFR-05: every /v1 operation needs an OpenAPI summary and description; missing: {missing}"
+    )
 
 
 # --------------------------------------------------------------------------
@@ -456,31 +688,14 @@ def test_overall_coverage_threshold() -> None:
 # --------------------------------------------------------------------------
 
 
-def test_healthz_no_auth_required() -> None:
-    """GET /healthz MUST NOT require an API key (FR-09 AC-9.4)."""
-    # The actual auth-bypass test lives in test_fr09.py; here we assert the
-    # invariant is documented.
-    assert True
 
 
-def test_metrics_no_auth_required() -> None:
-    """GET /v1/metrics MUST NOT require an API key (FR-09 AC-9.4)."""
-    assert True
 
 
-def test_metrics_no_rate_limit() -> None:
-    """GET /v1/metrics MUST NOT be subject to rate limiting (FR-09 AC-9.4)."""
-    assert True
 
 
-def test_readyz_no_auth_required() -> None:
-    """GET /readyz MUST NOT require an API key (FR-09 AC-9.4)."""
-    assert True
 
 
-def test_readyz_no_rate_limit() -> None:
-    """GET /readyz MUST NOT be subject to rate limiting (FR-09 AC-9.4)."""
-    assert True
 
 
 # --------------------------------------------------------------------------
@@ -488,14 +703,8 @@ def test_readyz_no_rate_limit() -> None:
 # --------------------------------------------------------------------------
 
 
-def test_correlation_id_propagates_through_request() -> None:
-    """An X-Correlation-Id header MUST be echoed back to the client (FR-10)."""
-    assert True
 
 
-def test_correlation_id_generated_when_missing() -> None:
-    """If X-Correlation-Id is absent, the server MUST generate one (FR-10)."""
-    assert True
 
 
 # --------------------------------------------------------------------------
@@ -503,14 +712,8 @@ def test_correlation_id_generated_when_missing() -> None:
 # --------------------------------------------------------------------------
 
 
-def test_logs_include_correlation_id() -> None:
-    """Every log line MUST include the request's correlation_id (FR-10)."""
-    assert True
 
 
-def test_logs_scrub_secrets() -> None:
-    """Log redaction hook MUST replace matching secrets with [REDACTED] (NFR-04)."""
-    assert True
 
 
 # --------------------------------------------------------------------------
@@ -518,34 +721,16 @@ def test_logs_scrub_secrets() -> None:
 # --------------------------------------------------------------------------
 
 
-def test_problem_json_includes_type_field() -> None:
-    """Every problem+json body MUST include ``type`` field (FR-10)."""
-    assert True
 
 
-def test_problem_json_includes_title_field() -> None:
-    """Every problem+json body MUST include ``title`` field (FR-10)."""
-    assert True
 
 
-def test_problem_json_includes_status_field() -> None:
-    """Every problem+json body MUST include ``status`` field (FR-10)."""
-    assert True
 
 
-def test_problem_json_includes_detail_field() -> None:
-    """Every problem+json body MUST include ``detail`` field (FR-10)."""
-    assert True
 
 
-def test_problem_json_includes_instance_field() -> None:
-    """Every problem+json body MUST include ``instance`` field (FR-10)."""
-    assert True
 
 
-def test_problem_json_response_content_type() -> None:
-    """problem+json responses MUST use ``application/problem+json`` (FR-10)."""
-    assert True
 
 
 # --------------------------------------------------------------------------
@@ -553,19 +738,10 @@ def test_problem_json_response_content_type() -> None:
 # --------------------------------------------------------------------------
 
 
-def test_rate_limit_headers_present_on_429() -> None:
-    """429 responses MUST include Retry-After header (FR-05)."""
-    assert True
 
 
-def test_rate_limit_burst_capacity() -> None:
-    """Default burst capacity is enforced on every key (FR-05)."""
-    assert True
 
 
-def test_rate_limit_refill_continuous() -> None:
-    """Bucket refill is continuous (tokens + rate * elapsed) (FR-05)."""
-    assert True
 
 
 # --------------------------------------------------------------------------
@@ -573,24 +749,12 @@ def test_rate_limit_refill_continuous() -> None:
 # --------------------------------------------------------------------------
 
 
-def test_api_key_hash_sha256() -> None:
-    """API keys MUST be stored as sha256 hex (NFR-04)."""
-    assert True
 
 
-def test_api_key_hmac_compare_digest() -> None:
-    """API key comparison MUST use ``hmac.compare_digest`` (NFR-04)."""
-    assert True
 
 
-def test_api_key_revoked_rejected() -> None:
-    """Revoked keys MUST be rejected with 401 (FR-03)."""
-    assert True
 
 
-def test_api_key_scope_enforced_on_routes() -> None:
-    """Write/read scopes MUST be enforced on DELETE / POST routes (FR-04)."""
-    assert True
 
 
 # --------------------------------------------------------------------------
@@ -598,89 +762,38 @@ def test_api_key_scope_enforced_on_routes() -> None:
 # --------------------------------------------------------------------------
 
 
-def test_task_status_transitions_legal() -> None:
-    """Task status transitions MUST follow the SPEC.md state machine (FR-01)."""
-    assert True
 
 
-def test_task_name_validation_rejects_empty() -> None:
-    """Task name MUST be non-empty (FR-01)."""
-    assert True
 
 
-def test_task_name_validation_rejects_too_long() -> None:
-    """Task name MUST be ≤ 256 chars (FR-01)."""
-    assert True
 
 
-def test_task_name_validation_rejects_blacklist_chars() -> None:
-    """Task name MUST reject SPEC.md blacklist chars (FR-01)."""
-    assert True
 
 
-def test_task_payload_size_limit() -> None:
-    """Task payload MUST be ≤ 64 KB (FR-01)."""
-    assert True
 
 
-def test_task_results_size_limit() -> None:
-    """Task results MUST be ≤ 1 MB (FR-01)."""
-    assert True
 
 
-def test_task_list_default_limit() -> None:
-    """Task list default limit is 50 (FR-01)."""
-    assert True
 
 
-def test_task_list_max_limit() -> None:
-    """Task list max limit is 100 (FR-01)."""
-    assert True
 
 
-def test_task_list_cursor_round_trip() -> None:
-    """Pagination cursor MUST round-trip through encode/decode (FR-01)."""
-    assert True
 
 
-def test_task_run_only_after_create() -> None:
-    """``run`` is allowed only after ``create`` returns (FR-02)."""
-    assert True
 
 
-def test_task_run_creates_run_record() -> None:
-    """A run invocation MUST create a runs row (FR-02)."""
-    assert True
 
 
-def test_task_run_idempotency() -> None:
-    """Run invocation with same idempotency_key MUST be idempotent (FR-02)."""
-    assert True
 
 
-def test_task_run_respects_timeout() -> None:
-    """Run MUST honor TASKQ_TASK_TIMEOUT (FR-02)."""
-    assert True
 
 
-def test_task_run_shell_command_executed() -> None:
-    """Run MUST execute the task's command via subprocess (FR-02)."""
-    assert True
 
 
-def test_task_run_stdout_stderr_captured() -> None:
-    """Run MUST capture stdout and stderr (FR-02)."""
-    assert True
 
 
-def test_task_run_exit_code_recorded() -> None:
-    """Run MUST record the subprocess exit_code (FR-02)."""
-    assert True
 
 
-def test_task_run_persists_results() -> None:
-    """Run MUST persist the results to the task row (FR-02)."""
-    assert True
 
 
 # --------------------------------------------------------------------------
@@ -688,24 +801,12 @@ def test_task_run_persists_results() -> None:
 # --------------------------------------------------------------------------
 
 
-def test_max_concurrent_tasks_enforced() -> None:
-    """Global TASKQ_MAX_CONCURRENT MUST be enforced (FR-02)."""
-    assert True
 
 
-def test_drain_graceful_shutdown() -> None:
-    """SIGTERM MUST trigger TASKQ_DRAIN_TIMEOUT graceful drain (FR-08)."""
-    assert True
 
 
-def test_drain_aborts_after_timeout() -> None:
-    """Drain MUST hard-abort after TASKQ_DRAIN_TIMEOUT (FR-08)."""
-    assert True
 
 
-def test_drain_no_orphan_processes() -> None:
-    """Drain MUST leave no orphan processes (NFR-03)."""
-    assert True
 
 
 # --------------------------------------------------------------------------
@@ -713,29 +814,14 @@ def test_drain_no_orphan_processes() -> None:
 # --------------------------------------------------------------------------
 
 
-def test_session_commit_on_success() -> None:
-    """session_scope MUST commit on success (NFR-03)."""
-    assert True
 
 
-def test_session_rollback_on_exception() -> None:
-    """session_scope MUST rollback on any exception (NFR-03)."""
-    assert True
 
 
-def test_session_propagates_cancelled_error() -> None:
-    """CancelledError MUST NOT be swallowed by session_scope (NFR-03)."""
-    assert True
 
 
-def test_session_closes_on_exit() -> None:
-    """session_scope MUST close the session on every exit path (NFR-03)."""
-    assert True
 
 
-def test_session_no_orphan_engine() -> None:
-    """reset_engine MUST close the prior engine before creating a new one (NFR-03)."""
-    assert True
 
 
 # --------------------------------------------------------------------------
@@ -743,51 +829,21 @@ def test_session_no_orphan_engine() -> None:
 # --------------------------------------------------------------------------
 
 
-def test_correlation_id_matches_header_and_log() -> None:
-    """correlation_id MUST match between response header and log line (FR-10)."""
-    assert True
 
 
-def test_status_code_mapping_unit() -> None:
-    """STATUS_TYPE_MAP MUST match SPEC.md §7 exactly (FR-10)."""
-    assert True
 
 
-def test_500_body_no_stack_or_path() -> None:
-    """500 body MUST NOT contain stack traces or file paths (NFR-04)."""
-    assert True
 
 
-def test_problem_json_fields_unit() -> None:
-    """Every problem+json body MUST carry exactly the six FR-10 fields."""
-    assert True
 
 
-def test_test_outputs_no_secrets() -> None:
-    """Test session output MUST NOT contain secrets (NFR-04)."""
-    assert True
 
 
-def test_no_stack_in_responses() -> None:
-    """No response body MUST contain a Python stack trace (NFR-04)."""
-    assert True
 
 
-def test_db_connection_alive_check() -> None:
-    """readyz MUST verify DB connectivity before returning 200 (FR-09)."""
-    assert True
 
 
-def test_migration_at_head_check() -> None:
-    """readyz MUST verify migration_head before returning 200 (FR-09)."""
-    assert True
 
 
-def test_healthz_no_db_check() -> None:
-    """healthz MUST return 200 even when DB is unreachable (FR-09)."""
-    assert True
 
 
-def test_healthz_no_migration_check() -> None:
-    """healthz MUST NOT verify migration head (FR-09)."""
-    assert True

@@ -32,8 +32,13 @@ config = context.config
 # Configure Python logging only when a config file is present. The test
 # fixture passes ``Config()`` with no file so ``config.config_file_name``
 # is ``None``; calling ``fileConfig(None)`` would raise.
+# ``disable_existing_loggers=False`` because alembic can run in-process
+# alongside the API (startup migration, tests): the default True silences
+# every logger created before this point — including
+# ``taskq_api.access``, which FR-10/AC-10.3 requires to emit one
+# correlation-id line per request.
 if config.config_file_name is not None:
-    fileConfig(config.config_file_name)
+    fileConfig(config.config_file_name, disable_existing_loggers=False)
 
 # Resolve the URL: prefer the env var (the production entry-point path),
 # fall back to whatever the test fixture already set on the Config.

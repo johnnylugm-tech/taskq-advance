@@ -1,7 +1,7 @@
 {
-  "generated_at": "2026-08-10T19:04:30.272827+00:00",
+  "generated_at": "2026-08-10T20:32:14.187897+00:00",
   "tool": "mutmut",
-  "survivor_count": 88,
+  "survivor_count": 87,
   "survivors": [
     {
       "file": "/Users/johnny/projects/taskq-advance/03-development/src/taskq_api/api/deps.py",
@@ -486,12 +486,6 @@
     {
       "file": "/Users/johnny/projects/taskq-advance/03-development/src/taskq_api/service/tasks.py",
       "line": null,
-      "mutant_id": "300",
-      "mutator": null
-    },
-    {
-      "file": "/Users/johnny/projects/taskq-advance/03-development/src/taskq_api/service/tasks.py",
-      "line": null,
       "mutant_id": "302",
       "mutator": null
     },
@@ -532,6 +526,6 @@
       "mutator": null
     }
   ],
-  "raw": "To apply a mutant on disk:\n    mutmut apply <id>\n\nTo show a mutant:\n    mutmut show <id>\n\n\nSurvived 🙁 (88)\n\n---- /Users/johnny/projects/taskq-advance/03-development/src/taskq_api/api/deps.py (7) ----\n\n135-138, 140-141, 156\n\n---- /Users/johnny/projects/taskq-advance/03-development/src/taskq_api/api/health.py (6) ----\n\n195-196, 207, 210-211, 213\n\n---- /Users/johnny/projects/taskq-advance/03-development/src/taskq_api/api/tasks.py (16) ----\n\n157-165, 169, 171, 173, 176, 180, 189, 194\n\n---- /Users/johnny/projects/taskq-advance/03-development/src/taskq_api/repository/key_repo.py (4) ----\n\n110, 112, 117, 121\n\n---- /Users/johnny/projects/taskq-advance/03-development/src/taskq_api/repository/session.py (17) ----\n\n21, 23-26, 29-31, 34, 36-41, 46, 58\n\n---- /Users/johnny/projects/taskq-advance/03-development/src/taskq_api/repository/task_repo.py (5) ----\n\n69, 73, 76-77, 90\n\n---- /Users/johnny/projects/taskq-advance/03-development/src/taskq_api/service/auth.py (7) ----\n\n214, 219, 221, 225-226, 232, 234\n\n---- /Users/johnny/projects/taskq-advance/03-development/src/taskq_api/service/ratelimit.py (2) ----\n\n335, 337\n\n---- /Users/johnny/projects/taskq-advance/03-development/src/taskq_api/service/runner.py (16) ----\n\n235, 237, 247-248, 253-254, 257, 259-263, 281-282, 293-294\n\n---- /Users/johnny/projects/taskq-advance/03-development/src/taskq_api/service/tasks.py (8) ----\n\n300, 302, 309, 311, 313, 317, 324, 334",
-  "reported_total": 88
+  "raw": "To apply a mutant on disk:\n    mutmut apply <id>\n\nTo show a mutant:\n    mutmut show <id>\n\n\nSurvived 🙁 (87)\n\n---- /Users/johnny/projects/taskq-advance/03-development/src/taskq_api/api/deps.py (7) ----\n\n135-138, 140-141, 156\n\n---- /Users/johnny/projects/taskq-advance/03-development/src/taskq_api/api/health.py (6) ----\n\n195-196, 207, 210-211, 213\n\n---- /Users/johnny/projects/taskq-advance/03-development/src/taskq_api/api/tasks.py (16) ----\n\n157-165, 169, 171, 173, 176, 180, 189, 194\n\n---- /Users/johnny/projects/taskq-advance/03-development/src/taskq_api/repository/key_repo.py (4) ----\n\n110, 112, 117, 121\n\n---- /Users/johnny/projects/taskq-advance/03-development/src/taskq_api/repository/session.py (17) ----\n\n21, 23-26, 29-31, 34, 36-41, 46, 58\n\n---- /Users/johnny/projects/taskq-advance/03-development/src/taskq_api/repository/task_repo.py (5) ----\n\n69, 73, 76-77, 90\n\n---- /Users/johnny/projects/taskq-advance/03-development/src/taskq_api/service/auth.py (7) ----\n\n214, 219, 221, 225-226, 232, 234\n\n---- /Users/johnny/projects/taskq-advance/03-development/src/taskq_api/service/ratelimit.py (2) ----\n\n335, 337\n\n---- /Users/johnny/projects/taskq-advance/03-development/src/taskq_api/service/runner.py (16) ----\n\n235, 237, 247-248, 253-254, 257, 259-263, 281-282, 293-294\n\n---- /Users/johnny/projects/taskq-advance/03-development/src/taskq_api/service/tasks.py (7) ----\n\n302, 309, 311, 313, 317, 324, 334",
+  "reported_total": 87
 }
