@@ -53,13 +53,24 @@ from taskq_api.repository.session import session_scope
 from taskq_api.service import auth as auth_service
 from taskq_api.service import ratelimit
 
-__all__ = ["Principal", "auth_dep", "check_scope", "rate_dep", "bind_correlation_id"]
+__all__ = [
+    "Principal",
+    "auth_dep",
+    "check_scope",
+    "rate_dep",
+    "bind_correlation_id",
+    "problem_instance",
+]
 
 
 # [FR-10 / FR-09] Header carrying the correlation id. Aliased here so the
 # dependency signature, the middleware that echoes it on the response, and
 # any future header rename stay in lock-step.
 CORRELATION_ID_HEADER = "X-Correlation-Id"
+
+# [FR-10] The one status whose envelope may not echo the request target —
+# SPEC.md §7's 403 row is the only 不洩漏資源是否存在 rule in the table.
+_NON_DISCLOSING_STATUS = 403
 
 
 # ---------------------------------------------------------------------------
