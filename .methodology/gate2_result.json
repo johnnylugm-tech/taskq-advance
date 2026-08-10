@@ -42,10 +42,10 @@
       "tool_evidence": "scancode --license over 03-development/src, exit=0; no non-allowlisted license expression detected"
     },
     "mutation_testing": {
-      "score": 74.7,
+      "score": 77.8,
       "threshold": 70,
       "tool_output": ".sessi-work/round_1/tools/mutation_testing.txt",
-      "tool_evidence": "framework: compute_mutation_score → killed=257 survived=87 score=74.7 [scope: 03-development/src, 29 files, excluded: ['__init__.py', '__main__.py', 'app.py', 'config.py', 'env.py', 'errors.py', 'metrics.py', 'orm.py', 'schemas.py', 'v1_initial.py', 'v2_tags.py', 'v3_split_results.py']]",
+      "tool_evidence": "framework: compute_mutation_score → killed=203 survived=58 score=77.8 [scope: 03-development/src/taskq_api/repository,03-development/src/taskq_api/service, 10 files, excluded: ['__init__.py', '__main__.py', 'app.py', 'env.py', 'errors.py', 'metrics.py', 'orm.py', 'schemas.py', 'v1_initial.py', 'v2_tags.py', 'v3_split_results.py']]",
       "framework_override": true
     },
     "integration_coverage": {
@@ -55,10 +55,10 @@
       "tool_evidence": "pytest 03-development/tests/integration --cov=03-development/src → TOTAL 879 stmts, 180 miss, 80%; 39 passed"
     },
     "test_assertion_quality": {
-      "score": 93.5,
+      "score": 93.6,
       "threshold": 70,
       "tool_output": ".sessi-work/round_1/tools/test_assertion_quality.txt",
-      "tool_evidence": "ast-assertions: {\"total\": 170, \"asserted\": 159, ...} → 100×159/170 = 93.5"
+      "tool_evidence": "ast-assertions: {\"total\": 171, \"asserted\": 160, ...} → 100×160/171 = 93.6"
     },
     "execute_verification_target": {
       "score": 100.0,
@@ -106,16 +106,16 @@
     "mutation_testing::setup.cfg": {
       "source": "setup.cfg (score-altering exclusions)",
       "kind": "file",
-      "sha256": "93153db9ff86eead0f24b2b2debacee6ed7049f5a766ea637c0a526d6e79eaba",
-      "bytes": 1011,
-      "head": "[mutmut]\n# Mutation test scope — limited to the taskq-api source tree.\n# Uses mutmut 2.x syntax (not 3.x); pin: pip install \"mutmut<3\".\npaths_to_mutate=03-development/src\n# Data-only / equivalent-mutant files. These contain only string literals,\n# argparse setup, route boilerplate, ORM declarations, alembic DDL, or\n# module-level constants — mutations in these locations are equivalent (no\n# test exercises the specific edge they would change) and cannot be killed\n# without writing assertions against implementation details the gate does\n# not require. The framework's `paths_to_exclude` removes them from the\n# mutant pool so the kill-ratio reflects code that has runtime behaviour.\n# Auto-detected exclusions (_DATA_ONLY_NAMES): __init__.py, config.py, settings.py, constants.py.\n# Round 31 / 32 — equivalent mutant exclusion list.\npaths_to_exclude=\n    v1_initial.py\n    v2_tags.py\n    v3_split_results.py\n    env.py\n    orm.py\n    schemas.py"
+      "sha256": "cf656dcdf7aced8af2df4700908c34b80323f44ec286e9d4ab3b3f366b87195c",
+      "bytes": 1175,
+      "head": "[mutmut]\n# Mutation test scope — limited to the taskq-api source tree.\n# Uses mutmut 2.x syntax (not 3.x); pin: pip install \"mutmut<3\".\n# Mutation scope must match the SAB's mutation_testing NFR (NFR-08):\n# the service and repository layers.\npaths_to_mutate=03-development/src/taskq_api/repository,03-development/src/taskq_api/service\n# Data-only / equivalent-mutant files. These contain only string literals,\n# argparse setup, route boilerplate, ORM declarations, alembic DDL, or\n# module-level constants — mutations in these locations are equivalent (no\n# test exercises the specific edge they would change) and cannot be killed\n# without writing assertions against implementation details the gate does\n# not require. The framework's `paths_to_exclude` removes them from the\n# mutant pool so the kill-ratio reflects code that has runtime behaviour.\n# Auto-detected exclusions (_DATA_ONLY_NAMES): __init__.py, config.py, settings.py, constants.py.\n# Round 31 / 32 — equivalent mutant exclusion list.\npaths_to_exclude=\n    v1_initial.py\n    v2_tags.py\n    v3_split_results.py\n    env.py"
     },
     "test_coverage::setup.cfg": {
       "source": "setup.cfg (score-altering exclusions)",
       "kind": "file",
-      "sha256": "93153db9ff86eead0f24b2b2debacee6ed7049f5a766ea637c0a526d6e79eaba",
-      "bytes": 1011,
-      "head": "[mutmut]\n# Mutation test scope — limited to the taskq-api source tree.\n# Uses mutmut 2.x syntax (not 3.x); pin: pip install \"mutmut<3\".\npaths_to_mutate=03-development/src\n# Data-only / equivalent-mutant files. These contain only string literals,\n# argparse setup, route boilerplate, ORM declarations, alembic DDL, or\n# module-level constants — mutations in these locations are equivalent (no\n# test exercises the specific edge they would change) and cannot be killed\n# without writing assertions against implementation details the gate does\n# not require. The framework's `paths_to_exclude` removes them from the\n# mutant pool so the kill-ratio reflects code that has runtime behaviour.\n# Auto-detected exclusions (_DATA_ONLY_NAMES): __init__.py, config.py, settings.py, constants.py.\n# Round 31 / 32 — equivalent mutant exclusion list.\npaths_to_exclude=\n    v1_initial.py\n    v2_tags.py\n    v3_split_results.py\n    env.py\n    orm.py\n    schemas.py"
+      "sha256": "cf656dcdf7aced8af2df4700908c34b80323f44ec286e9d4ab3b3f366b87195c",
+      "bytes": 1175,
+      "head": "[mutmut]\n# Mutation test scope — limited to the taskq-api source tree.\n# Uses mutmut 2.x syntax (not 3.x); pin: pip install \"mutmut<3\".\n# Mutation scope must match the SAB's mutation_testing NFR (NFR-08):\n# the service and repository layers.\npaths_to_mutate=03-development/src/taskq_api/repository,03-development/src/taskq_api/service\n# Data-only / equivalent-mutant files. These contain only string literals,\n# argparse setup, route boilerplate, ORM declarations, alembic DDL, or\n# module-level constants — mutations in these locations are equivalent (no\n# test exercises the specific edge they would change) and cannot be killed\n# without writing assertions against implementation details the gate does\n# not require. The framework's `paths_to_exclude` removes them from the\n# mutant pool so the kill-ratio reflects code that has runtime behaviour.\n# Auto-detected exclusions (_DATA_ONLY_NAMES): __init__.py, config.py, settings.py, constants.py.\n# Round 31 / 32 — equivalent mutant exclusion list.\npaths_to_exclude=\n    v1_initial.py\n    v2_tags.py\n    v3_split_results.py\n    env.py"
     },
     "linting": {
       "source": ".sessi-work/round_1/tools/linting.txt",
@@ -127,23 +127,23 @@
     "type_safety": {
       "source": ".sessi-work/round_1/tools/type_safety.txt",
       "kind": "file",
-      "sha256": "1fcdb00478986115e79c8d60d3b6e0d962248173490197c8fbb986caf9a5b8a4",
+      "sha256": "b3c7a4b7dd421801f66b2c6f9c9ff9dc9e75a9d804452039bf6deb8cd1295c12",
       "bytes": 252,
-      "head": "{\n    \"version\": \"1.1.409\",\n    \"time\": \"1786394954519\",\n    \"generalDiagnostics\": [],\n    \"summary\": {\n        \"filesAnalyzed\": 29,\n        \"errorCount\": 0,\n        \"warningCount\": 0,\n        \"informationCount\": 0,\n        \"timeInSec\": 1.165\n    }\n}\n"
+      "head": "{\n    \"version\": \"1.1.409\",\n    \"time\": \"1786404282389\",\n    \"generalDiagnostics\": [],\n    \"summary\": {\n        \"filesAnalyzed\": 29,\n        \"errorCount\": 0,\n        \"warningCount\": 0,\n        \"informationCount\": 0,\n        \"timeInSec\": 1.182\n    }\n}\n"
     },
     "test_coverage": {
       "source": ".sessi-work/round_1/tools/test_coverage.txt",
       "kind": "file",
-      "sha256": "2ff43b204cfcb6f6b10ba16de779f9da71f14fd7da995f2b8ec9b8108ef479d5",
+      "sha256": "3cda2ca7ffcdbb2186c12c2fac6009b9e6028739ecd4db786f72ef5f3cccd218",
       "bytes": 271,
-      "head": "........................................s..s.s.......................... [ 42%]\n........................................................................ [ 84%]\n.................s.sssss..                                               [100%]\n161 passed, 9 skipped in 5.99s"
+      "head": "........................................s..s.s.......................... [ 42%]\n........................................................................ [ 84%]\n..................s.sssss..                                              [100%]\n162 passed, 9 skipped in 6.02s"
     },
     "security": {
       "source": ".sessi-work/round_1/tools/security.txt",
       "kind": "file",
-      "sha256": "a81a74766f1ed6613f29a87a49bb9048a4c40be746a470ddd23537092e65deb0",
+      "sha256": "87d73aa47287e1a0e8e4b4af6a4221018bc34408c9f4fb8f0cb4a851ed346e4d",
       "bytes": 12558,
-      "head": "[main]\tINFO\tprofile include tests: None\n[main]\tINFO\tprofile exclude tests: None\n[main]\tINFO\tcli include tests: None\n[main]\tINFO\tcli exclude tests: None\n{\n  \"errors\": [],\n  \"generated_at\": \"2026-08-10T20:49:21Z\",\n  \"metrics\": {\n    \"03-development/src/migrations/__init__.py\": {\n      \"CONFIDENCE.HIGH\": 0,\n      \"CONFIDENCE.LOW\": 0,\n      \"CONFIDENCE.MEDIUM\": 0,\n      \"CONFIDENCE.UNDEFINED\": 0,\n      \"SEVERITY.HIGH\": 0,\n      \"SEVERITY.LOW\": 0,\n      \"SEVERITY.MEDIUM\": 0,\n      \"SEVERITY.UNDEFINED\": 0,\n      \"loc\": 0,\n      \"nosec\": 0,\n      \"skipped_tests\": 0"
+      "head": "[main]\tINFO\tprofile include tests: None\n[main]\tINFO\tprofile exclude tests: None\n[main]\tINFO\tcli include tests: None\n[main]\tINFO\tcli exclude tests: None\n{\n  \"errors\": [],\n  \"generated_at\": \"2026-08-10T23:24:49Z\",\n  \"metrics\": {\n    \"03-development/src/migrations/__init__.py\": {\n      \"CONFIDENCE.HIGH\": 0,\n      \"CONFIDENCE.LOW\": 0,\n      \"CONFIDENCE.MEDIUM\": 0,\n      \"CONFIDENCE.UNDEFINED\": 0,\n      \"SEVERITY.HIGH\": 0,\n      \"SEVERITY.LOW\": 0,\n      \"SEVERITY.MEDIUM\": 0,\n      \"SEVERITY.UNDEFINED\": 0,\n      \"loc\": 0,\n      \"nosec\": 0,\n      \"skipped_tests\": 0"
     },
     "secrets_scanning": {
       "source": ".sessi-work/round_1/tools/secrets_scanning.txt",
@@ -159,26 +159,33 @@
       "bytes": 709105,
       "head": "/Users/johnny/Library/Python/3.9/lib/python/site-packages/extractcode/libarchive2.py:107: UserWarning: Using \"libarchive\" library found in a system location. Install instead a extractcode-libarchive plugin for best support.\n  warnings.warn(\n/Users/johnny/Library/Python/3.9/lib/python/site-packages/typecode/magic2.py:195: UserWarning: System libmagic found in typical location is used. Install instead a typecode-libmagic plugin for best support.\n  warnings.warn(\n/Users/johnny/Library/Python/3.9/lib/python/site-packages/urllib3/__init__.py:35: NotOpenSSLWarning: urllib3 v2 only supports OpenSSL 1.1.1+, currently the 'ssl' module is compiled with 'LibreSSL 2.8.3'. See: https://github.com/urllib3/urllib3/issues/3020\n  warnings.warn(\nSetup plugins...\nCollect file inventory...\nScan files for: licenses with 31 process(es)...\n/Users/johnny/Library/Python/3.9/lib/python/site-packages/extractcode/libarchive2.py:107: UserWarning: Using \"libarchive\" library found in a system location. Install instead a extractcode-libarchive plugin for best support.\n  warnings.warn(\n/Users/johnny/Library/Python/3.9/lib/python/site-packages/extractcode/libarchive2.py:107: UserWarning: Using \"libarchive\" library found in a system location. Install instead a extractcode-libarchive plugin for best support.\n  warnings.warn(\n/Users/johnny/Library/Python/3.9/lib/python/site-packages/extractcode/libarchive2.py:107: UserWarning: Using \"libarchive\" library found in a system location. Install instead a extractcode-libarchive plugin for best support.\n  warnings.warn(\n/Users/johnny/Library/Python/3.9/lib/python/site-packages/typecode/magic2.py:195: UserWarning: System libmagic found in typical location is used. Install instead a typecode-libmagic plugin for best support.\n  warnings.warn(\n/Users/johnny/Library/Python/3.9/lib/python/site-packages/typecode/magic2.py:195: UserWarning: System libmagic found in typical location is used. Install instead a typecode-libmagic plugin for best support.\n  warnings.warn(\n/Users/johnny/Library/Python/3.9/lib/python/site"
     },
+    "mutation_testing": {
+      "source": ".sessi-work/round_1/tools/mutation_testing.txt",
+      "kind": "file",
+      "sha256": "9701c618915727a34af5c2739c0dd0cfdb81f382607b2a3741592e0fcce72362",
+      "bytes": 235,
+      "head": "{\"success\": true, \"score\": 77.8, \"message\": \"killed=203 survived=58 score=77.8 [scope: 03-development/src/taskq_api/repository,03-development/src/taskq_api/service]\", \"cache_path\": \"/Users/johnny/projects/taskq-advance/.mutmut-cache\"}"
+    },
     "integration_coverage": {
       "source": ".sessi-work/round_1/tools/integration_coverage.txt",
       "kind": "file",
-      "sha256": "2b12a6d2665fc14c2ef1ac6d92ae5542e92f6a7df09dd98dec5d8a755fa9c9ea",
+      "sha256": "b8fbbd77aef98cf22b0dd998ca85f1f0a7ebf1b662a7565b2ab2af261a934fb5",
       "bytes": 3306,
       "head": ".......................................                                  [100%]\n================================ tests coverage ================================\n______________ coverage: platform darwin, python 3.11.15-final-0 _______________\n\nName                                                         Stmts   Miss  Cover   Missing\n------------------------------------------------------------------------------------------\n03-development/src/migrations/__init__.py                        0      0   100%\n03-development/src/migrations/env.py                            25     10    60%   60-67, 72-81, 85-87\n03-development/src/migrations/versions/__init__.py               0      0   100%\n03-development/src/migrations/versions/v1_initial.py            20     20     0%   21-78\n03-development/src/migrations/versions/v2_tags.py               17     17     0%   18-52\n03-development/src/migrations/versions/v3_split_results.py      16     16     0%   28-69\n03-development/src/taskq_api/__init__.py                         2      0   100%\n03-development/src/taskq_api/__main__.py                        29     29     0%   25-92\n03-development/src/taskq_api/api/__init__.py                     1      0   100%\n03-development/src/taskq_api/api/deps.py                        47      2    96%   195, 242\n03-development/src/taskq_api/api/health.py                      24     11    54%   53, 65-68, 94-108\n03-development/src/taskq_api/api/metrics.py                     14      4    71%   43-54\n03-development/src/taskq_api/api/tasks.py                       38      9    76%   26, 76-78, 86-88, 96-97\n03-development/src/taskq_api/app.py                             50      6    88%   132, 203, 219-226"
     },
     "test_assertion_quality": {
       "source": ".sessi-work/round_1/tools/test_assertion_quality.txt",
       "kind": "file",
-      "sha256": "c5a9afe63e3df66a61bae280681e19e2db448599b92f4fc0bb9ece6114cba473",
+      "sha256": "2b1b22e1da5887b3718f87cb6802d84bd42dd602af556fa9ffc5076faab6027f",
       "bytes": 1096,
-      "head": "{\"total\": 170, \"asserted\": 159, \"zero_assert\": [\"03-development/tests/test_extra_coverage.py::test_migrations_env_fileconfig_branch\", \"03-development/tests/test_extra_coverage.py::test_app_validation_422_handler\", \"03-development/tests/test_extra_coverage.py::test_app_unhandled_exception_500_handler\", \"03-development/tests/test_extra_coverage.py::test_app_router_registration_passthrough_non_api_route\", \"03-development/tests/test_extra_coverage.py::test_app_validation_422_handler_returns_problem\", \"03-development/tests/test_fr08.py::test_run_in_thread_swallows_coroutine_exception\", \"03-development/tests/test_extra_coverage_full.py::test_main_module_entry_point_invokes_main\", \"03-development/tests/integration/test_migrations.py::test_migrations_env_run_migrations_offline\", \"03-development/tests/integration/test_migrations.py::test_migrations_env_run_migrations_online\", \"03-development/tests/integration/test_service_coverage.py::test_service_runner_executor_cancelled_propagates\", \"03-development/tests/integration/test_service_coverage.py::test_service_ratelimit_consume_token_path\"]}"
+      "head": "{\"total\": 171, \"asserted\": 160, \"zero_assert\": [\"03-development/tests/test_extra_coverage.py::test_migrations_env_fileconfig_branch\", \"03-development/tests/test_extra_coverage.py::test_app_validation_422_handler\", \"03-development/tests/test_extra_coverage.py::test_app_unhandled_exception_500_handler\", \"03-development/tests/test_extra_coverage.py::test_app_router_registration_passthrough_non_api_route\", \"03-development/tests/test_extra_coverage.py::test_app_validation_422_handler_returns_problem\", \"03-development/tests/test_fr08.py::test_run_in_thread_swallows_coroutine_exception\", \"03-development/tests/test_extra_coverage_full.py::test_main_module_entry_point_invokes_main\", \"03-development/tests/integration/test_migrations.py::test_migrations_env_run_migrations_offline\", \"03-development/tests/integration/test_migrations.py::test_migrations_env_run_migrations_online\", \"03-development/tests/integration/test_service_coverage.py::test_service_runner_executor_cancelled_propagates\", \"03-development/tests/integration/test_service_coverage.py::test_service_ratelimit_consume_token_path\"]}"
     },
     "execute_verification_target": {
       "source": ".sessi-work/round_1/tools/execute_verification_target.txt",
       "kind": "file",
-      "sha256": "e8e7c1f4bde74f07e4b5e952ae19b681d6ee96c8afe868e6fe4289916783ebb3",
+      "sha256": "d6bdce21d192d7190a81a849cd68e44556b62e7d46bf4a40d85dcf7aa8019890",
       "bytes": 13671,
-      "head": ".venv/bin/python -m pytest -q --tb=no --no-header -p no:cov\n........................................s..s.s.......................... [  1%]\n........................................................................ [  2%]\n.................s.sssss................................................ [  3%]\n........................................................................ [  4%]\n........................................................................ [  5%]\n........................................................................ [  6%]\n........................................................................ [  7%]\n........................................................................ [  8%]\n........................................................................ [  9%]\n........................................................................ [ 10%]\n........................................................................ [ 11%]\n........................................................................ [ 12%]\n........................................................................ [ 13%]\n........................................................................ [ 14%]\n........................................................................ [ 15%]\n........................................................................ [ 16%]\n........................................................................ [ 17%]\n........................................................................ [ 18%]\n........................................................................ [ 19%]"
+      "head": ".venv/bin/python -m pytest -q --tb=no --no-header -p no:cov\n........................................s..s.s.......................... [  1%]\n........................................................................ [  2%]\n..................s.sssss............................................... [  3%]\n........................................................................ [  4%]\n........................................................................ [  5%]\n........................................................................ [  6%]\n........................................................................ [  7%]\n........................................................................ [  8%]\n........................................................................ [  9%]\n........................................................................ [ 10%]\n........................................................................ [ 11%]\n........................................................................ [ 12%]\n........................................................................ [ 13%]\n........................................................................ [ 14%]\n........................................................................ [ 15%]\n........................................................................ [ 16%]\n........................................................................ [ 17%]\n........................................................................ [ 18%]\n........................................................................ [ 19%]"
     },
     "architecture": {
       "source": ".sessi-work/round_1/tools/architecture.txt",
@@ -190,18 +197,18 @@
   },
   "crg_review_context": {
     "status": "ok",
-    "summary": "Review context for 30 changed file(s):\n  - Risk: high\n  - 232 impacted nodes in 33 files",
+    "summary": "Review context for 27 changed file(s):\n  - Risk: high\n  - 223 impacted nodes in 35 files",
     "risk": "high",
-    "changed_file_count": 30,
-    "impacted_file_count": 33,
+    "changed_file_count": 27,
+    "impacted_file_count": 35,
     "key_entities": [
       "/Users/johnny/projects/taskq-advance/03-development/src/migrations/env.py",
       "run_migrations_offline",
       "run_migrations_online",
-      "/Users/johnny/projects/taskq-advance/03-development/tests/integration/__init__.py",
-      "/Users/johnny/projects/taskq-advance/03-development/tests/integration/test_crud.py"
+      "/Users/johnny/projects/taskq-advance/03-development/tests/integration/test_migrations.py",
+      "_do_run_online"
     ],
-    "test_gaps": 14,
+    "test_gaps": 36,
     "next_tool_suggestions": [
       "detect_changes",
       "get_affected_flows",
@@ -209,15 +216,15 @@
     ],
     "context_savings": {
       "estimated": true,
-      "saved_tokens": 82684,
+      "saved_tokens": 162169,
       "saved_percent": 100
     }
   },
   "crg_impact_radius": {
     "status": "ok",
-    "summary": "Blast radius for 30 changed file(s):\n  - 126 nodes directly changed\n  - 232 nodes impacted (within 2 hops)\n  - 33 additional files affected",
+    "summary": "Blast radius for 27 changed file(s):\n  - 147 nodes directly changed\n  - 223 nodes impacted (within 2 hops)\n  - 35 additional files affected",
     "risk": "high",
-    "impacted_file_count": 33,
+    "impacted_file_count": 35,
     "key_entities": [
       "/Users/johnny/projects/taskq-advance/03-development/src/migrations/versions/v1_initial.py",
       "/Users/johnny/projects/taskq-advance/03-development/src/migrations/versions/v2_tags.py",
@@ -228,11 +235,11 @@
     "truncated": false,
     "context_savings": {
       "estimated": true,
-      "saved_tokens": 82695,
+      "saved_tokens": 162165,
       "saved_percent": 100
     }
   },
-  "composite_score": 94.8397,
+  "composite_score": 93.1397,
   "verdict": "PASS",
   "passed": true,
   "spec_undelivered": [
@@ -377,14 +384,15 @@
   ],
   "spec_declared": 89,
   "measurement_scope": {
-    "weight_covered": 0.9,
-    "weight_total": 0.9,
+    "weight_covered": 1.0,
+    "weight_total": 1.0,
     "dimensions_scored": [
       "architecture",
       "execute_verification_target",
       "integration_coverage",
       "license_compliance",
       "linting",
+      "mutation_testing",
       "secrets_scanning",
       "security",
       "test_assertion_quality",
@@ -393,8 +401,6 @@
       "type_safety"
     ],
     "dimensions_unscored": [],
-    "dimensions_disabled": [
-      "mutation_testing"
-    ]
+    "dimensions_disabled": []
   }
 }

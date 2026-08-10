@@ -14,7 +14,7 @@
 | Gate | Score / FRs | Status |
 |------|-------------|--------|
 | Gate 1 | 10/10 FRs | ✅ PASS |
-| Gate 2 | 94.8 | ✅ PASS |
+| Gate 2 | 93.1 | ✅ PASS |
 | Gate 3 | — | ⬜ Not Started |
 | Gate 4 | — | ⬜ Not Started |
 

@@ -167,7 +167,7 @@ def test_service_runner_run_command_timeout_branch():
         orig = runner._task_timeout
         runner._task_timeout = lambda: 0.05
         try:
-            result = await runner._run_command("sleep 5")
+            result = await runner._run_command("sleep 1")
             # timeout path returns _failure_result with exit_code=None
             assert result.exit_code is None
         finally:

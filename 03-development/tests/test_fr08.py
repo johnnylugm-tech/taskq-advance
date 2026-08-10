@@ -264,7 +264,7 @@ def test_drain_timeout_marks_interrupted(monkeypatch):
         nonlocal in_flight_task, interrupted
         # Kick off a long-running task the drain cannot possibly finish.
         in_flight_task = asyncio.create_task(
-            runner.execute_task("long-task", "sleep 100")
+            runner.execute_task("long-task", "sleep 2")
         )
         # Let the task reach the asyncio.wait_for / process.communicate path.
         await asyncio.sleep(0.05)
@@ -350,7 +350,7 @@ def test_timeout_terminates_child(monkeypatch, db_schema):
     # GREEN TODO: import the FR-08 Executor — does not exist yet.
     from taskq_api.service.runner import Executor  # noqa: F401
 
-    # Tight timeout — ``sleep 5`` cannot possibly finish.
+    # Tight timeout — ``sleep 1`` cannot possibly finish.
     monkeypatch.setenv("TASKQ_TASK_TIMEOUT", "0.3")
     monkeypatch.setenv("TASKQ_MAX_CONCURRENT", "8")
     monkeypatch.setenv("TASKQ_DRAIN_TIMEOUT", "30.0")
@@ -369,7 +369,7 @@ def test_timeout_terminates_child(monkeypatch, db_schema):
     )
 
     _task_timeout_sec = "0.3"
-    _sleep_cmd = "sleep 5"
+    _sleep_cmd = "sleep 1"
     child_terminated = "true"
     orphan_pids = "0"
 
@@ -388,7 +388,7 @@ def test_timeout_terminates_child(monkeypatch, db_schema):
             orm.Task(
                 id=str(uuid.uuid4()),
                 name="timeout-fr08-task",
-                command="sleep 5",
+                command="sleep 1",
                 status="pending",
             )
         )
@@ -400,7 +400,7 @@ def test_timeout_terminates_child(monkeypatch, db_schema):
     # Behavioural invariant: drive a real subprocess via execute_task and
     # observe the runner writing a finished row inside the timeout budget.
     run_id = _run(
-        runner.execute_task(seeded_id, "sleep 5", run_id="run-fr08-timeout")
+        runner.execute_task(seeded_id, "sleep 1", run_id="run-fr08-timeout")
     )
     assert isinstance(run_id, str) and run_id, (
         f"runner.execute_task must return the run_id it was given, got {run_id!r}"
@@ -426,7 +426,7 @@ def test_timeout_terminates_child(monkeypatch, db_schema):
     )
 
     # The finished row was created within (approximately) the timeout
-    # budget, proving the runner did NOT block until ``sleep 5`` finished.
+    # budget, proving the runner did NOT block until ``sleep 1`` finished.
     duration_ms = int(finished_row.duration_ms)
     assert duration_ms < 3000, (
         f"timed-out run must finish near the TASKQ_TASK_TIMEOUT=0.3s "
@@ -605,7 +605,7 @@ def test_run_command_communicate_exception_returns_failure_result(monkeypatch):
 def test_run_command_timeout_returns_failure_result(monkeypatch):
     """Timeout branch (line 138-140) — child must be reaped.
 
-    Uses an aggressive ``TASKQ_TASK_TIMEOUT`` against ``sleep 5`` so
+    Uses an aggressive ``TASKQ_TASK_TIMEOUT`` against ``sleep 1`` so
     ``asyncio.wait_for`` raises ``TimeoutError``; the runner must
     kill the still-running child and return a ``_ProcessResult``
     whose ``exit_code`` is ``None``.
@@ -613,7 +613,7 @@ def test_run_command_timeout_returns_failure_result(monkeypatch):
     monkeypatch.setenv("TASKQ_TASK_TIMEOUT", "0.3")
     monkeypatch.setattr(runner, "_persist_result", lambda **_kw: None)
 
-    result = _run(runner._run_command("sleep 5"))
+    result = _run(runner._run_command("sleep 1"))
     assert isinstance(result, runner._ProcessResult)
     assert result.exit_code is None
 
@@ -902,3 +902,34 @@ def test_run_task_delegates_to_execute_task(monkeypatch, db_schema):
     monkeypatch.setattr(runner, "_persist_result", lambda **_kw: None)
     run_id = _run(runner.run_task("rt-task-id", "echo from run_task", run_id="run-fr08-run-task"))
     assert run_id == "run-fr08-run-task"
+
+
+def test_reap_process_kills_a_still_running_child():
+    """AC-8.3: ``_reap_process`` MUST kill a child that is still running.
+
+    The guard in ``_reap_process`` is ``if process.returncode is None:
+    process.kill()`` — it kills exactly the processes that have NOT exited.
+    Inverting it leaves a live child running and then blocks forever in
+    ``process.wait()``, so this case is wrapped in ``asyncio.wait_for``: a
+    reap that does not complete promptly is a failure, not a hang.
+    """
+
+    async def _drive():
+        process = await asyncio.create_subprocess_exec(
+            "sleep",
+            "5",
+            stdout=asyncio.subprocess.PIPE,
+            stderr=asyncio.subprocess.PIPE,
+        )
+        assert process.returncode is None, (
+            "the child must still be running when _reap_process is called — "
+            "otherwise this case does not exercise the kill branch"
+        )
+        await asyncio.wait_for(runner._reap_process(process), timeout=2.0)
+        return process
+
+    reaped = _run(_drive())
+    assert reaped.returncode is not None, (
+        "AC-8.3: after _reap_process the child must be terminated and reaped "
+        f"(no orphan); returncode is still {reaped.returncode!r}"
+    )

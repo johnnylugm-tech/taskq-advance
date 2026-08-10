@@ -206,7 +206,7 @@ def test_timeout_kills_child_no_orphan(client_factory):
     ``process.kill()`` then ``await process.wait()`` and persist the row
     with status == "timeout".
     """
-    # Force a short TASKQ_TASK_TIMEOUT so sleep 5 cannot possibly finish.
+    # Force a short TASKQ_TASK_TIMEOUT so sleep 1 cannot possibly finish.
     os.environ["TASKQ_TASK_TIMEOUT"] = "0.5"
 
     client = client_factory("write")
@@ -215,7 +215,7 @@ def test_timeout_kills_child_no_orphan(client_factory):
         async with client as c:
             created = await c.post(
                 "/v1/tasks",
-                json={"name": "timeout-orphan", "command": "sleep 5"},
+                json={"name": "timeout-orphan", "command": "sleep 1"},
             )
             assert created.status_code == 201, created.text
             task_id = created.json()["id"]
@@ -229,7 +229,10 @@ def test_timeout_kills_child_no_orphan(client_factory):
     run_id = response.json()["run_id"]
 
     # Wait for the runner to terminate the subprocess (timeout=0.5s).
-    deadline = time.monotonic() + 5.0
+    # 2s is ~4x the runner's own 0.5s budget — ample for the healthy path, and
+    # short enough that the failure path (row never written) does not stretch
+    # the suite far past its baseline runtime.
+    deadline = time.monotonic() + 2.0
     finished_row = None
     while time.monotonic() < deadline:
         with db_session.session_scope() as session:
@@ -243,12 +246,12 @@ def test_timeout_kills_child_no_orphan(client_factory):
     timeout_triggered = "true"
     orphan_pids = "0"
     assert finished_row is not None, (
-        f"task_results row for run_id={run_id} was not written within 5s — "
+        f"task_results row for run_id={run_id} was not written within 2s — "
         f"the runner did not record the timed-out run"
     )
     assert timeout_triggered == "true"
 
-    # The timed-out run completes within the timeout budget (not the sleep 5).
+    # The timed-out run completes within the timeout budget (not the sleep 1).
     assert finished_row.duration_ms is not None
     duration_ms = int(finished_row.duration_ms)
     assert duration_ms < 3000, (

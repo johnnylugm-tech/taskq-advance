@@ -4,7 +4,7 @@
     "phase_truth_threshold": 70.0
   },
   "features": {
-    "mutation_testing": false
+    "mutation_testing": true
   },
   "crg_cohesion_healthy": 0.2,
   "crg_excludes": []

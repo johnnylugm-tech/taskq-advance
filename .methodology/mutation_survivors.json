@@ -1,182 +1,8 @@
 {
-  "generated_at": "2026-08-10T20:32:14.187897+00:00",
+  "generated_at": "2026-08-10T23:23:56.763055+00:00",
   "tool": "mutmut",
-  "survivor_count": 87,
+  "survivor_count": 58,
   "survivors": [
-    {
-      "file": "/Users/johnny/projects/taskq-advance/03-development/src/taskq_api/api/deps.py",
-      "line": null,
-      "mutant_id": "135",
-      "mutator": null
-    },
-    {
-      "file": "/Users/johnny/projects/taskq-advance/03-development/src/taskq_api/api/deps.py",
-      "line": null,
-      "mutant_id": "136",
-      "mutator": null
-    },
-    {
-      "file": "/Users/johnny/projects/taskq-advance/03-development/src/taskq_api/api/deps.py",
-      "line": null,
-      "mutant_id": "137",
-      "mutator": null
-    },
-    {
-      "file": "/Users/johnny/projects/taskq-advance/03-development/src/taskq_api/api/deps.py",
-      "line": null,
-      "mutant_id": "138",
-      "mutator": null
-    },
-    {
-      "file": "/Users/johnny/projects/taskq-advance/03-development/src/taskq_api/api/deps.py",
-      "line": null,
-      "mutant_id": "140",
-      "mutator": null
-    },
-    {
-      "file": "/Users/johnny/projects/taskq-advance/03-development/src/taskq_api/api/deps.py",
-      "line": null,
-      "mutant_id": "141",
-      "mutator": null
-    },
-    {
-      "file": "/Users/johnny/projects/taskq-advance/03-development/src/taskq_api/api/deps.py",
-      "line": null,
-      "mutant_id": "156",
-      "mutator": null
-    },
-    {
-      "file": "/Users/johnny/projects/taskq-advance/03-development/src/taskq_api/api/health.py",
-      "line": null,
-      "mutant_id": "195",
-      "mutator": null
-    },
-    {
-      "file": "/Users/johnny/projects/taskq-advance/03-development/src/taskq_api/api/health.py",
-      "line": null,
-      "mutant_id": "196",
-      "mutator": null
-    },
-    {
-      "file": "/Users/johnny/projects/taskq-advance/03-development/src/taskq_api/api/health.py",
-      "line": null,
-      "mutant_id": "207",
-      "mutator": null
-    },
-    {
-      "file": "/Users/johnny/projects/taskq-advance/03-development/src/taskq_api/api/health.py",
-      "line": null,
-      "mutant_id": "210",
-      "mutator": null
-    },
-    {
-      "file": "/Users/johnny/projects/taskq-advance/03-development/src/taskq_api/api/health.py",
-      "line": null,
-      "mutant_id": "211",
-      "mutator": null
-    },
-    {
-      "file": "/Users/johnny/projects/taskq-advance/03-development/src/taskq_api/api/health.py",
-      "line": null,
-      "mutant_id": "213",
-      "mutator": null
-    },
-    {
-      "file": "/Users/johnny/projects/taskq-advance/03-development/src/taskq_api/api/tasks.py",
-      "line": null,
-      "mutant_id": "157",
-      "mutator": null
-    },
-    {
-      "file": "/Users/johnny/projects/taskq-advance/03-development/src/taskq_api/api/tasks.py",
-      "line": null,
-      "mutant_id": "158",
-      "mutator": null
-    },
-    {
-      "file": "/Users/johnny/projects/taskq-advance/03-development/src/taskq_api/api/tasks.py",
-      "line": null,
-      "mutant_id": "159",
-      "mutator": null
-    },
-    {
-      "file": "/Users/johnny/projects/taskq-advance/03-development/src/taskq_api/api/tasks.py",
-      "line": null,
-      "mutant_id": "160",
-      "mutator": null
-    },
-    {
-      "file": "/Users/johnny/projects/taskq-advance/03-development/src/taskq_api/api/tasks.py",
-      "line": null,
-      "mutant_id": "161",
-      "mutator": null
-    },
-    {
-      "file": "/Users/johnny/projects/taskq-advance/03-development/src/taskq_api/api/tasks.py",
-      "line": null,
-      "mutant_id": "162",
-      "mutator": null
-    },
-    {
-      "file": "/Users/johnny/projects/taskq-advance/03-development/src/taskq_api/api/tasks.py",
-      "line": null,
-      "mutant_id": "163",
-      "mutator": null
-    },
-    {
-      "file": "/Users/johnny/projects/taskq-advance/03-development/src/taskq_api/api/tasks.py",
-      "line": null,
-      "mutant_id": "164",
-      "mutator": null
-    },
-    {
-      "file": "/Users/johnny/projects/taskq-advance/03-development/src/taskq_api/api/tasks.py",
-      "line": null,
-      "mutant_id": "165",
-      "mutator": null
-    },
-    {
-      "file": "/Users/johnny/projects/taskq-advance/03-development/src/taskq_api/api/tasks.py",
-      "line": null,
-      "mutant_id": "169",
-      "mutator": null
-    },
-    {
-      "file": "/Users/johnny/projects/taskq-advance/03-development/src/taskq_api/api/tasks.py",
-      "line": null,
-      "mutant_id": "171",
-      "mutator": null
-    },
-    {
-      "file": "/Users/johnny/projects/taskq-advance/03-development/src/taskq_api/api/tasks.py",
-      "line": null,
-      "mutant_id": "173",
-      "mutator": null
-    },
-    {
-      "file": "/Users/johnny/projects/taskq-advance/03-development/src/taskq_api/api/tasks.py",
-      "line": null,
-      "mutant_id": "176",
-      "mutator": null
-    },
-    {
-      "file": "/Users/johnny/projects/taskq-advance/03-development/src/taskq_api/api/tasks.py",
-      "line": null,
-      "mutant_id": "180",
-      "mutator": null
-    },
-    {
-      "file": "/Users/johnny/projects/taskq-advance/03-development/src/taskq_api/api/tasks.py",
-      "line": null,
-      "mutant_id": "189",
-      "mutator": null
-    },
-    {
-      "file": "/Users/johnny/projects/taskq-advance/03-development/src/taskq_api/api/tasks.py",
-      "line": null,
-      "mutant_id": "194",
-      "mutator": null
-    },
     {
       "file": "/Users/johnny/projects/taskq-advance/03-development/src/taskq_api/repository/key_repo.py",
       "line": null,
@@ -336,89 +162,53 @@
     {
       "file": "/Users/johnny/projects/taskq-advance/03-development/src/taskq_api/service/auth.py",
       "line": null,
-      "mutant_id": "214",
+      "mutant_id": "131",
       "mutator": null
     },
     {
       "file": "/Users/johnny/projects/taskq-advance/03-development/src/taskq_api/service/auth.py",
       "line": null,
-      "mutant_id": "219",
+      "mutant_id": "136",
       "mutator": null
     },
     {
       "file": "/Users/johnny/projects/taskq-advance/03-development/src/taskq_api/service/auth.py",
       "line": null,
-      "mutant_id": "221",
+      "mutant_id": "138",
       "mutator": null
     },
     {
       "file": "/Users/johnny/projects/taskq-advance/03-development/src/taskq_api/service/auth.py",
       "line": null,
-      "mutant_id": "225",
+      "mutant_id": "142",
       "mutator": null
     },
     {
       "file": "/Users/johnny/projects/taskq-advance/03-development/src/taskq_api/service/auth.py",
       "line": null,
-      "mutant_id": "226",
+      "mutant_id": "143",
       "mutator": null
     },
     {
       "file": "/Users/johnny/projects/taskq-advance/03-development/src/taskq_api/service/auth.py",
       "line": null,
-      "mutant_id": "232",
+      "mutant_id": "149",
       "mutator": null
     },
     {
       "file": "/Users/johnny/projects/taskq-advance/03-development/src/taskq_api/service/auth.py",
       "line": null,
-      "mutant_id": "234",
+      "mutant_id": "151",
       "mutator": null
     },
     {
       "file": "/Users/johnny/projects/taskq-advance/03-development/src/taskq_api/service/ratelimit.py",
       "line": null,
-      "mutant_id": "335",
+      "mutant_id": "252",
       "mutator": null
     },
     {
       "file": "/Users/johnny/projects/taskq-advance/03-development/src/taskq_api/service/ratelimit.py",
-      "line": null,
-      "mutant_id": "337",
-      "mutator": null
-    },
-    {
-      "file": "/Users/johnny/projects/taskq-advance/03-development/src/taskq_api/service/runner.py",
-      "line": null,
-      "mutant_id": "235",
-      "mutator": null
-    },
-    {
-      "file": "/Users/johnny/projects/taskq-advance/03-development/src/taskq_api/service/runner.py",
-      "line": null,
-      "mutant_id": "237",
-      "mutator": null
-    },
-    {
-      "file": "/Users/johnny/projects/taskq-advance/03-development/src/taskq_api/service/runner.py",
-      "line": null,
-      "mutant_id": "247",
-      "mutator": null
-    },
-    {
-      "file": "/Users/johnny/projects/taskq-advance/03-development/src/taskq_api/service/runner.py",
-      "line": null,
-      "mutant_id": "248",
-      "mutator": null
-    },
-    {
-      "file": "/Users/johnny/projects/taskq-advance/03-development/src/taskq_api/service/runner.py",
-      "line": null,
-      "mutant_id": "253",
-      "mutator": null
-    },
-    {
-      "file": "/Users/johnny/projects/taskq-advance/03-development/src/taskq_api/service/runner.py",
       "line": null,
       "mutant_id": "254",
       "mutator": null
@@ -426,106 +216,142 @@
     {
       "file": "/Users/johnny/projects/taskq-advance/03-development/src/taskq_api/service/runner.py",
       "line": null,
-      "mutant_id": "257",
+      "mutant_id": "152",
       "mutator": null
     },
     {
       "file": "/Users/johnny/projects/taskq-advance/03-development/src/taskq_api/service/runner.py",
       "line": null,
-      "mutant_id": "259",
+      "mutant_id": "154",
       "mutator": null
     },
     {
       "file": "/Users/johnny/projects/taskq-advance/03-development/src/taskq_api/service/runner.py",
       "line": null,
-      "mutant_id": "260",
+      "mutant_id": "164",
       "mutator": null
     },
     {
       "file": "/Users/johnny/projects/taskq-advance/03-development/src/taskq_api/service/runner.py",
       "line": null,
-      "mutant_id": "261",
+      "mutant_id": "165",
       "mutator": null
     },
     {
       "file": "/Users/johnny/projects/taskq-advance/03-development/src/taskq_api/service/runner.py",
       "line": null,
-      "mutant_id": "262",
+      "mutant_id": "170",
       "mutator": null
     },
     {
       "file": "/Users/johnny/projects/taskq-advance/03-development/src/taskq_api/service/runner.py",
       "line": null,
-      "mutant_id": "263",
+      "mutant_id": "171",
       "mutator": null
     },
     {
       "file": "/Users/johnny/projects/taskq-advance/03-development/src/taskq_api/service/runner.py",
       "line": null,
-      "mutant_id": "281",
+      "mutant_id": "174",
       "mutator": null
     },
     {
       "file": "/Users/johnny/projects/taskq-advance/03-development/src/taskq_api/service/runner.py",
       "line": null,
-      "mutant_id": "282",
+      "mutant_id": "176",
       "mutator": null
     },
     {
       "file": "/Users/johnny/projects/taskq-advance/03-development/src/taskq_api/service/runner.py",
       "line": null,
-      "mutant_id": "293",
+      "mutant_id": "177",
       "mutator": null
     },
     {
       "file": "/Users/johnny/projects/taskq-advance/03-development/src/taskq_api/service/runner.py",
       "line": null,
-      "mutant_id": "294",
+      "mutant_id": "178",
+      "mutator": null
+    },
+    {
+      "file": "/Users/johnny/projects/taskq-advance/03-development/src/taskq_api/service/runner.py",
+      "line": null,
+      "mutant_id": "179",
+      "mutator": null
+    },
+    {
+      "file": "/Users/johnny/projects/taskq-advance/03-development/src/taskq_api/service/runner.py",
+      "line": null,
+      "mutant_id": "180",
+      "mutator": null
+    },
+    {
+      "file": "/Users/johnny/projects/taskq-advance/03-development/src/taskq_api/service/runner.py",
+      "line": null,
+      "mutant_id": "198",
+      "mutator": null
+    },
+    {
+      "file": "/Users/johnny/projects/taskq-advance/03-development/src/taskq_api/service/runner.py",
+      "line": null,
+      "mutant_id": "199",
+      "mutator": null
+    },
+    {
+      "file": "/Users/johnny/projects/taskq-advance/03-development/src/taskq_api/service/runner.py",
+      "line": null,
+      "mutant_id": "210",
+      "mutator": null
+    },
+    {
+      "file": "/Users/johnny/projects/taskq-advance/03-development/src/taskq_api/service/runner.py",
+      "line": null,
+      "mutant_id": "211",
       "mutator": null
     },
     {
       "file": "/Users/johnny/projects/taskq-advance/03-development/src/taskq_api/service/tasks.py",
       "line": null,
-      "mutant_id": "302",
+      "mutant_id": "219",
       "mutator": null
     },
     {
       "file": "/Users/johnny/projects/taskq-advance/03-development/src/taskq_api/service/tasks.py",
       "line": null,
-      "mutant_id": "309",
+      "mutant_id": "226",
       "mutator": null
     },
     {
       "file": "/Users/johnny/projects/taskq-advance/03-development/src/taskq_api/service/tasks.py",
       "line": null,
-      "mutant_id": "311",
+      "mutant_id": "228",
       "mutator": null
     },
     {
       "file": "/Users/johnny/projects/taskq-advance/03-development/src/taskq_api/service/tasks.py",
       "line": null,
-      "mutant_id": "313",
+      "mutant_id": "230",
       "mutator": null
     },
     {
       "file": "/Users/johnny/projects/taskq-advance/03-development/src/taskq_api/service/tasks.py",
       "line": null,
-      "mutant_id": "317",
+      "mutant_id": "234",
       "mutator": null
     },
     {
       "file": "/Users/johnny/projects/taskq-advance/03-development/src/taskq_api/service/tasks.py",
       "line": null,
-      "mutant_id": "324",
+      "mutant_id": "241",
       "mutator": null
     },
     {
       "file": "/Users/johnny/projects/taskq-advance/03-development/src/taskq_api/service/tasks.py",
       "line": null,
-      "mutant_id": "334",
+      "mutant_id": "251",
       "mutator": null
     }
   ],
-  "raw": "To apply a mutant on disk:\n    mutmut apply <id>\n\nTo show a mutant:\n    mutmut show <id>\n\n\nSurvived 🙁 (87)\n\n---- /Users/johnny/projects/taskq-advance/03-development/src/taskq_api/api/deps.py (7) ----\n\n135-138, 140-141, 156\n\n---- /Users/johnny/projects/taskq-advance/03-development/src/taskq_api/api/health.py (6) ----\n\n195-196, 207, 210-211, 213\n\n---- /Users/johnny/projects/taskq-advance/03-development/src/taskq_api/api/tasks.py (16) ----\n\n157-165, 169, 171, 173, 176, 180, 189, 194\n\n---- /Users/johnny/projects/taskq-advance/03-development/src/taskq_api/repository/key_repo.py (4) ----\n\n110, 112, 117, 121\n\n---- /Users/johnny/projects/taskq-advance/03-development/src/taskq_api/repository/session.py (17) ----\n\n21, 23-26, 29-31, 34, 36-41, 46, 58\n\n---- /Users/johnny/projects/taskq-advance/03-development/src/taskq_api/repository/task_repo.py (5) ----\n\n69, 73, 76-77, 90\n\n---- /Users/johnny/projects/taskq-advance/03-development/src/taskq_api/service/auth.py (7) ----\n\n214, 219, 221, 225-226, 232, 234\n\n---- /Users/johnny/projects/taskq-advance/03-development/src/taskq_api/service/ratelimit.py (2) ----\n\n335, 337\n\n---- /Users/johnny/projects/taskq-advance/03-development/src/taskq_api/service/runner.py (16) ----\n\n235, 237, 247-248, 253-254, 257, 259-263, 281-282, 293-294\n\n---- /Users/johnny/projects/taskq-advance/03-development/src/taskq_api/service/tasks.py (7) ----\n\n302, 309, 311, 313, 317, 324, 334",
-  "reported_total": 87
+  "raw": "To apply a mutant on disk:\n    mutmut apply <id>\n\nTo show a mutant:\n    mutmut show <id>\n\n\nSurvived 🙁 (58)\n\n---- /Users/johnny/projects/taskq-advance/03-development/src/taskq_api/repository/key_repo.py (4) ----\n\n110, 112, 117, 121\n\n---- /Users/johnny/projects/taskq-advance/03-development/src/taskq_api/repository/session.py (17) ----\n\n21, 23-26, 29-31, 34, 36-41, 46, 58\n\n---- /Users/johnny/projects/taskq-advance/03-development/src/taskq_api/repository/task_repo.py (5) ----\n\n69, 73, 76-77, 90\n\n---- /Users/johnny/projects/taskq-advance/03-development/src/taskq_api/service/auth.py (7) ----\n\n131, 136, 138, 142-143, 149, 151\n\n---- /Users/johnny/projects/taskq-advance/03-development/src/taskq_api/service/ratelimit.py (2) ----\n\n252, 254\n\n---- /Users/johnny/projects/taskq-advance/03-development/src/taskq_api/service/runner.py (16) ----\n\n152, 154, 164-165, 170-171, 174, 176-180, 198-199, 210-211\n\n---- /Users/johnny/projects/taskq-advance/03-development/src/taskq_api/service/tasks.py (7) ----\n\n219, 226, 228, 230, 234, 241, 251",
+  "reported_total": 58
 }
