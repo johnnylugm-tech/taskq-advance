@@ -61,6 +61,30 @@ def _not_ready(*, detail: str) -> Response:
     )
 
 
+def _ready() -> Response:
+    """Build the 200 readiness envelope. [FR-09] AC-9.1."""
+    return Response(
+        status_code=status.HTTP_200_OK,
+        content=json.dumps({"status": "ready"}),
+        media_type="application/json",
+    )
+
+
+def _is_database_ready() -> bool:
+    """Return True iff ``check_db_ready`` reports a healthy database.
+
+    [FR-09] AC-9.1: any exception from the database probe (network
+    partition, pool exhaustion, auth failure, ``OperationalError``) is
+    treated as "database unavailable" — a router that propagated the
+    exception would surface as a generic 500 and stop the orchestrator
+    from running the right probe.
+    """
+    try:
+        return bool(db_session.check_db_ready())
+    except Exception:
+        return False
+
+
 @router.get("/healthz", response_model=None)
 def healthz() -> dict:
     """Return the liveness envelope. [FR-09] Citations: SPEC.md#L151."""
@@ -76,22 +100,10 @@ def readyz() -> Response:
     revision is behind head, or no migration has been applied. The body
     names the failed component so an operator reading
     ``kubectl describe pod`` can act on the probe failure.
-
-    The handler is deliberately tolerant: any exception from
-    ``check_db_ready`` is treated as "database unavailable" — a router
-    that propagated ``OperationalError`` would surface as a generic 500
-    and stop the orchestrator from running the right probe.
     """
     # [FR-09] AC-9.1: a database that cannot answer ``SELECT 1`` fails
-    # closed with a body that names the database as the failed
-    # component. The handler catches every exception rather than
-    # enumerating them so a future pool exhaustion / auth failure /
-    # network partition all surface the same operator-readable string.
-    try:
-        db_ready = bool(db_session.check_db_ready())
-    except Exception:
-        db_ready = False
-    if not db_ready:
+    # closed with a body that names the database as the failed component.
+    if not _is_database_ready():
         return _not_ready(detail="database unreachable")
 
     # [FR-09] AC-9.2 / AC-9.3: a migration that is not at the head
@@ -107,8 +119,4 @@ def readyz() -> Response:
             )
         )
 
-    return Response(
-        status_code=status.HTTP_200_OK,
-        content=json.dumps({"status": "ready"}),
-        media_type="application/json",
-    )
+    return _ready()
