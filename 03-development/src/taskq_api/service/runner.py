@@ -32,7 +32,7 @@ import shlex
 import threading
 import time
 import uuid
-from collections.abc import Callable, Coroutine
+from collections.abc import Awaitable, Callable, Coroutine
 from dataclasses import dataclass
 from datetime import datetime, timezone
 from typing import Any, cast
@@ -322,9 +322,9 @@ class Executor:
         cooperative shutdown (NFR-03).
         """
         if inspect.iscoroutinefunction(coro):
-            awaitable: Coroutine[Any, Any, Any] = coro()
+            awaitable: Awaitable[Any] = coro()
             return await awaitable
-        return await cast(Coroutine[Any, Any, Any], coro)
+        return await cast(Awaitable[Any], coro)
 
 
 # ---------------------------------------------------------------------------
