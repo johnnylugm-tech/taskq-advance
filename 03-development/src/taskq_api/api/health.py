@@ -35,6 +35,8 @@ Citations:
 
 from __future__ import annotations
 
+import json
+
 from fastapi import APIRouter, Response, status
 
 from taskq_api.repository import session as db_session
@@ -42,6 +44,21 @@ from taskq_api.repository import session as db_session
 __all__ = ["router"]
 
 router = APIRouter(tags=["health"])
+
+
+def _not_ready(*, detail: str) -> Response:
+    """Build the spec-fixed 503 body that names the failed component.
+
+    [FR-09] §8 #10 / #11 — the body MUST include ``"database"`` /
+    ``"migration"`` as substrings so an operator reading
+    ``kubectl describe pod`` can act on the probe failure.
+    """
+    body = json.dumps({"status": "not ready", "detail": detail})
+    return Response(
+        status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+        content=body,
+        media_type="application/json",
+    )
 
 
 @router.get("/healthz", response_model=None)
@@ -73,17 +90,9 @@ def readyz() -> Response:
     try:
         db_ready = bool(db_session.check_db_ready())
     except Exception:
-        return Response(
-            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
-            content='{"status":"not ready","detail":"database unreachable"}',
-            media_type="application/json",
-        )
+        db_ready = False
     if not db_ready:
-        return Response(
-            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
-            content='{"status":"not ready","detail":"database unreachable"}',
-            media_type="application/json",
-        )
+        return _not_ready(detail="database unreachable")
 
     # [FR-09] AC-9.2 / AC-9.3: a migration that is not at the head
     # revision (or that has never been applied — ``current_revision``
@@ -91,18 +100,15 @@ def readyz() -> Response:
     # ``(current, head)`` tuple the handler compares.
     current_revision, head_revision = db_session.migration_at_head()
     if current_revision != head_revision:
-        detail = (
-            f"migration not at head: current={current_revision!r} "
-            f"head={head_revision!r}"
-        )
-        return Response(
-            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
-            content=f'{{"status":"not ready","detail":"{detail}"}}',
-            media_type="application/json",
+        return _not_ready(
+            detail=(
+                f"migration not at head: current={current_revision!r} "
+                f"head={head_revision!r}"
+            )
         )
 
     return Response(
         status_code=status.HTTP_200_OK,
-        content='{"status":"ready"}',
+        content=json.dumps({"status": "ready"}),
         media_type="application/json",
     )
