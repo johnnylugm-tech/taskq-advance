@@ -53,18 +53,18 @@ class _ProcessResult:
     stderr: str
 
 
-def _timeout() -> float:
-    """[FR-02] Read TASKQ_TASK_TIMEOUT (seconds) — bounds subprocess runtime."""
+def _task_timeout() -> float:
+    """[FR-02] TASKQ_TASK_TIMEOUT (seconds) — bounds subprocess runtime."""
     return float(os.getenv("TASKQ_TASK_TIMEOUT", "30"))
 
 
 def _drain_timeout() -> float:
-    """[FR-08] Read TASKQ_DRAIN_TIMEOUT (seconds) — shutdown drain budget."""
+    """[FR-08] TASKQ_DRAIN_TIMEOUT (seconds) — shutdown drain budget."""
     return float(os.getenv("TASKQ_DRAIN_TIMEOUT", "30"))
 
 
 def _max_concurrent() -> int:
-    """[FR-08] Read TASKQ_MAX_CONCURRENT — semaphore capacity for execute_task."""
+    """[FR-08] TASKQ_MAX_CONCURRENT — semaphore capacity for execute_task."""
     return int(os.getenv("TASKQ_MAX_CONCURRENT", "8"))
 
 
@@ -74,13 +74,13 @@ def _format_finished_at(value: datetime | None = None) -> str:
     return moment.astimezone(timezone.utc).isoformat().replace("+00:00", "Z")
 
 
-def _tail(value: str) -> str:
-    """Keep only the bounded amount of process output stored for a run."""
+def _truncate_to_tail(value: str) -> str:
+    """Keep only the bounded run-tail stored for a single execution."""
     return value[-_OUTPUT_TAIL_LENGTH:]
 
 
 async def _reap_process(process: asyncio.subprocess.Process) -> None:
-    """Kill a still-running child and wait for it to be reaped.
+    """Kill a still-running child and wait for the OS to reap it.
 
     [FR-08] AC-8.3: on timeout the child is hard-killed via
     ``process.kill()`` and reaped via ``await process.wait()`` so no
@@ -91,12 +91,36 @@ async def _reap_process(process: asyncio.subprocess.Process) -> None:
     await process.wait()
 
 
+def _failure_result(reason: str | BaseException) -> _ProcessResult:
+    """Encode an abnormal terminal outcome (timeout / spawn / comms error).
+
+    Returns a stub ``_ProcessResult`` whose ``exit_code`` is ``None`` so
+    the repository boundary can persist the failure without losing the
+    ``stderr``-encoded reason.
+    """
+    message = reason if isinstance(reason, str) else str(reason)
+    return _ProcessResult(exit_code=None, stdout="", stderr=message)
+
+
+def _decode_process_result(
+    process: asyncio.subprocess.Process,
+    stdout: bytes,
+    stderr: bytes,
+) -> _ProcessResult:
+    """Convert a finished subprocess's collected streams into a result shape."""
+    return _ProcessResult(
+        exit_code=str(process.returncode),
+        stdout=stdout.decode(errors="replace"),
+        stderr=stderr.decode(errors="replace"),
+    )
+
+
 async def _run_command(command: str) -> _ProcessResult:
-    """Run ``command`` and convert all terminal outcomes to one result shape.
+    """Run ``command`` and convert every terminal outcome into one shape.
 
     [FR-02] / [FR-08] AC-8.3: ``asyncio.wait_for`` bounds the subprocess
-    lifetime to ``TASKQ_TASK_TIMEOUT``; on expiry the child is killed and
-    reaped so no orphan process survives.
+    lifetime to ``TASKQ_TASK_TIMEOUT``; on expiry the child is killed
+    and reaped so no orphan process survives.
     """
     try:
         process = await asyncio.create_subprocess_exec(
@@ -104,24 +128,21 @@ async def _run_command(command: str) -> _ProcessResult:
             stdout=asyncio.subprocess.PIPE,
             stderr=asyncio.subprocess.PIPE,
         )
-        try:
-            stdout, stderr = await asyncio.wait_for(
-                process.communicate(), timeout=_timeout()
-            )
-        except asyncio.TimeoutError:
-            await _reap_process(process)
-            return _ProcessResult(exit_code=None, stdout="", stderr="")
-        except Exception as exc:  # noqa: BLE001 — preserve a terminal failure
-            await _reap_process(process)
-            return _ProcessResult(exit_code=None, stdout="", stderr=str(exc))
     except Exception as exc:  # noqa: BLE001 — guard against spawn failures
-        return _ProcessResult(exit_code=None, stdout="", stderr=str(exc))
+        return _failure_result(exc)
 
-    return _ProcessResult(
-        exit_code=str(process.returncode),
-        stdout=stdout.decode(errors="replace"),
-        stderr=stderr.decode(errors="replace"),
-    )
+    try:
+        stdout, stderr = await asyncio.wait_for(
+            process.communicate(), timeout=_task_timeout()
+        )
+    except asyncio.TimeoutError:
+        await _reap_process(process)
+        return _failure_result("")
+    except Exception as exc:  # noqa: BLE001 — preserve a terminal failure
+        await _reap_process(process)
+        return _failure_result(exc)
+
+    return _decode_process_result(process, stdout, stderr)
 
 
 def _persist_result(
@@ -138,73 +159,104 @@ def _persist_result(
             run_id=run_id,
             task_id=task_id,
             exit_code=process_result.exit_code,
-            stdout_tail=_tail(process_result.stdout),
-            stderr_tail=_tail(process_result.stderr),
+            stdout_tail=_truncate_to_tail(process_result.stdout),
+            stderr_tail=_truncate_to_tail(process_result.stderr),
             duration_ms=str(duration_ms),
             finished_at=_format_finished_at(),
         )
 
 
 # ---------------------------------------------------------------------------
-# [FR-08] Concurrency cap (semaphore) + in-flight task registry for shutdown.
+# [FR-08] Concurrency gate — semaphore + in-flight registry for shutdown.
 # ---------------------------------------------------------------------------
 
 
-_concurrency_lock = threading.Lock()
-_concurrency_sem: asyncio.Semaphore | None = None
-_concurrency_capacity: int = -1
+class _ConcurrencyGate:
+    """[FR-08] Capacity-bounded semaphore plus in-flight task registry.
 
-# In-flight wrapper tasks keyed by their ``task_id`` so ``shutdown()`` can
-# drain and report interrupted ids without re-walking the call stack.
-_in_flight_lock = threading.Lock()
-_in_flight_tasks: dict[asyncio.Task, str] = {}
-
-
-def _get_concurrency_semaphore() -> asyncio.Semaphore:
-    """Return the module-level semaphore, recreating it on capacity change.
-
-    [FR-08] AC-8.1: ``TASKQ_MAX_CONCURRENT`` bounds the in-flight count;
-    the semaphore is the FIFO queue that prevents unbounded coroutine
-    fan-out.
+    Wraps the module-level ``asyncio.Semaphore`` (capacity
+    ``TASKQ_MAX_CONCURRENT``) and an in-flight ``asyncio.Task`` registry so
+    ``shutdown()`` can wait on every in-flight task and cancel the ones
+    that overrun the drain budget. The semaphore is recreated when the
+    env-var capacity changes (so monkeypatched env values are honored by
+    subsequent reads).
     """
-    global _concurrency_sem, _concurrency_capacity
-    capacity = _max_concurrent()
-    with _concurrency_lock:
-        if _concurrency_sem is None or _concurrency_capacity != capacity:
-            _concurrency_sem = asyncio.Semaphore(capacity)
-            _concurrency_capacity = capacity
-        return _concurrency_sem
+
+    def __init__(self) -> None:
+        self._lock = threading.Lock()
+        self._semaphore: asyncio.Semaphore | None = None
+        self._capacity = -1
+        self._inflight_lock = threading.Lock()
+        self._inflight: dict[asyncio.Task[Any], str] = {}
+
+    def semaphore(self) -> asyncio.Semaphore:
+        with self._lock:
+            capacity = _max_concurrent()
+            if self._semaphore is None or self._capacity != capacity:
+                self._semaphore = asyncio.Semaphore(capacity)
+                self._capacity = capacity
+            return self._semaphore
+
+    def register(self, task: asyncio.Task[Any], task_id: str) -> None:
+        """[FR-08] Track ``task`` so ``shutdown()`` can drain it later."""
+        with self._inflight_lock:
+            self._inflight[task] = task_id
+
+        def _drop(completed: asyncio.Task[Any]) -> None:
+            with self._inflight_lock:
+                self._inflight.pop(completed, None)
+
+        task.add_done_callback(_drop)
+
+    def snapshot_inflight(self) -> list[tuple[asyncio.Task[Any], str]]:
+        with self._inflight_lock:
+            return list(self._inflight.items())
 
 
-def _register_in_flight(task: asyncio.Task, task_id: str) -> None:
-    """Add ``task`` to the in-flight registry under ``task_id``.
+_GATE = _ConcurrencyGate()
 
-    [FR-08] AC-8.2: ``shutdown()`` reads this registry to drain.
+
+async def _drain_one(
+    task: asyncio.Task[Any],
+    task_id: str,
+    budget: float,
+) -> str | None:
+    """Await ``task`` up to ``budget`` seconds; cancel on overrun.
+
+    Returns ``task_id`` if the task was cancelled due to the budget
+    being exceeded and ``None`` otherwise. Cancellation of the wrapper
+    task surfaces as ``CancelledError`` inside the body, which already
+    reaped the subprocess via ``process.kill()`` / ``await process.wait()``
+    in ``_run_command`` (AC-8.3 / SPEC.md §8 #25); the drain coroutine
+    swallows that re-raise so callers see only the interrupted-id list.
     """
-    with _in_flight_lock:
-        _in_flight_tasks[task] = task_id
-
-    def _deregister(_t: asyncio.Task) -> None:
-        with _in_flight_lock:
-            _in_flight_tasks.pop(_t, None)
-
-    task.add_done_callback(_deregister)
+    try:
+        await asyncio.wait_for(asyncio.shield(task), timeout=budget)
+        return None
+    except asyncio.TimeoutError:
+        task.cancel()
+        try:
+            await task
+        except BaseException:
+            pass
+        return task_id
+    except BaseException:
+        return None
 
 
 async def execute_task(task_id: str, command: str, run_id: str | None = None) -> str:
     """Run one command and persist its terminal result.
 
     [FR-02] The subprocess is killed and reaped when the timeout expires.
-    [FR-08] AC-8.1: the shared semaphore caps concurrent executions at
+    [FR-08] AC-8.1: the shared gate caps concurrent executions at
     ``TASKQ_MAX_CONCURRENT``; over-cap submissions wait in FIFO order.
     """
     execution_id = run_id or str(uuid.uuid4())
     current = asyncio.current_task()
     if current is not None:
-        _register_in_flight(current, task_id)
+        _GATE.register(current, task_id)
 
-    semaphore = _get_concurrency_semaphore()
-    async with semaphore:
+    async with _GATE.semaphore():
         started_at = time.monotonic()
         process_result = await _run_command(command)
         duration_ms = int((time.monotonic() - started_at) * 1000)
@@ -227,40 +279,14 @@ async def shutdown() -> list[str]:
     subprocess — AC-8.3) and recorded in the returned list of
     interrupted ``task_id`` values.
     """
-    timeout = _drain_timeout()
-    with _in_flight_lock:
-        snapshot = list(_in_flight_tasks.items())
-
-    interrupted: list[str] = []
+    budget = _drain_timeout()
+    snapshot = _GATE.snapshot_inflight()
     if not snapshot:
-        return interrupted
-
-    async def _drain_one(task: asyncio.Task, task_id: str) -> str | None:
-        try:
-            await asyncio.wait_for(asyncio.shield(task), timeout=timeout)
-            return None
-        except asyncio.TimeoutError:
-            task.cancel()
-            try:
-                await task
-            except BaseException:
-                # Cancellation of the wrapper task surfaces as
-                # CancelledError inside the body (which already reaped
-                # the subprocess via process.kill() / await process.wait()
-                # in _run_command). Swallow it here so the drain
-                # coroutine itself does not propagate.
-                pass
-            return task_id
-        except BaseException:
-            return None
-
+        return []
     results = await asyncio.gather(
-        *[_drain_one(task, task_id) for task, task_id in snapshot],
+        *[_drain_one(task, task_id, budget) for task, task_id in snapshot],
     )
-    for tid in results:
-        if tid is not None:
-            interrupted.append(tid)
-    return interrupted
+    return [task_id for task_id in results if task_id is not None]
 
 
 # ---------------------------------------------------------------------------
@@ -271,17 +297,11 @@ async def shutdown() -> list[str]:
 class Executor:
     """[FR-08] AC-8.4: async-context-managed concurrency surface.
 
-    The Executor wraps the FR-08 runner module so callers can ``async with``
+    Wraps the FR-08 coroutine submission so callers can ``async with``
     an instance and ``submit`` coroutines. ``submit`` does NOT swallow
     ``asyncio.CancelledError`` — the cooperative cancellation primitive
     propagates to the awaiter (NFR-03).
     """
-
-    def __init__(self) -> None:
-        # The Executor class is the API surface the FR-08 RED tests reach
-        # for; the runner module's module-level semaphore + in-flight set
-        # carry the shared state across instances.
-        pass
 
     async def __aenter__(self) -> "Executor":
         return self
@@ -292,15 +312,14 @@ class Executor:
         # caller's ``await`` (NFR-03 / AC-8.4).
         return None
 
-    async def submit(self, coro: Any) -> Any:
+    async def submit(self, coro: Callable[..., Coroutine[Any, Any, Any]] | Coroutine[Any, Any, Any]) -> Any:
         """[FR-08] Await ``coro`` and propagate exceptions / cancellation.
 
-        Accepts either an awaitable coroutine *or* a coroutine function —
-        the FR-08 RED test passes the function so it can wrap the call
-        in ``asyncio.ensure_future`` and exercise cancellation against the
-        task boundary. A bare ``await`` is intentional: any wrapper that
-        caught ``Exception`` would silently turn ``asyncio.CancelledError``
-        into a normal completion and break cooperative shutdown (NFR-03).
+        Accepts either an awaitable coroutine *or* a coroutine function;
+        the latter is invoked exactly once on entry. A bare ``await`` is
+        intentional: any wrapper that caught ``Exception`` would silently
+        turn ``asyncio.CancelledError`` into a normal completion and break
+        cooperative shutdown (NFR-03).
         """
         if inspect.iscoroutinefunction(coro):
             coro = coro()
