@@ -245,7 +245,7 @@ def test_problem_json_fields_unit():
 # --------------------------------------------------------------------------
 
 
-# NFR-02 NFR-04
+# NFR-02 NFR-03 NFR-04
 def test_500_body_no_stack_or_path(sqlite_db_url, monkeypatch):
     """A triggered 500 is redacted problem+json — no stack, SQL, or path.
 
