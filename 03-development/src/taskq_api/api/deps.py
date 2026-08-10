@@ -204,7 +204,7 @@ def bind_correlation_id(request: Request) -> str:
     - SPEC.md#L208-L213 (NFR-10 — observability)
     - SAD.md §2.5 (`api/` hub functions — bind_correlation_id, problem_response)
     """
-    inbound = request.headers.get(CORRELATION_ID_HEADER)
-    cid = inbound if inbound else str(uuid.uuid4())
+    # Inbound wins; an absent or empty header falls through to a fresh uuid4.
+    cid = request.headers.get(CORRELATION_ID_HEADER) or str(uuid.uuid4())
     request.state.correlation_id = cid
     return cid
