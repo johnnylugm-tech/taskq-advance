@@ -208,3 +208,25 @@ def bind_correlation_id(request: Request) -> str:
     cid = request.headers.get(CORRELATION_ID_HEADER) or str(uuid.uuid4())
     request.state.correlation_id = cid
     return cid
+
+
+def problem_instance(request: Request, status: int) -> str:
+    """Return the RFC 7807 ``instance`` value for a ``status`` response.
+
+    [FR-10] ``instance`` identifies the specific occurrence of the problem
+    (RFC 7807 §3.1), and the request path is the natural identifier — except
+    for HTTP 403, where SPEC.md §7 spells out ``不洩漏資源是否存在``. The
+    request path of a scope failure embeds the target resource id, so
+    echoing it back would put that id in the envelope the FR-04 /
+    NFR-02 non-disclosure rule governs. 403 therefore carries no occurrence
+    URI at all; the ``correlation_id`` field remains the operator's handle
+    on that specific request.
+
+    Citations:
+    - SPEC.md#L165 (FR-10 — body 欄位 ... instance ...)
+    - SPEC.md#L394 (§7 — 權限不足 | 403 | `/errors/forbidden` 不洩漏資源是否存在)
+    - SPEC.md#L191 (NFR-02 — 403 回應不得洩漏資源存在性)
+    """
+    if status == _NON_DISCLOSING_STATUS:
+        return ""
+    return request.url.path

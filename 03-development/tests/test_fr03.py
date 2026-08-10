@@ -138,8 +138,9 @@ def test_missing_api_key_returns_401(anon_client):
     assert body.get("status") == 401, (
         f"problem+json body must echo status=401, got {body!r}"
     )
-    assert body.get("type") == "/errors/unauthorized", (
-        f"problem+json body must use the FR-03 /errors/unauthorized type URI, "
+    assert body.get("type") == "/errors/unauthenticated", (
+        f"problem+json body must use the SPEC.md §7 401 type URI "
+        f"/errors/unauthenticated (FR-10 AC-10.4 owns the mapping), "
         f"got {body!r}"
     )
     assert "detail" in body, (
