@@ -35,7 +35,7 @@ import uuid
 from collections.abc import Callable, Coroutine
 from dataclasses import dataclass
 from datetime import datetime, timezone
-from typing import Any
+from typing import Any, cast
 
 from taskq_api.models.orm import TaskResult
 from taskq_api.repository import task_repo
@@ -322,8 +322,9 @@ class Executor:
         cooperative shutdown (NFR-03).
         """
         if inspect.iscoroutinefunction(coro):
-            coro = coro()
-        return await coro
+            awaitable: Coroutine[Any, Any, Any] = coro()
+            return await awaitable
+        return await cast(Coroutine[Any, Any, Any], coro)
 
 
 # ---------------------------------------------------------------------------
