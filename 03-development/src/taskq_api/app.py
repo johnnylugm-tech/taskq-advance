@@ -40,7 +40,7 @@ from fastapi.responses import JSONResponse
 from fastapi.routing import APIRoute, APIRouter
 
 from taskq_api import __version__
-from taskq_api.api.deps import bind_correlation_id
+from taskq_api.api.deps import bind_correlation_id, problem_instance
 from taskq_api.api.health import router as health_router
 from taskq_api.api.metrics import router as metrics_router
 from taskq_api.api.tasks import router as tasks_router
@@ -194,7 +194,7 @@ def create_app() -> FastAPI:
             title=exc.title,
             detail=exc.detail,
             correlation_id=getattr(request.state, "correlation_id", ""),
-            instance=request.url.path,
+            instance=problem_instance(request, exc.status),
             headers=exc.headers or None,
         )
 
@@ -206,7 +206,7 @@ def create_app() -> FastAPI:
             title="Unprocessable Entity",
             detail="request body failed validation",
             correlation_id=getattr(request.state, "correlation_id", ""),
-            instance=request.url.path,
+            instance=problem_instance(request, 422),
         )
 
     @application.exception_handler(Exception)
@@ -229,7 +229,7 @@ def create_app() -> FastAPI:
             title="Internal Server Error",
             detail="an internal error occurred",
             correlation_id=cid,
-            instance=request.url.path,
+            instance=problem_instance(request, 500),
         )
 
     _register_router(application, tasks_router)
