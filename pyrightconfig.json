@@ -1,0 +1,5 @@
+{
+    "venvPath": "/Users/johnny/projects/taskq-advance/.venv",
+    "venv": ".",
+    "include": ["03-development/src"]
+}

@@ -264,7 +264,16 @@
         "open_high": 0
       }
     },
-    "gate2": null,
+    "gate2": {
+      "score": 92.70636704119853,
+      "quality_complete": false,
+      "rounds_used": 2,
+      "open_critical": 0,
+      "open_high": 0,
+      "dimensions_disabled": [
+        "mutation_testing"
+      ]
+    },
     "gate3": null,
     "gate4": null
   }

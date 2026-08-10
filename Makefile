@@ -5,6 +5,7 @@ PYTEST := $(PYTHON) -m pytest
 
 verify-system: test lint coverage
 	@echo "verify-system: PASS"
+	@exit 0
 
 test:
 	$(PYTEST) -q --tb=no --no-header -p no:cov
@@ -19,5 +20,4 @@ security:
 	$(PYTHON) -m bandit -r 03-development/src/ --exit-zero
 
 coverage:
-	$(PYTHON) -m coverage run -m pytest --cov=03-development/src 03-development/tests -q --tb=no --no-header
-	$(PYTHON) -m coverage report
+	$(PYTEST) --cov=03-development/src --cov-report=term 03-development/tests -q --tb=no --no-header
