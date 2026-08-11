@@ -363,3 +363,248 @@ def test_scope_hierarchy_unit():
         "scope_satisfies('admin', 'read') must return False "
         "(read cannot satisfy admin per AC-4.3)"
     )
+
+
+# --------------------------------------------------------------------------
+# Coverage gap helpers — not part of TEST_SPEC §"FR-04", but required to
+# keep Gate 1's ≥80% coverage threshold on
+#   * 03-development/src/taskq_api/api/deps.py
+#   * 03-development/src/taskq_api/service/auth.py
+# Each helper targets one of the source lines that the three spec
+# cases above do not reach. No source is touched — every line below is
+# reachable through the public surface of ``deps`` / ``auth``.
+# --------------------------------------------------------------------------
+
+
+def _seed_api_key(plaintext: str, scope: str, *, revoked_at=None) -> None:
+    """Insert one ``api_keys`` row keyed by ``plaintext`` / ``scope``.
+
+    Builds the schema first so the key_repo write does not crash with
+    "no such table". The caller is expected to have already pointed
+    ``TASKQ_DB_URL`` at a per-test SQLite file (via the ``sqlite_db_url``
+    fixture) and to have reset the engine.
+    """
+    from taskq_api.models import orm  # local import: keep top-level clean
+    orm.Base.metadata.create_all(db_session.get_engine())
+    with db_session.session_scope() as session:
+        key_repo.create_api_key(
+            session,
+            scope=scope,
+            plaintext=plaintext,
+            revoked_at=revoked_at,
+        )
+
+
+# Coverage: deps.py::_reject_unauthorized — line 116.
+def test_coverage_reject_unauthorized_raises_unit():
+    """``_reject_unauthorized`` surfaces the canonical 401 + problem+json."""
+    with pytest.raises(UnauthorizedError) as exc_info:
+        deps._reject_unauthorized()
+    err = exc_info.value
+    assert err.status == 401, (
+        f"_reject_unauthorized must raise a 401-class ProblemError, got status={err.status}"
+    )
+    assert err.type_uri == "/errors/unauthenticated", (
+        f"401 envelope must use the SPEC.md §7 type URI /errors/unauthenticated, "
+        f"got {err.type_uri!r}"
+    )
+    # Detail is the NFR-04 generic string — intentionally identical to the
+    # unknown-key / revoked-key / DB-failure paths so the response cannot be
+    # used to probe which keys exist or whether the DB is healthy.
+    assert err.detail == "missing or invalid API key", (
+        f"_reject_unauthorized detail must match the FR-03/NFR-04 generic "
+        f"string, got {err.detail!r}"
+    )
+
+
+# Coverage: deps.py::auth_dep — lines 182-184.
+def test_coverage_auth_dep_missing_header_raises_401_unit():
+    """``auth_dep`` with no header short-circuits to ``_reject_unauthorized``."""
+    with pytest.raises(UnauthorizedError) as exc_info:
+        deps.auth_dep(x_api_key=None)
+    assert exc_info.value.status == 401
+
+
+# Coverage: deps.py::_resolve_principal — lines 133-143 happy path.
+def test_coverage_resolve_principal_returns_principal_unit(sqlite_db_url):
+    """A matching active key produces a ``Principal`` carrying key_id and scope."""
+    db_session.reset_engine()
+    plaintext = "sk-coverage-fr04-resolve"
+    _seed_api_key(plaintext, scope="write")
+
+    principal = deps._resolve_principal(plaintext)
+    assert isinstance(principal, deps.Principal), (
+        f"_resolve_principal must return a Principal, got {type(principal).__name__}"
+    )
+    assert principal.scope == "write"
+    assert principal.key_id, "_resolve_principal must populate key_id from the row"
+
+
+# Coverage: deps.py::_resolve_principal — lines 133-143 "no row" path (line 141).
+def test_coverage_resolve_principal_unknown_key_raises_401_unit(sqlite_db_url):
+    """A key with no matching row is rejected with the canonical 401."""
+    db_session.reset_engine()
+    from taskq_api.models import orm  # build the schema even though no row lands
+    orm.Base.metadata.create_all(db_session.get_engine())
+
+    with pytest.raises(UnauthorizedError):
+        deps._resolve_principal("sk-never-stored")
+
+
+# Coverage: deps.py::_resolve_principal — lines 133-143 "revoked" path (line 141).
+def test_coverage_resolve_principal_revoked_key_raises_401_unit(sqlite_db_url):
+    """A row whose ``revoked_at`` is set is treated as unknown (AC-3.4)."""
+    db_session.reset_engine()
+    plaintext = "sk-coverage-fr04-revoked"
+    _seed_api_key(
+        plaintext,
+        scope="write",
+        revoked_at="2026-01-01T00:00:00Z",
+    )
+
+    with pytest.raises(UnauthorizedError):
+        deps._resolve_principal(plaintext)
+
+
+# Coverage: deps.py::_resolve_principal — lines 133-143 except branch (136-140).
+def test_coverage_resolve_principal_db_exception_raises_401_unit(
+    sqlite_db_url, monkeypatch
+):
+    """Any DB / driver exception during key lookup is surfaced as 401 (NFR-04).
+
+    We monkeypatch ``key_repo.lookup_active_key`` to raise a
+    ``RuntimeError`` mid-lookup; the surrounding ``except Exception`` in
+    ``_resolve_principal`` converts it into the canonical 401 so the
+    response cannot be used to probe DB health.
+    """
+    db_session.reset_engine()
+    from taskq_api.models import orm
+    orm.Base.metadata.create_all(db_session.get_engine())
+
+    def _boom_lookup(*_args, **_kwargs):
+        raise RuntimeError("simulated DB failure during key lookup")
+
+    monkeypatch.setattr(key_repo, "lookup_active_key", _boom_lookup)
+
+    with pytest.raises(UnauthorizedError) as exc_info:
+        deps._resolve_principal("sk-coverage-fr04-dbfail")
+    assert exc_info.value.detail == "missing or invalid API key", (
+        "the DB-failure path must use the same NFR-04 detail string as the "
+        "missing / unknown / revoked paths, so the response cannot be used "
+        "to probe DB health"
+    )
+
+
+# Coverage: deps.py::auth_dep happy path — lines 184, 133-143, 164-165.
+def test_coverage_auth_dep_real_key_returns_principal_unit(sqlite_db_url):
+    """A valid key flows through ``_resolve_principal`` + ``rate_dep`` and returns."""
+    db_session.reset_engine()
+    plaintext = "sk-coverage-fr04-auth-dep"
+    _seed_api_key(plaintext, scope="write")
+
+    principal = deps.auth_dep(x_api_key=plaintext)
+    assert isinstance(principal, deps.Principal)
+    assert principal.scope == "write"
+    assert principal.key_id
+
+
+# Coverage: deps.py::rate_dep — lines 164-165.
+def test_coverage_rate_dep_charges_and_returns_principal_unit(sqlite_db_url):
+    """``rate_dep`` consumes one token and returns the same ``Principal``."""
+    db_session.reset_engine()
+    plaintext = "sk-coverage-fr04-rate"
+    _seed_api_key(plaintext, scope="read")
+
+    with db_session.session_scope() as session:
+        row = key_repo.lookup_active_key(plaintext, session=session)
+    assert row is not None, "test seed: lookup must see the row we just inserted"
+    principal = deps.Principal(key_id=row["id"], scope=row["scope"])
+
+    returned = deps.rate_dep(principal)
+    assert returned is principal, (
+        f"rate_dep must return the same Principal it received, got {returned!r}"
+    )
+    assert returned.scope == "read"
+
+
+# Coverage: deps.py::problem_instance — line 249 (non-403 path).
+def test_coverage_problem_instance_non_403_returns_path_unit():
+    """``problem_instance`` returns the request path for any status other than 403."""
+    request = SimpleNamespace(
+        url=SimpleNamespace(path="/v1/tasks/some-id-fr04-coverage")
+    )
+    # Every non-403 status echoes the path so the operator can correlate
+    # the envelope with the specific occurrence (RFC 7807 §3.1).
+    for status in (200, 401, 404, 409, 422, 429, 500, 503):
+        assert deps.problem_instance(request, status) == "/v1/tasks/some-id-fr04-coverage", (
+            f"problem_instance must return the request path for status={status} "
+            f"(non-403), got {deps.problem_instance(request, status)!r}"
+        )
+    # The 403 case stays empty (FR-04 / NFR-02 non-disclosure rule); this
+    # is the contract case 1 of TEST_SPEC pins down — keep it green here.
+    assert deps.problem_instance(request, 403) == "", (
+        "problem_instance must return an empty instance for status=403 so "
+        "the envelope cannot be used to probe whether the resource id exists"
+    )
+
+
+# Coverage: service.auth.verify_key — lines 83-84.
+def test_coverage_verify_key_unit():
+    """``verify_key`` uses ``hmac.compare_digest``; True on match, False otherwise."""
+    plaintext = "sk-coverage-fr04-verify"
+    digest = hashlib.sha256(plaintext.encode("utf-8")).hexdigest()
+
+    # Matching candidate returns True.
+    assert auth.verify_key(plaintext, digest) is True, (
+        "verify_key must return True when the candidate hashes to the stored digest"
+    )
+    # A one-character mismatch returns False (constant-time comparison).
+    flipped = digest[:-1] + ("0" if digest[-1] != "0" else "1")
+    assert auth.verify_key(plaintext, flipped) is False, (
+        "verify_key must return False when the candidate does not match the stored digest"
+    )
+    # Length mismatch is also a non-match (compare_digest's contract).
+    assert auth.verify_key(plaintext, "abc") is False, (
+        "verify_key must return False when the stored digest length differs"
+    )
+
+
+# Coverage: service.auth.create_api_key — lines 107-109.
+def test_coverage_create_api_key_prints_once_persists_hash(sqlite_db_url):
+    """``create_api_key`` writes the plaintext via the writer and persists only the hash."""
+    db_session.reset_engine()
+
+    captured: list[str] = []
+
+    # Build the schema so the key_repo write has a table to land in.
+    from taskq_api.models import orm
+    orm.Base.metadata.create_all(db_session.get_engine())
+
+    with db_session.session_scope() as session:
+        result = auth.create_api_key(
+            scope="write",
+            session=session,
+            plaintext_writer=lambda pt: captured.append(pt),
+        )
+
+    assert len(captured) == 1, (
+        f"create_api_key must call plaintext_writer exactly once, got {len(captured)} calls"
+    )
+    printed_plaintext = captured[0]
+    assert printed_plaintext.startswith("sk-"), (
+        f"the printed plaintext must carry the conventional sk- prefix, "
+        f"got {printed_plaintext!r}"
+    )
+
+    # The persisted row's hash must equal sha256(plaintext) — and the
+    # plaintext itself must not appear in any persisted column (AC-3.2).
+    expected_hash = hashlib.sha256(printed_plaintext.encode("utf-8")).hexdigest()
+    assert result["key_hash"] == expected_hash, (
+        f"persisted key_hash must equal sha256(plaintext), "
+        f"expected {expected_hash!r}, got {result['key_hash']!r}"
+    )
+    for field_name, field_value in result.items():
+        assert field_value != printed_plaintext, (
+            f"plaintext must NEVER be stored on the api_keys row, but field "
+            f"{field_name!r} equals the plaintext"
+        )
