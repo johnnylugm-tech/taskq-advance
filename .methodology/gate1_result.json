@@ -1,7 +1,7 @@
 {
   "gate": 1,
   "phase": 8,
-  "fr_id": "FR-03",
+  "fr_id": "FR-04",
   "overall_score": 100.0,
   "quality_complete": true,
   "rounds_used": 1,
@@ -14,15 +14,15 @@
     "type_safety": {
       "score": 100.0,
       "threshold": 100,
-      "tool_evidence": "{\"version\": \"1.1.409\", \"time\": \"1786462655291\", \"generalDiagnostics\": [], \"summary\": {\"filesAnalyzed\": 29, \"errorCount\": 0, \"warningCount\": 0, \"informationCount\": 0, \"timeInSec\": 1.178}}"
+      "tool_evidence": "{\"version\": \"1.1.409\", \"time\": \"1786462796840\", \"generalDiagnostics\": [], \"summary\": {\"filesAnalyzed\": 29, \"errorCount\": 0, \"warningCount\": 0, \"informationCount\": 0, \"timeInSec\": 1.269}}"
     },
     "test_coverage": {
       "score": 100.0,
       "threshold": 100,
-      "tests_passed": 41,
+      "tests_passed": 34,
       "tests_failed": 0,
       "tests_skipped": 0,
-      "tool_evidence": "collected 41 items\n\n03-development/tests/test_fr03.py ............                           [ 29%]\n03-development/tests/test_fr04.py ..............                         [ 63%]\n03-development/tests/test_fr05.py ....                                   [ 73%]\n03-development/tests/test_fr06.py .......                                [ 90%]\n03-development/tests/test_fr10.py ....                                   [100%]\n\ncoverage: api/deps.py 100% (50/50), service/auth.py 100% (22/22), repository/key_repo.py 100% (38/38)\n============================== 41 passed in 1.74s =============================="
+      "tool_evidence": "collected 34 items\n03-development/tests/test_fr04.py ..............                         [ 41%]\n03-development/tests/test_fr03.py ............                           [ 76%]\n03-development/tests/test_fr05.py ....                                   [ 88%]\n03-development/tests/test_fr10.py ....                                   [100%]\n\n============================== 34 passed in 1.22s ==============================\ncoverage: deps.py 100% (50/50), auth.py 100% (22/22), totals: percent_covered=100.0 covered_lines=72 num_statements=72"
     },
     "architecture_constraints": {
       "score": 100.0,
@@ -68,16 +68,16 @@
     "type_safety": {
       "source": "tool_evidence (inline)",
       "kind": "inline",
-      "sha256": "50c1fa03e02a0c497d797a99876614c094b2378c052564ce7f567c47729d3729",
+      "sha256": "94aa50f5b57b405556e66439cc14938db8142f2b272be9f7dccdeafa7cb42276",
       "bytes": 186,
-      "head": "{\"version\": \"1.1.409\", \"time\": \"1786462655291\", \"generalDiagnostics\": [], \"summary\": {\"filesAnalyzed\": 29, \"errorCount\": 0, \"warningCount\": 0, \"informationCount\": 0, \"timeInSec\": 1.178}}"
+      "head": "{\"version\": \"1.1.409\", \"time\": \"1786462796840\", \"generalDiagnostics\": [], \"summary\": {\"filesAnalyzed\": 29, \"errorCount\": 0, \"warningCount\": 0, \"informationCount\": 0, \"timeInSec\": 1.269}}"
     },
     "test_coverage": {
       "source": "tool_evidence (inline)",
       "kind": "inline",
-      "sha256": "b0c5b2337b004907228cf636cb0c02d3bbef88905cde81e35214dcab58e65fd7",
-      "bytes": 603,
-      "head": "collected 41 items\n\n03-development/tests/test_fr03.py ............                           [ 29%]\n03-development/tests/test_fr04.py ..............                         [ 63%]\n03-development/tests/test_fr05.py ....                                   [ 73%]\n03-development/tests/test_fr06.py .......                                [ 90%]\n03-development/tests/test_fr10.py ....                                   [100%]\n\ncoverage: api/deps.py 100% (50/50), service/auth.py 100% (22/22), repository/key_repo.py 100% (38/38)\n============================== 41 passed in 1.74s =============================="
+      "sha256": "75128f4a68a244fb60eb3c5563a7427a1593c99116ef72db707dc6f626aef82e",
+      "bytes": 539,
+      "head": "collected 34 items\n03-development/tests/test_fr04.py ..............                         [ 41%]\n03-development/tests/test_fr03.py ............                           [ 76%]\n03-development/tests/test_fr05.py ....                                   [ 88%]\n03-development/tests/test_fr10.py ....                                   [100%]\n\n============================== 34 passed in 1.22s ==============================\ncoverage: deps.py 100% (50/50), auth.py 100% (22/22), totals: percent_covered=100.0 covered_lines=72 num_statements=72"
     },
     "architecture_constraints": {
       "source": "tool_evidence (inline)",
