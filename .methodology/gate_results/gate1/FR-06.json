@@ -1,6 +1,6 @@
 {
   "gate": 1,
-  "phase": 4,
+  "phase": 5,
   "fr_id": "FR-06",
   "overall_score": 100.0,
   "quality_complete": true,
@@ -14,20 +14,20 @@
     "type_safety": {
       "score": 100.0,
       "threshold": 100,
-      "tool_evidence": "{\"version\": \"1.1.409\", \"time\": \"1786427040030\", \"generalDiagnostics\": [], \"summary\": {\"filesAnalyzed\": 29, \"errorCount\": 0, \"warningCount\": 0, \"informationCount\": 0, \"timeInSec\": 1.162}}"
+      "tool_evidence": "{\"version\": \"1.1.409\", \"time\": \"1786434815181\", \"generalDiagnostics\": [], \"summary\": {\"filesAnalyzed\": 29, \"errorCount\": 0, \"warningCount\": 0, \"informationCount\": 0, \"timeInSec\": 1.154}}"
     },
     "test_coverage": {
       "score": 100.0,
       "threshold": 100,
-      "tests_passed": 72,
+      "tests_passed": 75,
       "tests_failed": 0,
       "tests_skipped": 0,
-      "tool_evidence": "============================== 72 passed in 3.38s ============================== {\"totals\": {\"covered_lines\": 197, \"num_statements\": 197, \"percent_covered\": 100.0, \"missing_lines\": 0}} Required tests present: test_repository_only_owns_session, test_context_manager_commit_unit, test_no_string_concatenated_sql_grep, test_list_endpoint_constant_sql_count, test_pool_pre_ping_unit. spec_cov_pct=100%."
+      "tool_evidence": "75 passed in 3.26s; coverage.json totals percent_covered=100.0; spec_cov_pct=100 (0 missing of 5 required)"
     },
     "architecture_constraints": {
       "score": 100.0,
       "threshold": 100,
-      "tool_evidence": "---------\nContracts\n---------\n\nAnalyzed 51 files, 90 dependencies.\n-----------------------------------\n\nLayering KEPT\nSQLAlchemy in repository only KEPT\n\nContracts: 2 kept, 0 broken."
+      "tool_evidence": "Analyzed 51 files, 91 dependencies. Layering KEPT. SQLAlchemy in repository only KEPT. Contracts: 2 kept, 0 broken."
     }
   },
   "enforcer_sha": "258e4267af0bfec584a2e667c2013922fa50aca8",
@@ -68,23 +68,23 @@
     "type_safety": {
       "source": "tool_evidence (inline)",
       "kind": "inline",
-      "sha256": "84daf23bcb70f182f8d64e36517c0fa3b9bbff63f6670e88fda7d011fae198fa",
+      "sha256": "92a387760a9b69976e9fc52a1c38bfc6fc549cdf1862c621916d07caba352b7b",
       "bytes": 186,
-      "head": "{\"version\": \"1.1.409\", \"time\": \"1786427040030\", \"generalDiagnostics\": [], \"summary\": {\"filesAnalyzed\": 29, \"errorCount\": 0, \"warningCount\": 0, \"informationCount\": 0, \"timeInSec\": 1.162}}"
+      "head": "{\"version\": \"1.1.409\", \"time\": \"1786434815181\", \"generalDiagnostics\": [], \"summary\": {\"filesAnalyzed\": 29, \"errorCount\": 0, \"warningCount\": 0, \"informationCount\": 0, \"timeInSec\": 1.154}}"
     },
     "test_coverage": {
       "source": "tool_evidence (inline)",
       "kind": "inline",
-      "sha256": "b6c6d8f6438b70ee3c3a18bab4641abfdc574afe5c52dbf0215c3b25aea34bcc",
-      "bytes": 398,
-      "head": "============================== 72 passed in 3.38s ============================== {\"totals\": {\"covered_lines\": 197, \"num_statements\": 197, \"percent_covered\": 100.0, \"missing_lines\": 0}} Required tests present: test_repository_only_owns_session, test_context_manager_commit_unit, test_no_string_concatenated_sql_grep, test_list_endpoint_constant_sql_count, test_pool_pre_ping_unit. spec_cov_pct=100%."
+      "sha256": "3178762450fb0edf1dbbfd1c4cf93ede3b12e611275bbe1d87cf4decd5cdc82b",
+      "bytes": 106,
+      "head": "75 passed in 3.26s; coverage.json totals percent_covered=100.0; spec_cov_pct=100 (0 missing of 5 required)"
     },
     "architecture_constraints": {
       "source": "tool_evidence (inline)",
       "kind": "inline",
-      "sha256": "77b9464c6361b86f52d33dd21c02af81d465cb710cc5e052dc69c03e6b199439",
-      "bytes": 182,
-      "head": "---------\nContracts\n---------\n\nAnalyzed 51 files, 90 dependencies.\n-----------------------------------\n\nLayering KEPT\nSQLAlchemy in repository only KEPT\n\nContracts: 2 kept, 0 broken."
+      "sha256": "6b3667d3a80f9a2187c017efecd427cb5716ce3c9a45d066dbc67e92b9c52c16",
+      "bytes": 115,
+      "head": "Analyzed 51 files, 91 dependencies. Layering KEPT. SQLAlchemy in repository only KEPT. Contracts: 2 kept, 0 broken."
     }
   },
   "composite_score": 100.0,
