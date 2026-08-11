@@ -1,6 +1,6 @@
 {
   "gate": 1,
-  "phase": 4,
+  "phase": 5,
   "fr_id": "FR-08",
   "overall_score": 100.0,
   "quality_complete": true,
@@ -14,7 +14,7 @@
     "type_safety": {
       "score": 100.0,
       "threshold": 100,
-      "tool_evidence": "{\"version\":\"1.1.409\",\"time\":\"1786427347325\",\"generalDiagnostics\":[],\"summary\":{\"filesAnalyzed\":29,\"errorCount\":0,\"warningCount\":0,\"informationCount\":0,\"timeInSec\":1.151}}"
+      "tool_evidence": "{\"version\":\"1.1.409\",\"time\":\"1786435277303\",\"generalDiagnostics\":[],\"summary\":{\"filesAnalyzed\":29,\"errorCount\":0,\"warningCount\":0,\"informationCount\":0,\"timeInSec\":1.167}}"
     },
     "test_coverage": {
       "score": 100.0,
@@ -22,12 +22,12 @@
       "tests_passed": 32,
       "tests_failed": 0,
       "tests_skipped": 0,
-      "tool_evidence": "collected 32 items\n\n03-development/tests/test_fr08.py .....................                  [ 65%]\n03-development/tests/test_fr02.py ...........                            [100%]\n\n============================== 32 passed in 3.74s ============================== {\"totals\": {\"covered_lines\": 141, \"num_statements\": 141, \"percent_covered\": 100.0, \"missing_lines\": 0, \"excluded_lines\": 0, \"percent_statements_covered\": 100.0}} Required tests present: test_concurrency_cap_unit, test_drain_timeout_marks_interrupted, test_timeout_terminates_child, test_cancelled_error_propagates. spec_cov_pct=100%."
+      "tool_evidence": "Name                                             Stmts   Miss  Cover\n--------------------------------------------------------------------\n03-development/src/taskq_api/service/runner.py     141      0   100%\n--------------------------------------------------------------------\nTOTAL                                              141      0   100%\n============================== 32 passed in 3.60s =============================="
     },
     "architecture_constraints": {
       "score": 100.0,
       "threshold": 100,
-      "tool_evidence": "---------\nContracts\n---------\n\nAnalyzed 51 files, 90 dependencies.\n-----------------------------------\n\nLayering KEPT\nSQLAlchemy in repository only KEPT\n\nContracts: 2 kept, 0 broken."
+      "tool_evidence": "Analyzed 51 files, 91 dependencies. Layering KEPT. SQLAlchemy in repository only KEPT. Contracts: 2 kept, 0 broken."
     }
   },
   "enforcer_sha": "258e4267af0bfec584a2e667c2013922fa50aca8",
@@ -68,23 +68,23 @@
     "type_safety": {
       "source": "tool_evidence (inline)",
       "kind": "inline",
-      "sha256": "61ed3c448ec5717ebbf6b544528019be63d3575c966aa350d1adf833f2ff58ba",
+      "sha256": "29025677ab8b10f13812f3746276fbc9c2215e18d029af680483e6ee009630d5",
       "bytes": 170,
-      "head": "{\"version\":\"1.1.409\",\"time\":\"1786427347325\",\"generalDiagnostics\":[],\"summary\":{\"filesAnalyzed\":29,\"errorCount\":0,\"warningCount\":0,\"informationCount\":0,\"timeInSec\":1.151}}"
+      "head": "{\"version\":\"1.1.409\",\"time\":\"1786435277303\",\"generalDiagnostics\":[],\"summary\":{\"filesAnalyzed\":29,\"errorCount\":0,\"warningCount\":0,\"informationCount\":0,\"timeInSec\":1.167}}"
     },
     "test_coverage": {
       "source": "tool_evidence (inline)",
       "kind": "inline",
-      "sha256": "90feda3a01334e16d13cd81eed74f8960b31d626f10cae34d02e93db287a452b",
-      "bytes": 595,
-      "head": "collected 32 items\n\n03-development/tests/test_fr08.py .....................                  [ 65%]\n03-development/tests/test_fr02.py ...........                            [100%]\n\n============================== 32 passed in 3.74s ============================== {\"totals\": {\"covered_lines\": 141, \"num_statements\": 141, \"percent_covered\": 100.0, \"missing_lines\": 0, \"excluded_lines\": 0, \"percent_statements_covered\": 100.0}} Required tests present: test_concurrency_cap_unit, test_drain_timeout_marks_interrupted, test_timeout_terminates_child, test_cancelled_error_propagates. spec_cov_pct=100%."
+      "sha256": "66664b3df302cae3d985a6437756ff7e9af0101af55f25d1e6d6bb3163fa59a5",
+      "bytes": 425,
+      "head": "Name                                             Stmts   Miss  Cover\n--------------------------------------------------------------------\n03-development/src/taskq_api/service/runner.py     141      0   100%\n--------------------------------------------------------------------\nTOTAL                                              141      0   100%\n============================== 32 passed in 3.60s =============================="
     },
     "architecture_constraints": {
       "source": "tool_evidence (inline)",
       "kind": "inline",
-      "sha256": "77b9464c6361b86f52d33dd21c02af81d465cb710cc5e052dc69c03e6b199439",
-      "bytes": 182,
-      "head": "---------\nContracts\n---------\n\nAnalyzed 51 files, 90 dependencies.\n-----------------------------------\n\nLayering KEPT\nSQLAlchemy in repository only KEPT\n\nContracts: 2 kept, 0 broken."
+      "sha256": "6b3667d3a80f9a2187c017efecd427cb5716ce3c9a45d066dbc67e92b9c52c16",
+      "bytes": 115,
+      "head": "Analyzed 51 files, 91 dependencies. Layering KEPT. SQLAlchemy in repository only KEPT. Contracts: 2 kept, 0 broken."
     }
   },
   "composite_score": 100.0,

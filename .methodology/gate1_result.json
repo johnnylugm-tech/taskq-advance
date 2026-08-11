@@ -1,7 +1,7 @@
 {
   "gate": 1,
   "phase": 5,
-  "fr_id": "FR-07",
+  "fr_id": "FR-08",
   "overall_score": 100.0,
   "quality_complete": true,
   "rounds_used": 1,
@@ -14,15 +14,15 @@
     "type_safety": {
       "score": 100.0,
       "threshold": 100,
-      "tool_evidence": "{\"version\": \"1.1.409\", \"time\": \"1786434995527\", \"generalDiagnostics\": [], \"summary\": {\"filesAnalyzed\": 29, \"errorCount\": 0, \"warningCount\": 0, \"informationCount\": 0, \"timeInSec\": 1.16}}"
+      "tool_evidence": "{\"version\":\"1.1.409\",\"time\":\"1786435277303\",\"generalDiagnostics\":[],\"summary\":{\"filesAnalyzed\":29,\"errorCount\":0,\"warningCount\":0,\"informationCount\":0,\"timeInSec\":1.167}}"
     },
     "test_coverage": {
       "score": 100.0,
       "threshold": 100,
-      "tests_passed": 23,
+      "tests_passed": 32,
       "tests_failed": 0,
       "tests_skipped": 0,
-      "tool_evidence": "collected 23 items\n\n03-development/tests/test_fr07.py .....                                  [ 21%]\n03-development/tests/test_fr06.py .......                                [ 52%]\n03-development/tests/test_fr09.py ...........                            [100%]\n\n============================== 23 passed in 1.24s ==============================\nCoverage totals: covered_lines=127, num_statements=127, percent_covered=100.0%"
+      "tool_evidence": "Name                                             Stmts   Miss  Cover\n--------------------------------------------------------------------\n03-development/src/taskq_api/service/runner.py     141      0   100%\n--------------------------------------------------------------------\nTOTAL                                              141      0   100%\n============================== 32 passed in 3.60s =============================="
     },
     "architecture_constraints": {
       "score": 100.0,
@@ -68,16 +68,16 @@
     "type_safety": {
       "source": "tool_evidence (inline)",
       "kind": "inline",
-      "sha256": "3f7783d154fc2586813319d04a2d1ef9765bf19b971fa24a6923c91fdcad6107",
-      "bytes": 185,
-      "head": "{\"version\": \"1.1.409\", \"time\": \"1786434995527\", \"generalDiagnostics\": [], \"summary\": {\"filesAnalyzed\": 29, \"errorCount\": 0, \"warningCount\": 0, \"informationCount\": 0, \"timeInSec\": 1.16}}"
+      "sha256": "29025677ab8b10f13812f3746276fbc9c2215e18d029af680483e6ee009630d5",
+      "bytes": 170,
+      "head": "{\"version\":\"1.1.409\",\"time\":\"1786435277303\",\"generalDiagnostics\":[],\"summary\":{\"filesAnalyzed\":29,\"errorCount\":0,\"warningCount\":0,\"informationCount\":0,\"timeInSec\":1.167}}"
     },
     "test_coverage": {
       "source": "tool_evidence (inline)",
       "kind": "inline",
-      "sha256": "1afae4ab7612fece25916ef155508c33767ad43814f4412c85c386475ca379c5",
-      "bytes": 420,
-      "head": "collected 23 items\n\n03-development/tests/test_fr07.py .....                                  [ 21%]\n03-development/tests/test_fr06.py .......                                [ 52%]\n03-development/tests/test_fr09.py ...........                            [100%]\n\n============================== 23 passed in 1.24s ==============================\nCoverage totals: covered_lines=127, num_statements=127, percent_covered=100.0%"
+      "sha256": "66664b3df302cae3d985a6437756ff7e9af0101af55f25d1e6d6bb3163fa59a5",
+      "bytes": 425,
+      "head": "Name                                             Stmts   Miss  Cover\n--------------------------------------------------------------------\n03-development/src/taskq_api/service/runner.py     141      0   100%\n--------------------------------------------------------------------\nTOTAL                                              141      0   100%\n============================== 32 passed in 3.60s =============================="
     },
     "architecture_constraints": {
       "source": "tool_evidence (inline)",
