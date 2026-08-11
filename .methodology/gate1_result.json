@@ -1,7 +1,7 @@
 {
   "gate": 1,
   "phase": 4,
-  "fr_id": "FR-07",
+  "fr_id": "FR-08",
   "overall_score": 100.0,
   "quality_complete": true,
   "rounds_used": 1,
@@ -14,15 +14,15 @@
     "type_safety": {
       "score": 100.0,
       "threshold": 100,
-      "tool_evidence": "{\"version\":\"1.1.409\",\"time\":\"1786427207102\",\"generalDiagnostics\":[],\"summary\":{\"filesAnalyzed\":29,\"errorCount\":0,\"warningCount\":0,\"informationCount\":0,\"timeInSec\":1.172}}"
+      "tool_evidence": "{\"version\":\"1.1.409\",\"time\":\"1786427347325\",\"generalDiagnostics\":[],\"summary\":{\"filesAnalyzed\":29,\"errorCount\":0,\"warningCount\":0,\"informationCount\":0,\"timeInSec\":1.151}}"
     },
     "test_coverage": {
       "score": 100.0,
       "threshold": 100,
-      "tests_passed": 21,
+      "tests_passed": 32,
       "tests_failed": 0,
       "tests_skipped": 0,
-      "tool_evidence": "collected 21 items\n03-development/tests/test_fr07.py .....                                  [ 23%]\n03-development/tests/test_fr06.py .......                                [ 57%]\n03-development/tests/test_fr09.py .........                              [100%]\n============================== 21 passed in 1.21s ============================== {\"totals\": {\"covered_lines\": 125, \"num_statements\": 125, \"percent_covered\": 100.0, \"missing_lines\": 0, \"excluded_lines\": 0, \"percent_statements_covered\": 100.0}} Required tests present: test_upgrade_head_succeeds, test_downgrade_base_leaves_no_residual, test_round_trip_byte_identical, test_no_drop_table_shortcut, test_migration_offline_sql_render. spec_cov_pct=100%."
+      "tool_evidence": "collected 32 items\n\n03-development/tests/test_fr08.py .....................                  [ 65%]\n03-development/tests/test_fr02.py ...........                            [100%]\n\n============================== 32 passed in 3.74s ============================== {\"totals\": {\"covered_lines\": 141, \"num_statements\": 141, \"percent_covered\": 100.0, \"missing_lines\": 0, \"excluded_lines\": 0, \"percent_statements_covered\": 100.0}} Required tests present: test_concurrency_cap_unit, test_drain_timeout_marks_interrupted, test_timeout_terminates_child, test_cancelled_error_propagates. spec_cov_pct=100%."
     },
     "architecture_constraints": {
       "score": 100.0,
@@ -68,16 +68,16 @@
     "type_safety": {
       "source": "tool_evidence (inline)",
       "kind": "inline",
-      "sha256": "15bcc8069f1c684636fe21b172db89874d87afb09ec55416e5253514f8234d70",
+      "sha256": "61ed3c448ec5717ebbf6b544528019be63d3575c966aa350d1adf833f2ff58ba",
       "bytes": 170,
-      "head": "{\"version\":\"1.1.409\",\"time\":\"1786427207102\",\"generalDiagnostics\":[],\"summary\":{\"filesAnalyzed\":29,\"errorCount\":0,\"warningCount\":0,\"informationCount\":0,\"timeInSec\":1.172}}"
+      "head": "{\"version\":\"1.1.409\",\"time\":\"1786427347325\",\"generalDiagnostics\":[],\"summary\":{\"filesAnalyzed\":29,\"errorCount\":0,\"warningCount\":0,\"informationCount\":0,\"timeInSec\":1.151}}"
     },
     "test_coverage": {
       "source": "tool_evidence (inline)",
       "kind": "inline",
-      "sha256": "cbcb4b6805f50cc450868ff5d3725c2f0c4cefb02686f81910f564a0bcdb3571",
-      "bytes": 708,
-      "head": "collected 21 items\n03-development/tests/test_fr07.py .....                                  [ 23%]\n03-development/tests/test_fr06.py .......                                [ 57%]\n03-development/tests/test_fr09.py .........                              [100%]\n============================== 21 passed in 1.21s ============================== {\"totals\": {\"covered_lines\": 125, \"num_statements\": 125, \"percent_covered\": 100.0, \"missing_lines\": 0, \"excluded_lines\": 0, \"percent_statements_covered\": 100.0}} Required tests present: test_upgrade_head_succeeds, test_downgrade_base_leaves_no_residual, test_round_trip_byte_identical, test_no_drop_table_shortcut, test_migration_offline_sql_render. spec_cov_pct=100%."
+      "sha256": "90feda3a01334e16d13cd81eed74f8960b31d626f10cae34d02e93db287a452b",
+      "bytes": 595,
+      "head": "collected 32 items\n\n03-development/tests/test_fr08.py .....................                  [ 65%]\n03-development/tests/test_fr02.py ...........                            [100%]\n\n============================== 32 passed in 3.74s ============================== {\"totals\": {\"covered_lines\": 141, \"num_statements\": 141, \"percent_covered\": 100.0, \"missing_lines\": 0, \"excluded_lines\": 0, \"percent_statements_covered\": 100.0}} Required tests present: test_concurrency_cap_unit, test_drain_timeout_marks_interrupted, test_timeout_terminates_child, test_cancelled_error_propagates. spec_cov_pct=100%."
     },
     "architecture_constraints": {
       "source": "tool_evidence (inline)",
