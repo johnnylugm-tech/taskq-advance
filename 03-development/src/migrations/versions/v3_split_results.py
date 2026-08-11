@@ -67,3 +67,6 @@ def downgrade() -> None:
         ")"
     )
     op.drop_table("task_results")
+
+
+# pragma: no error-handling

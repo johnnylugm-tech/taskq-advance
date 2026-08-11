@@ -237,10 +237,10 @@ async def _drain_one(
         task.cancel()
         try:
             await task
-        except BaseException:
+        except asyncio.CancelledError:
             pass
         return task_id
-    except BaseException:
+    except Exception:
         return None
 
 

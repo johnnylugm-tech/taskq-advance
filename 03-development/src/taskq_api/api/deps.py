@@ -130,8 +130,14 @@ def _resolve_principal(x_api_key: str) -> Principal:
     even a future code path that bypasses the SQL filter cannot accept
     a wrong key without matching the stored hash).
     """
-    with session_scope() as session:
-        row = key_repo.lookup_active_key(x_api_key, session=session)
+    try:
+        with session_scope() as session:
+            row = key_repo.lookup_active_key(x_api_key, session=session)
+    except Exception:
+        # Any DB / driver / pool failure during key lookup is surfaced as a
+        # generic 401 — the detail string is the same as for a missing key so
+        # the response cannot be used to probe DB health (NFR-04).
+        _reject_unauthorized()
     if row is None or not auth_service.verify_key(x_api_key, row["key_hash"]):
         _reject_unauthorized()
     return Principal(key_id=row["id"], scope=row["scope"])

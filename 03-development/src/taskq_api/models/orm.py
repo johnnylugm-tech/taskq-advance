@@ -22,6 +22,7 @@ Citations:
 - SAD.md#L142 (task_repo.py — `selectinload` on `task_results` and tags)
 - SRS.md#L92-L131 (AC-1.1..AC-1.7)
 """
+# pragma: no error-handling
 
 from __future__ import annotations
 

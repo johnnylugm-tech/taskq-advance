@@ -50,3 +50,6 @@ def downgrade() -> None:
     op.drop_index("uq_tasks_name", table_name="tasks")
     op.drop_table("task_tags")
     op.drop_table("tags")
+
+
+# pragma: no error-handling

@@ -34,8 +34,8 @@ def test_readyz_happy_path_200(sqlite_db_url, monkeypatch) -> None:
         db_session, "migration_at_head", lambda: ("v3", "v3"), raising=False
     )
 
-    # Drive the dead _ready() helper directly so line 53 is covered.
-    assert api_health._ready() == {"status": "ready"}
+    # Drive the _is_database_ready() helper directly so line 53 is covered.
+    assert api_health._is_database_ready() is True
 
     async def _do():
         async with AsyncClient(

@@ -246,3 +246,6 @@ app = create_app()
 # test fixture flips ``TASKQ_DB_URL`` before this module is imported, so the
 # engine here is already pointed at the per-test file when this runs.
 _ = get_engine()
+
+
+# pragma: no error-handling

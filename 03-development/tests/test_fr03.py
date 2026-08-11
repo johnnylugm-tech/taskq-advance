@@ -784,3 +784,25 @@ def test_auth_dep_defence_in_depth_unit(sqlite_db_url, app, monkeypatch):
         f"401 response must use application/problem+json media type, "
         f"got content-type={response.headers.get('content-type')!r}"
     )
+
+
+def test_db_failure_during_auth_lookup_returns_401(sqlite_db_url, monkeypatch) -> None:
+    """[FR-03] AC-3.4 — a DB failure during key lookup MUST surface as 401.
+
+    [NFR-03] The auth dependency catches any exception raised while opening
+    the session / executing the key lookup and re-raises as an unauthorised
+    response. The exact exception type is intentionally broad (any DB driver
+    error, network blip, pool exhaustion) so a stack trace does not leak
+    out of the auth boundary.
+    """
+    from taskq_api.api import deps
+    from taskq_api.repository import key_repo
+
+    def _boom_lookup(*_args, **_kwargs):
+        raise RuntimeError("simulated DB failure during key lookup")
+
+    monkeypatch.setattr(key_repo, "lookup_active_key", _boom_lookup)
+
+    from taskq_api.errors import UnauthorizedError
+    with pytest.raises(UnauthorizedError):
+        deps._resolve_principal("any-key")

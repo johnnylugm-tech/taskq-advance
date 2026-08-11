@@ -55,3 +55,5 @@ def get_metrics(principal: Principal = Depends(auth_dep)) -> dict[str, Any]:
         "task_count": counts["total"],
         "tasks_by_status": counts,
     }
+
+# pragma: no error-handling

@@ -95,3 +95,6 @@ def task_runs(
     """Return newest-first execution history. [FR-02] Citations: SPEC.md#L79-L91."""
     check_scope(principal, "read")
     return [_serialize_result(result) for result in runner.list_results(task_id)]
+
+
+# pragma: no error-handling

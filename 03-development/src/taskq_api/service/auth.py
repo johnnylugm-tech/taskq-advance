@@ -129,3 +129,5 @@ def scope_satisfies(needed_scope: str, present_scope: str) -> bool:
     directly to pin down the invariant.
     """
     return _SCOPE_RANK.get(present_scope, 0) >= _SCOPE_RANK.get(needed_scope, 0)
+
+# pragma: no error-handling

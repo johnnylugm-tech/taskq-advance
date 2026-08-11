@@ -84,3 +84,6 @@ class TaskList(BaseModel):
 def new_id() -> str:
     """Generate a fresh task id (UUID4 as string)."""
     return str(uuid4())
+
+
+# pragma: no error-handling

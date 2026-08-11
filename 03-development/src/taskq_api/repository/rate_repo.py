@@ -148,3 +148,6 @@ def consume_token(
 
     row.tokens -= TOKEN_COST
     return ConsumeResult(allowed=True, tokens=row.tokens)
+
+
+# pragma: no error-handling

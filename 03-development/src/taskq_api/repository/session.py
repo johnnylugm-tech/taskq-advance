@@ -34,6 +34,7 @@ Citations:
 
 from __future__ import annotations
 
+import logging
 from contextlib import contextmanager
 from typing import Iterator, Tuple
 
@@ -42,6 +43,8 @@ from sqlalchemy.engine import Engine
 from sqlalchemy.orm import Session, sessionmaker
 
 from taskq_api.config import db_pool_size, db_url
+
+_logger = logging.getLogger(__name__)
 
 __all__ = [
     "check_db_ready",
@@ -153,11 +156,11 @@ def reset_engine() -> None:
 
         try:
             Base.metadata.drop_all(_engine)
-        except Exception:
+        except Exception as exc:
             # ``drop_all`` against a half-built engine (e.g. one that has
             # never connected) can raise; the test only requires the next
             # ``create_all`` to start fresh, so swallow the failure.
-            pass
+            _logger.debug("drop_all failed during engine reset: %s", exc)
         _engine.dispose()
     _engine = None
     _SessionLocal = None

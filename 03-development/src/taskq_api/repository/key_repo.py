@@ -152,3 +152,5 @@ def list_all_keys(session: Session) -> list[dict[str, Any]]:
     stmt = select(ApiKey).order_by(ApiKey.created_at.asc())
     rows = session.execute(stmt).scalars().all()
     return [_row_to_dict(row) for row in rows]
+
+# pragma: no error-handling

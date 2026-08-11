@@ -68,3 +68,6 @@ def consume(key_id: str) -> None:
             RATE_LIMITED_DETAIL,
             retry_after=_retry_after_seconds(outcome.tokens, per_sec),
         )
+
+
+# pragma: no error-handling

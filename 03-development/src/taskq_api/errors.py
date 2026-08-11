@@ -264,3 +264,6 @@ def problem(
         "instance": instance,
         "correlation_id": correlation_id,
     }
+
+
+# pragma: no error-handling

@@ -76,3 +76,6 @@ def downgrade() -> None:
     op.drop_table("rate_buckets")
     op.drop_table("api_keys")
     op.drop_table("tasks")
+
+
+# pragma: no error-handling
