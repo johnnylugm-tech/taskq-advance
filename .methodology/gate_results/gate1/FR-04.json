@@ -1,6 +1,6 @@
 {
   "gate": 1,
-  "phase": 3,
+  "phase": 4,
   "fr_id": "FR-04",
   "overall_score": 100.0,
   "quality_complete": true,
@@ -9,34 +9,55 @@
     "linting": {
       "score": 100.0,
       "threshold": 100,
-      "tool_evidence": "All checks passed!"
+      "tool_evidence": "All checks passed!\n"
     },
     "type_safety": {
       "score": 100.0,
       "threshold": 100,
-      "tool_evidence": "{\"version\": \"1.1.409\", \"time\": \"1786122883652\", \"generalDiagnostics\": [], \"summary\": {\"filesAnalyzed\": 20, \"errorCount\": 0, \"warningCount\": 0, \"informationCount\": 0, \"timeInSec\": 1.015}}"
+      "tool_evidence": "{\"version\": \"1.1.409\", \"time\": \"1786426683573\", \"generalDiagnostics\": [], \"summary\": {\"filesAnalyzed\": 29, \"errorCount\": 0, \"warningCount\": 0, \"informationCount\": 0, \"timeInSec\": 1.16}}"
     },
     "test_coverage": {
       "score": 100.0,
       "threshold": 100,
-      "tests_passed": 14,
+      "tests_passed": 22,
       "tests_failed": 0,
       "tests_skipped": 0,
-      "tool_evidence": "============================= test session starts ==============================\nplatform darwin -- Python 3.11.15, pytest-8.4.2\ncollected 14 items\n03-development/tests/test_fr04.py ...                                    [ 21%]\n03-development/tests/test_fr03.py ...........                            [100%]\n============================== 14 passed in 0.62s ==============================\nCoverage: 100.0% (53/53 statements covered, deps.py 31/31 + auth.py 22/22)"
+      "tool_evidence": "03-development/tests/test_fr04.py ...                                    [ 13%]\n03-development/tests/test_fr03.py ...........                            [ 63%]\n03-development/tests/test_fr05.py ....                                   [ 81%]\n03-development/tests/test_fr10.py ....                                   [100%]\n\n============================== 22 passed in 0.98s ==============================\ntotals: percent_covered=100.0 covered_lines=69 num_statements=69\nRequired tests for FR-04: test_write_key_cannot_delete_returns_403 PASSED, test_all_v1_routes_use_same_dep PASSED, test_scope_hierarchy_unit PASSED"
     },
     "architecture_constraints": {
       "score": 100.0,
       "threshold": 100,
-      "tool_evidence": "Analyzed 44 files, 73 dependencies.\nLayering KEPT\nSQLAlchemy in repository only KEPT\nContracts: 2 kept, 0 broken."
+      "tool_evidence": "---------\nContracts\n---------\n\nAnalyzed 50 files, 119 dependencies.\n------------------------------------\n\nLayering KEPT\nSQLAlchemy in repository only KEPT\n\nContracts: 2 kept, 0 broken.\n"
     }
   },
-  "enforcer_sha": "eab6a326b755b7b5f9f6384d41f2b616afc75972",
+  "enforcer_sha": "258e4267af0bfec584a2e667c2013922fa50aca8",
   "enforcer_surface": {
-    "core/quality_gate": "2f36303585e948f41d2b372e127e013471cdc7ff",
+    "core/quality_gate": "f2ff29e7187cd45108f67dc43758d9405838366a",
     "harness/harness_bridge.py": "9e737f9cdee109cd3fc55b3b170f811c0840f078",
     "harness/gate_configs": "ceaa48942d7a61abaa8d1612061f6a8868ad7c5b"
   },
   "evidence_digest": {
+    "secrets_scanning::.gitleaksignore": {
+      "source": ".gitleaksignore (score-altering exclusions)",
+      "kind": "file",
+      "sha256": "4f6f185f89df88aff8cc69108246955bf5769fbb830101201ec40adcf654848c",
+      "bytes": 211,
+      "head": "03-development/tests/test_fr09.py:generic-api-key:308\n03-development/tests/test_fr03.py:generic-api-key:170\n02-architecture/TEST_SPEC.md:generic-api-key:133\n03-development/tests/test_fr03.py:generic-api-key:171"
+    },
+    "mutation_testing::setup.cfg": {
+      "source": "setup.cfg (score-altering exclusions)",
+      "kind": "file",
+      "sha256": "cf656dcdf7aced8af2df4700908c34b80323f44ec286e9d4ab3b3f366b87195c",
+      "bytes": 1175,
+      "head": "[mutmut]\n# Mutation test scope — limited to the taskq-api source tree.\n# Uses mutmut 2.x syntax (not 3.x); pin: pip install \"mutmut<3\".\n# Mutation scope must match the SAB's mutation_testing NFR (NFR-08):\n# the service and repository layers.\npaths_to_mutate=03-development/src/taskq_api/repository,03-development/src/taskq_api/service\n# Data-only / equivalent-mutant files. These contain only string literals,\n# argparse setup, route boilerplate, ORM declarations, alembic DDL, or\n# module-level constants — mutations in these locations are equivalent (no\n# test exercises the specific edge they would change) and cannot be killed\n# without writing assertions against implementation details the gate does\n# not require. The framework's `paths_to_exclude` removes them from the\n# mutant pool so the kill-ratio reflects code that has runtime behaviour.\n# Auto-detected exclusions (_DATA_ONLY_NAMES): __init__.py, config.py, settings.py, constants.py.\n# Round 31 / 32 — equivalent mutant exclusion list.\npaths_to_exclude=\n    v1_initial.py\n    v2_tags.py\n    v3_split_results.py\n    env.py"
+    },
+    "test_coverage::setup.cfg": {
+      "source": "setup.cfg (score-altering exclusions)",
+      "kind": "file",
+      "sha256": "cf656dcdf7aced8af2df4700908c34b80323f44ec286e9d4ab3b3f366b87195c",
+      "bytes": 1175,
+      "head": "[mutmut]\n# Mutation test scope — limited to the taskq-api source tree.\n# Uses mutmut 2.x syntax (not 3.x); pin: pip install \"mutmut<3\".\n# Mutation scope must match the SAB's mutation_testing NFR (NFR-08):\n# the service and repository layers.\npaths_to_mutate=03-development/src/taskq_api/repository,03-development/src/taskq_api/service\n# Data-only / equivalent-mutant files. These contain only string literals,\n# argparse setup, route boilerplate, ORM declarations, alembic DDL, or\n# module-level constants — mutations in these locations are equivalent (no\n# test exercises the specific edge they would change) and cannot be killed\n# without writing assertions against implementation details the gate does\n# not require. The framework's `paths_to_exclude` removes them from the\n# mutant pool so the kill-ratio reflects code that has runtime behaviour.\n# Auto-detected exclusions (_DATA_ONLY_NAMES): __init__.py, config.py, settings.py, constants.py.\n# Round 31 / 32 — equivalent mutant exclusion list.\npaths_to_exclude=\n    v1_initial.py\n    v2_tags.py\n    v3_split_results.py\n    env.py"
+    },
     "linting": {
       "source": "tool_evidence (inline)",
       "kind": "inline",
@@ -47,23 +68,23 @@
     "type_safety": {
       "source": "tool_evidence (inline)",
       "kind": "inline",
-      "sha256": "2b5f4409a399627d0629bd4da864a3ce48073c29418274903bcc74ad9abefd22",
-      "bytes": 186,
-      "head": "{\"version\": \"1.1.409\", \"time\": \"1786122883652\", \"generalDiagnostics\": [], \"summary\": {\"filesAnalyzed\": 20, \"errorCount\": 0, \"warningCount\": 0, \"informationCount\": 0, \"timeInSec\": 1.015}}"
+      "sha256": "3e1fb9322cd1c713441517439cc1cd2a9c74390c6d1524a341f46fc4054b53d0",
+      "bytes": 185,
+      "head": "{\"version\": \"1.1.409\", \"time\": \"1786426683573\", \"generalDiagnostics\": [], \"summary\": {\"filesAnalyzed\": 29, \"errorCount\": 0, \"warningCount\": 0, \"informationCount\": 0, \"timeInSec\": 1.16}}"
     },
     "test_coverage": {
       "source": "tool_evidence (inline)",
       "kind": "inline",
-      "sha256": "df15ccb444d4162bb953bf849344d06e1bea3b987956257191d8cd58afd0109e",
-      "bytes": 463,
-      "head": "============================= test session starts ==============================\nplatform darwin -- Python 3.11.15, pytest-8.4.2\ncollected 14 items\n03-development/tests/test_fr04.py ...                                    [ 21%]\n03-development/tests/test_fr03.py ...........                            [100%]\n============================== 14 passed in 0.62s ==============================\nCoverage: 100.0% (53/53 statements covered, deps.py 31/31 + auth.py 22/22)"
+      "sha256": "9db91f1716cbfe90e927c329409da74c77a15a0cf7a4ce5879e815f219e15029",
+      "bytes": 614,
+      "head": "03-development/tests/test_fr04.py ...                                    [ 13%]\n03-development/tests/test_fr03.py ...........                            [ 63%]\n03-development/tests/test_fr05.py ....                                   [ 81%]\n03-development/tests/test_fr10.py ....                                   [100%]\n\n============================== 22 passed in 0.98s ==============================\ntotals: percent_covered=100.0 covered_lines=69 num_statements=69\nRequired tests for FR-04: test_write_key_cannot_delete_returns_403 PASSED, test_all_v1_routes_use_same_dep PASSED, test_scope_hierarchy_unit PASSED"
     },
     "architecture_constraints": {
       "source": "tool_evidence (inline)",
       "kind": "inline",
-      "sha256": "3fab6448743af78e982d00eb813480b59d4d201feace25cfa4b871ea5f8d6a59",
-      "bytes": 113,
-      "head": "Analyzed 44 files, 73 dependencies.\nLayering KEPT\nSQLAlchemy in repository only KEPT\nContracts: 2 kept, 0 broken."
+      "sha256": "fef0004caa4a54b74f319ebd28fe8d8b95ed3bcdb2689c143c63ae464dbc1561",
+      "bytes": 184,
+      "head": "---------\nContracts\n---------\n\nAnalyzed 50 files, 119 dependencies.\n------------------------------------\n\nLayering KEPT\nSQLAlchemy in repository only KEPT\n\nContracts: 2 kept, 0 broken."
     }
   },
   "composite_score": 100.0,
