@@ -228,7 +228,7 @@ def test_403_body_no_resource_leak(sqlite_db_url) -> None:
             session, name=f"nfr04-{uuid.uuid4().hex}", command="echo nfr04"
         )
         session.flush()
-        existing_id = task.id
+        existing_id = str(task.id)  # type: ignore[arg-type]
 
     missing_id = "task-does-not-exist-" + uuid.uuid4().hex
 

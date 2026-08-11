@@ -138,4 +138,4 @@ def test_app_unhandled_exception_500_handler_direct(sqlite_db_url) -> None:
 
     cancelled = asyncio.CancelledError()
     with pytest.raises(asyncio.CancelledError):
-        _run(handler(_Req(), cancelled))
+        _run(handler(_Req(), cancelled))  # type: ignore[arg-type]

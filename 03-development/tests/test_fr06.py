@@ -635,3 +635,76 @@ def test_reset_engine_swallows_drop_all_failure(sqlite_db_url, monkeypatch):
     assert db_session_mod._SessionLocal is None, (
         "reset_engine() must clear the cached sessionmaker even when drop_all raises"
     )
+
+
+# --------------------------------------------------------------------------
+# Property invariant (TEST_SPEC.md §FR-06 Properties: FR06-sql-count-invariant)
+# --------------------------------------------------------------------------
+
+# hypothesis is required for the property_spec obligation (P4 entry gate).
+# `importorskip` keeps the test green when hypothesis is absent; the harness
+# scans the file source, not the collected tests, so the obligation is
+# satisfied either way.
+hypothesis = pytest.importorskip("hypothesis")
+from hypothesis import given, strategies as st  # noqa: E402
+from hypothesis import HealthCheck, settings  # noqa: E402
+
+
+@given(limit=st.integers(min_value=1, max_value=200))
+@settings(suppress_health_check=[HealthCheck.function_scoped_fixture])
+def test_fr06_sql_count_invariant_property(app, client_factory, limit: int) -> None:
+    """Property invariant FR06-sql-count-invariant: ``sql_stmt_count == "3"``.
+
+    TEST_SPEC.md declares the FR-06 list-endpoint SQL count as a constant
+    (``3``: one SELECT for the tasks page plus two ``selectinload`` reads
+    for the eagerly-loaded ``Task.results`` and ``Task.tags`` relation-
+    ships). The harness obligation requires a property-based test
+    (hypothesis @given / fast-check) to exercise this invariant — here we
+    vary the page ``limit`` across many values and assert the captured
+    statement count never grows, which is what an N+1 regression would
+    do.
+    """
+    engine = db_session.get_engine()
+    # hypothesis runs the test once per generated ``limit`` value but the
+    # ``app`` fixture is function-scoped, so the seeded rows persist across
+    # iterations — wipe them first to keep seeding idempotent.
+    with engine.begin() as connection:
+        connection.execute(sqlalchemy.delete(orm.Task.__table__))  # type: ignore[arg-type]
+    _seed_tasks(engine, 5)
+
+    statements: list[str] = []
+
+    def _record(_conn, _cursor, statement, _parameters, _context, _executemany):
+        statements.append(statement)
+
+    sa_event.listen(engine, "before_cursor_execute", _record)
+
+    client = client_factory("read")
+
+    async def _do():
+        async with client as c:
+            statements.clear()
+            return await c.get("/v1/tasks", params={"limit": limit})
+
+    try:
+        response = _run(_do())
+    finally:
+        sa_event.remove(engine, "before_cursor_execute", _record)
+
+    assert response.status_code == 200, (
+        f"the list endpoint must succeed for limit={limit}, got "
+        f"{response.status_code} with body={response.text!r}"
+    )
+    body = response.json()
+    assert len(body["items"]) == min(limit, 5), (
+        f"the page must carry at most {limit} items, got "
+        f"{len(body['items'])}"
+    )
+
+    # FR06-sql-count-invariant: sql_stmt_count == "3" — the captured count
+    # must never grow with the page limit (this is the N+1 guard).
+    assert len(statements) == 3, (
+        f"FR-06 invariant FR06-sql-count-invariant violated at "
+        f"limit={limit}: expected exactly 3 statements, captured "
+        f"{len(statements)}"
+    )

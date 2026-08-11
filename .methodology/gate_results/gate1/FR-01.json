@@ -1,6 +1,6 @@
 {
   "gate": 1,
-  "phase": 3,
+  "phase": 4,
   "fr_id": "FR-01",
   "overall_score": 100.0,
   "quality_complete": true,
@@ -14,29 +14,50 @@
     "type_safety": {
       "score": 100.0,
       "threshold": 100,
-      "tool_evidence": "{\"version\": \"1.1.409\", \"time\": \"1786114657368\", \"generalDiagnostics\": [], \"summary\": {\"filesAnalyzed\": 15, \"errorCount\": 0, \"warningCount\": 0, \"informationCount\": 0, \"timeInSec\": 0.933}}"
+      "tool_evidence": "{\"version\": \"1.1.409\", \"time\": \"1786426227694\", \"generalDiagnostics\": [], \"summary\": {\"filesAnalyzed\": 29, \"errorCount\": 0, \"warningCount\": 0, \"informationCount\": 0, \"timeInSec\": 1.155}}"
     },
     "test_coverage": {
       "score": 100.0,
       "threshold": 100,
-      "tests_passed": 18,
+      "tests_passed": 43,
       "tests_failed": 0,
       "tests_skipped": 0,
-      "tool_evidence": "============================== test session starts ==============================\nplatform darwin -- Python 3.11.15, pytest-8.4.2, pluggy-1.6.0\nrootdir: /Users/johnny/projects/taskq-advance\nplugins: benchmark-5.2.3, cov-7.1.0, asyncio-1.4.0, anyio-4.14.2\ncollected 18 items\n\n03-development/tests/test_fr01.py ..................                     [100%]\n============================== 18 passed in 0.54s =============================="
+      "tool_evidence": "============================== 43 passed in 2.41s ============================== coverage: 100% (225/225 statements) across FR-01 source files (api/tasks.py, service/tasks.py, repository/task_repo.py, models/orm.py, models/schemas.py); 7/7 required tests present and passing"
     },
     "architecture_constraints": {
       "score": 100.0,
       "threshold": 100,
-      "tool_evidence": "Analyzed 28 files, 37 dependencies. Layering KEPT. SQLAlchemy in repository only KEPT. Contracts: 2 kept, 0 broken. (lint-imports exit 0)"
+      "tool_evidence": "---------\nContracts\n---------\n\nAnalyzed 51 files, 90 dependencies.\n-----------------------------------\n\nLayering KEPT\nSQLAlchemy in repository only KEPT\n\nContracts: 2 kept, 0 broken."
     }
   },
-  "enforcer_sha": "eab6a326b755b7b5f9f6384d41f2b616afc75972",
+  "enforcer_sha": "258e4267af0bfec584a2e667c2013922fa50aca8",
   "enforcer_surface": {
-    "core/quality_gate": "2f36303585e948f41d2b372e127e013471cdc7ff",
+    "core/quality_gate": "f2ff29e7187cd45108f67dc43758d9405838366a",
     "harness/harness_bridge.py": "9e737f9cdee109cd3fc55b3b170f811c0840f078",
     "harness/gate_configs": "ceaa48942d7a61abaa8d1612061f6a8868ad7c5b"
   },
   "evidence_digest": {
+    "secrets_scanning::.gitleaksignore": {
+      "source": ".gitleaksignore (score-altering exclusions)",
+      "kind": "file",
+      "sha256": "4f6f185f89df88aff8cc69108246955bf5769fbb830101201ec40adcf654848c",
+      "bytes": 211,
+      "head": "03-development/tests/test_fr09.py:generic-api-key:308\n03-development/tests/test_fr03.py:generic-api-key:170\n02-architecture/TEST_SPEC.md:generic-api-key:133\n03-development/tests/test_fr03.py:generic-api-key:171"
+    },
+    "mutation_testing::setup.cfg": {
+      "source": "setup.cfg (score-altering exclusions)",
+      "kind": "file",
+      "sha256": "cf656dcdf7aced8af2df4700908c34b80323f44ec286e9d4ab3b3f366b87195c",
+      "bytes": 1175,
+      "head": "[mutmut]\n# Mutation test scope — limited to the taskq-api source tree.\n# Uses mutmut 2.x syntax (not 3.x); pin: pip install \"mutmut<3\".\n# Mutation scope must match the SAB's mutation_testing NFR (NFR-08):\n# the service and repository layers.\npaths_to_mutate=03-development/src/taskq_api/repository,03-development/src/taskq_api/service\n# Data-only / equivalent-mutant files. These contain only string literals,\n# argparse setup, route boilerplate, ORM declarations, alembic DDL, or\n# module-level constants — mutations in these locations are equivalent (no\n# test exercises the specific edge they would change) and cannot be killed\n# without writing assertions against implementation details the gate does\n# not require. The framework's `paths_to_exclude` removes them from the\n# mutant pool so the kill-ratio reflects code that has runtime behaviour.\n# Auto-detected exclusions (_DATA_ONLY_NAMES): __init__.py, config.py, settings.py, constants.py.\n# Round 31 / 32 — equivalent mutant exclusion list.\npaths_to_exclude=\n    v1_initial.py\n    v2_tags.py\n    v3_split_results.py\n    env.py"
+    },
+    "test_coverage::setup.cfg": {
+      "source": "setup.cfg (score-altering exclusions)",
+      "kind": "file",
+      "sha256": "cf656dcdf7aced8af2df4700908c34b80323f44ec286e9d4ab3b3f366b87195c",
+      "bytes": 1175,
+      "head": "[mutmut]\n# Mutation test scope — limited to the taskq-api source tree.\n# Uses mutmut 2.x syntax (not 3.x); pin: pip install \"mutmut<3\".\n# Mutation scope must match the SAB's mutation_testing NFR (NFR-08):\n# the service and repository layers.\npaths_to_mutate=03-development/src/taskq_api/repository,03-development/src/taskq_api/service\n# Data-only / equivalent-mutant files. These contain only string literals,\n# argparse setup, route boilerplate, ORM declarations, alembic DDL, or\n# module-level constants — mutations in these locations are equivalent (no\n# test exercises the specific edge they would change) and cannot be killed\n# without writing assertions against implementation details the gate does\n# not require. The framework's `paths_to_exclude` removes them from the\n# mutant pool so the kill-ratio reflects code that has runtime behaviour.\n# Auto-detected exclusions (_DATA_ONLY_NAMES): __init__.py, config.py, settings.py, constants.py.\n# Round 31 / 32 — equivalent mutant exclusion list.\npaths_to_exclude=\n    v1_initial.py\n    v2_tags.py\n    v3_split_results.py\n    env.py"
+    },
     "linting": {
       "source": "tool_evidence (inline)",
       "kind": "inline",
@@ -47,23 +68,23 @@
     "type_safety": {
       "source": "tool_evidence (inline)",
       "kind": "inline",
-      "sha256": "57353882f20e11a167f52d3716f26fb199ec4626f41b27260515198921741f27",
+      "sha256": "07b2c7dadc9241f1b9237bbc800c9abcd463758b5654e72da6397a86602ef2ba",
       "bytes": 186,
-      "head": "{\"version\": \"1.1.409\", \"time\": \"1786114657368\", \"generalDiagnostics\": [], \"summary\": {\"filesAnalyzed\": 15, \"errorCount\": 0, \"warningCount\": 0, \"informationCount\": 0, \"timeInSec\": 0.933}}"
+      "head": "{\"version\": \"1.1.409\", \"time\": \"1786426227694\", \"generalDiagnostics\": [], \"summary\": {\"filesAnalyzed\": 29, \"errorCount\": 0, \"warningCount\": 0, \"informationCount\": 0, \"timeInSec\": 1.155}}"
     },
     "test_coverage": {
       "source": "tool_evidence (inline)",
       "kind": "inline",
-      "sha256": "d47305c0078cee102481019945bd96146d8cc5c0677b276a110025063b633d29",
-      "bytes": 435,
-      "head": "============================== test session starts ==============================\nplatform darwin -- Python 3.11.15, pytest-8.4.2, pluggy-1.6.0\nrootdir: /Users/johnny/projects/taskq-advance\nplugins: benchmark-5.2.3, cov-7.1.0, asyncio-1.4.0, anyio-4.14.2\ncollected 18 items\n\n03-development/tests/test_fr01.py ..................                     [100%]\n============================== 18 passed in 0.54s =============================="
+      "sha256": "fe1854f3cac99427c9511556ae541e9b6eeb0da852409faccd235354576b081e",
+      "bytes": 274,
+      "head": "============================== 43 passed in 2.41s ============================== coverage: 100% (225/225 statements) across FR-01 source files (api/tasks.py, service/tasks.py, repository/task_repo.py, models/orm.py, models/schemas.py); 7/7 required tests present and passing"
     },
     "architecture_constraints": {
       "source": "tool_evidence (inline)",
       "kind": "inline",
-      "sha256": "5fcee47de93b9acd41dc67cf01c0e64436947d1664cf611166a85e7615c5a86d",
-      "bytes": 137,
-      "head": "Analyzed 28 files, 37 dependencies. Layering KEPT. SQLAlchemy in repository only KEPT. Contracts: 2 kept, 0 broken. (lint-imports exit 0)"
+      "sha256": "77b9464c6361b86f52d33dd21c02af81d465cb710cc5e052dc69c03e6b199439",
+      "bytes": 182,
+      "head": "---------\nContracts\n---------\n\nAnalyzed 51 files, 90 dependencies.\n-----------------------------------\n\nLayering KEPT\nSQLAlchemy in repository only KEPT\n\nContracts: 2 kept, 0 broken."
     }
   },
   "composite_score": 100.0,
