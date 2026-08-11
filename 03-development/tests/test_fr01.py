@@ -604,3 +604,314 @@ def test_repository_non_unique_integrity_error_propagates(app):
             task_repo.create_task(session, name=None, command="x")
     finally:
         session.close()
+
+
+# --------------------------------------------------------------------------
+# Extra coverage tests for sibling functions living in FR-01's coverage
+# scope (api/tasks.py + repository/task_repo.py). These functions are owned
+# by FR-02 and FR-09 but live in the same modules, so the FR-01 coverage
+# gate fails when they are not exercised. Each test below exercises one
+# reachable branch the spec cases don't touch.
+# --------------------------------------------------------------------------
+
+
+# NFR-10 — api/tasks.py:26 (_serialize_result body)
+def test_serialize_result_unit():
+    """_serialize_result maps a TaskResult ORM row to the HTTP representation."""
+    from taskq_api.api.tasks import _serialize_result
+
+    result = orm.TaskResult(
+        id="run-id-xyz",
+        task_id="task-id-abc",
+        exit_code="0",
+        stdout_tail="hello\n",
+        stderr_tail="",
+        duration_ms="42",
+        finished_at="2026-08-07T00:00:00Z",
+    )
+    payload = _serialize_result(result)
+    assert payload == {
+        "id": "run-id-xyz",
+        "task_id": "task-id-abc",
+        "exit_code": "0",
+        "stdout_tail": "hello\n",
+        "stderr_tail": "",
+        "duration_ms": "42",
+        "finished_at": "2026-08-07T00:00:00Z",
+    }
+
+
+# NFR-10 — api/tasks.py:86-88 (run_task endpoint happy path)
+def test_run_task_endpoint_returns_202(client_factory):
+    """POST /v1/tasks/{id}/run returns 202 + a run_id (covers api/tasks.py run_task)."""
+    client = client_factory("write")
+
+    async def _do():
+        async with client as c:
+            created = await c.post(
+                "/v1/tasks", json={"name": "runnable", "command": "echo hi"}
+            )
+            assert created.status_code == 201, created.text
+            task_id = created.json()["id"]
+            response = await c.post(f"/v1/tasks/{task_id}/run")
+            return response
+
+    response = _run(_do())
+    assert response.status_code == 202, response.text
+    body = response.json()
+    assert "run_id" in body, body
+    assert body["run_id"], "run_id must be a non-empty string"
+
+
+# NFR-10 — api/tasks.py:96-97 (task_runs endpoint happy path)
+def test_task_runs_endpoint_returns_list(client_factory):
+    """GET /v1/tasks/{id}/runs returns the execution history list (covers api/tasks.py task_runs)."""
+    # write scope is needed for POST /v1/tasks; read is enough for GET.
+    client = client_factory("write")
+
+    async def _do():
+        async with client as c:
+            created = await c.post(
+                "/v1/tasks", json={"name": "history-task", "command": "echo a"}
+            )
+            assert created.status_code == 201, created.text
+            task_id = created.json()["id"]
+            # Seed two TaskResult rows straight through the repository so
+            # task_runs has rows to serialise (covers api/tasks.py:96-97).
+            engine = db_session.get_engine()
+            with engine.begin() as conn:
+                conn.execute(
+                    sqlalchemy.insert(orm.TaskResult.__table__),
+                    [
+                        {
+                            "id": "run-1",
+                            "task_id": task_id,
+                            "exit_code": "0",
+                            "stdout_tail": "first",
+                            "stderr_tail": "",
+                            "duration_ms": "10",
+                            "finished_at": "2026-08-07T00:00:01Z",
+                        },
+                        {
+                            "id": "run-2",
+                            "task_id": task_id,
+                            "exit_code": "0",
+                            "stdout_tail": "second",
+                            "stderr_tail": "",
+                            "duration_ms": "20",
+                            "finished_at": "2026-08-07T00:00:02Z",
+                        },
+                    ],
+                )
+            # Switch to a read-scope principal so the GET does not accidentally
+            # pass the write check; the GET itself requires only "read".
+            from types import SimpleNamespace
+
+            app_obj = client._transport.app  # type: ignore[attr-defined]
+            app_obj.dependency_overrides[deps.auth_dep] = lambda: SimpleNamespace(
+                key_id="read-key", scope="read"
+            )
+            response = await c.get(f"/v1/tasks/{task_id}/runs")
+            return response
+
+    response = _run(_do())
+    assert response.status_code == 200, response.text
+    body = response.json()
+    assert isinstance(body, list)
+    assert len(body) == 2, body
+    # Newest-first ordering is the documented FR-02 invariant.
+    assert body[0]["id"] == "run-2", body
+    assert body[1]["id"] == "run-1", body
+    # Each element carries the HTTP representation built by _serialize_result.
+    for item in body:
+        for required in (
+            "id",
+            "task_id",
+            "exit_code",
+            "stdout_tail",
+            "stderr_tail",
+            "duration_ms",
+            "finished_at",
+        ):
+            assert required in item, (required, item)
+
+
+# NFR-10 — task_repo.py:146-157 (save_result)
+def test_save_result_persists_row(app):
+    """save_result inserts a TaskResult row and returns the ORM instance (covers task_repo.save_result)."""
+    engine = db_session.get_engine()
+    SessionLocal = sqlalchemy.orm.sessionmaker(
+        bind=engine,
+        autoflush=False,
+        autocommit=False,
+        expire_on_commit=False,
+        future=True,
+    )
+    # Seed a parent task so the FK is satisfied.
+    task_id = str(uuid.uuid5(uuid.NAMESPACE_OID, "save-result-parent"))
+    with engine.begin() as conn:
+        conn.execute(
+            sqlalchemy.insert(orm.Task.__table__),
+            [
+                {
+                    "id": task_id,
+                    "name": "save-result-parent",
+                    "command": "echo x",
+                    "status": "pending",
+                }
+            ],
+        )
+
+    session = SessionLocal()
+    try:
+        row = task_repo.save_result(
+            session,
+            run_id="run-save",
+            task_id=task_id,
+            exit_code="0",
+            stdout_tail="out",
+            stderr_tail="",
+            duration_ms="100",
+            finished_at="2026-08-07T00:00:00Z",
+        )
+        # save_result flushes only — caller owns the commit. Commit here so
+        # the row is visible to the next session and to the GET endpoint.
+        session.commit()
+    finally:
+        session.close()
+
+    assert row.id == "run-save"
+    assert row.task_id == task_id
+
+    # Round-trip: the row must be visible from a fresh session.
+    session = SessionLocal()
+    try:
+        fetched = session.get(orm.TaskResult, "run-save")
+    finally:
+        session.close()
+    assert fetched is not None
+    assert fetched.stdout_tail == "out"
+
+
+# NFR-10 — task_repo.py:166-171 (get_results)
+def test_get_results_newest_first(app):
+    """get_results returns execution history ordered by finished_at DESC (covers task_repo.get_results)."""
+    engine = db_session.get_engine()
+    SessionLocal = sqlalchemy.orm.sessionmaker(
+        bind=engine,
+        autoflush=False,
+        autocommit=False,
+        expire_on_commit=False,
+        future=True,
+    )
+
+    # Seed a parent task and three result rows with strictly ascending
+    # finished_at values; the descending order must reverse them.
+    task_id = str(uuid.uuid5(uuid.NAMESPACE_OID, "get-results-parent"))
+    with engine.begin() as conn:
+        conn.execute(
+            sqlalchemy.insert(orm.Task.__table__),
+            [
+                {
+                    "id": task_id,
+                    "name": "get-results-parent",
+                    "command": "echo x",
+                    "status": "pending",
+                }
+            ],
+        )
+        conn.execute(
+            sqlalchemy.insert(orm.TaskResult.__table__),
+            [
+                {
+                    "id": "older",
+                    "task_id": task_id,
+                    "exit_code": "0",
+                    "stdout_tail": "",
+                    "stderr_tail": "",
+                    "duration_ms": "10",
+                    "finished_at": "2026-08-07T00:00:01Z",
+                },
+                {
+                    "id": "newest",
+                    "task_id": task_id,
+                    "exit_code": "0",
+                    "stdout_tail": "",
+                    "stderr_tail": "",
+                    "duration_ms": "20",
+                    "finished_at": "2026-08-07T00:00:03Z",
+                },
+                {
+                    "id": "middle",
+                    "task_id": task_id,
+                    "exit_code": "0",
+                    "stdout_tail": "",
+                    "stderr_tail": "",
+                    "duration_ms": "15",
+                    "finished_at": "2026-08-07T00:00:02Z",
+                },
+            ],
+        )
+
+    session = SessionLocal()
+    try:
+        rows = task_repo.get_results(session, task_id)
+    finally:
+        session.close()
+
+    ids = [row.id for row in rows]
+    assert ids == ["newest", "middle", "older"], ids
+
+
+# NFR-10 — task_repo.py:190-197 (count_tasks_by_status)
+def test_count_tasks_by_status_aggregates(app):
+    """count_tasks_by_status returns {status: n, ..., "total": N} (covers task_repo.count_tasks_by_status)."""
+    engine = db_session.get_engine()
+    SessionLocal = sqlalchemy.orm.sessionmaker(
+        bind=engine,
+        autoflush=False,
+        autocommit=False,
+        expire_on_commit=False,
+        future=True,
+    )
+
+    # Seed 4 tasks across two statuses; total must be 4 and the breakdown
+    # must reflect the per-status counts.
+    rows = [
+        {"id": str(uuid.uuid5(uuid.NAMESPACE_OID, f"count-{i}")), "name": f"count-task-{i}", "command": "echo x", "status": "pending" if i < 3 else "done"}
+        for i in range(4)
+    ]
+    with engine.begin() as conn:
+        conn.execute(sqlalchemy.insert(orm.Task.__table__), rows)
+
+    session = SessionLocal()
+    try:
+        counts = task_repo.count_tasks_by_status(session)
+    finally:
+        session.close()
+
+    assert counts["total"] == 4, counts
+    assert counts["pending"] == 3, counts
+    assert counts["done"] == 1, counts
+
+
+# NFR-10 — task_repo.py:190-197 (count_tasks_by_status — empty table branch)
+def test_count_tasks_by_status_empty_db(app):
+    """count_tasks_by_status on an empty table returns {"total": 0} (covers task_repo.count_tasks_by_status)."""
+    engine = db_session.get_engine()
+    SessionLocal = sqlalchemy.orm.sessionmaker(
+        bind=engine,
+        autoflush=False,
+        autocommit=False,
+        expire_on_commit=False,
+        future=True,
+    )
+
+    session = SessionLocal()
+    try:
+        counts = task_repo.count_tasks_by_status(session)
+    finally:
+        session.close()
+
+    # No rows → only the "total" key exists (initialised to 0).
+    assert counts == {"total": 0}, counts
