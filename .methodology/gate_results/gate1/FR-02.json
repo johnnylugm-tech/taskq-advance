@@ -1,6 +1,6 @@
 {
   "gate": 1,
-  "phase": 4,
+  "phase": 5,
   "fr_id": "FR-02",
   "overall_score": 100.0,
   "quality_complete": true,
@@ -9,12 +9,12 @@
     "linting": {
       "score": 100.0,
       "threshold": 100,
-      "tool_evidence": "All checks passed!"
+      "tool_evidence": "All checks passed!\n"
     },
     "type_safety": {
       "score": 100.0,
       "threshold": 100,
-      "tool_evidence": "{\"version\": \"1.1.409\", \"time\": \"1786426385462\", \"generalDiagnostics\": [], \"summary\": {\"filesAnalyzed\": 29, \"errorCount\": 0, \"warningCount\": 0, \"informationCount\": 0, \"timeInSec\": 1.151}}"
+      "tool_evidence": "{\n    \"version\": \"1.1.409\",\n    \"time\": \"1786433912310\",\n    \"generalDiagnostics\": [],\n    \"summary\": {\n        \"filesAnalyzed\": 29,\n        \"errorCount\": 0,\n        \"warningCount\": 0,\n        \"informationCount\": 0,\n        \"timeInSec\": 1.152\n    }\n}\n\n"
     },
     "test_coverage": {
       "score": 100.0,
@@ -22,12 +22,12 @@
       "tests_passed": 64,
       "tests_failed": 0,
       "tests_skipped": 0,
-      "tool_evidence": "============================== 64 passed in 4.49s ============================== collected 64 items: test_fr02.py 11, test_fr01.py 25, test_fr06.py 7, test_fr08.py 21; coverage totals percent_covered=100.0 covered_lines=232 num_statements=232 across FR-02 source files (api/tasks.py, service/runner.py, repository/task_repo.py); 5/5 required tests present and passing"
+      "tool_evidence": "collected 64 items\n\n03-development/tests/test_fr02.py ...........                            [ 17%]\n03-development/tests/test_fr01.py .........................              [ 56%]\n03-development/tests/test_fr06.py .......                                [ 67%]\n03-development/tests/test_fr08.py .....................                  [100%]\n\n============================== 64 passed in 4.48s ==============================\n\n--- coverage json (FR-02 sources) ---\n{\"meta\": {\"format\": 3, \"version\": \"7.15"
     },
     "architecture_constraints": {
       "score": 100.0,
       "threshold": 100,
-      "tool_evidence": "---------\nContracts\n---------\n\nAnalyzed 51 files, 90 dependencies.\n-----------------------------------\n\nLayering KEPT\nSQLAlchemy in repository only KEPT\n\nContracts: 2 kept, 0 broken."
+      "tool_evidence": "---------\nContracts\n---------\n\nAnalyzed 51 files, 91 dependencies.\n-----------------------------------\n\nLayering KEPT\nSQLAlchemy in repository only KEPT\n\nContracts: 2 kept, 0 broken.\n"
     }
   },
   "enforcer_sha": "258e4267af0bfec584a2e667c2013922fa50aca8",
@@ -68,23 +68,23 @@
     "type_safety": {
       "source": "tool_evidence (inline)",
       "kind": "inline",
-      "sha256": "2a260228286741380e646a97c8696c33f59ffd9f6bffd33e3f7a93c5cf2c16bb",
-      "bytes": 186,
-      "head": "{\"version\": \"1.1.409\", \"time\": \"1786426385462\", \"generalDiagnostics\": [], \"summary\": {\"filesAnalyzed\": 29, \"errorCount\": 0, \"warningCount\": 0, \"informationCount\": 0, \"timeInSec\": 1.151}}"
+      "sha256": "fd541b27bf5675020834339259a98337375eb57bc4712f8e33ab99a1d9085e35",
+      "bytes": 250,
+      "head": "{\n    \"version\": \"1.1.409\",\n    \"time\": \"1786433912310\",\n    \"generalDiagnostics\": [],\n    \"summary\": {\n        \"filesAnalyzed\": 29,\n        \"errorCount\": 0,\n        \"warningCount\": 0,\n        \"informationCount\": 0,\n        \"timeInSec\": 1.152\n    }\n}"
     },
     "test_coverage": {
       "source": "tool_evidence (inline)",
       "kind": "inline",
-      "sha256": "3442f634d79d7884c170470e18ef2917185ebd1d0b97d4b75f54632e3c6a726b",
-      "bytes": 367,
-      "head": "============================== 64 passed in 4.49s ============================== collected 64 items: test_fr02.py 11, test_fr01.py 25, test_fr06.py 7, test_fr08.py 21; coverage totals percent_covered=100.0 covered_lines=232 num_statements=232 across FR-02 source files (api/tasks.py, service/runner.py, repository/task_repo.py); 5/5 required tests present and passing"
+      "sha256": "d2dc6fbf48a10cc296b6e17de94ace68d17d3364abe11c73ac19f9afaf94dad5",
+      "bytes": 500,
+      "head": "collected 64 items\n\n03-development/tests/test_fr02.py ...........                            [ 17%]\n03-development/tests/test_fr01.py .........................              [ 56%]\n03-development/tests/test_fr06.py .......                                [ 67%]\n03-development/tests/test_fr08.py .....................                  [100%]\n\n============================== 64 passed in 4.48s ==============================\n\n--- coverage json (FR-02 sources) ---\n{\"meta\": {\"format\": 3, \"version\": \"7.15"
     },
     "architecture_constraints": {
       "source": "tool_evidence (inline)",
       "kind": "inline",
-      "sha256": "77b9464c6361b86f52d33dd21c02af81d465cb710cc5e052dc69c03e6b199439",
+      "sha256": "557c96ca0690d946035d91ffc8e818e89fd988787a07f5de3e3c8f7f21e0a679",
       "bytes": 182,
-      "head": "---------\nContracts\n---------\n\nAnalyzed 51 files, 90 dependencies.\n-----------------------------------\n\nLayering KEPT\nSQLAlchemy in repository only KEPT\n\nContracts: 2 kept, 0 broken."
+      "head": "---------\nContracts\n---------\n\nAnalyzed 51 files, 91 dependencies.\n-----------------------------------\n\nLayering KEPT\nSQLAlchemy in repository only KEPT\n\nContracts: 2 kept, 0 broken."
     }
   },
   "composite_score": 100.0,
