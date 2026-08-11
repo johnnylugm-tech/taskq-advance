@@ -15,7 +15,7 @@
 | Code Coverage | 100.0% | 100% |
 | Test Coverage | 100.0% | 100% |
 | Verification Rate | 100.0% | 100% |
-| Total Links | 81 | — |
+| Total Links | 91 | — |
 
 ### ASPICE SWE.3 Compliance
 
@@ -29,15 +29,15 @@
 
 | Requirement | Status | Code Files | Test Files | SAD Module |
 |-------------|--------|------------|------------|------------|
-| FR-01 | verified | 03-development/src/taskq_api/__init__.py, 03-development/src/taskq_api/api/deps.py, 03-development/src/taskq_api/api/tasks.py (+10) | 03-development/tests/test_fr01.py | — |
-| FR-02 | verified | 03-development/src/taskq_api/api/tasks.py, 03-development/src/taskq_api/repository/task_repo.py, 03-development/src/taskq_api/service/runner.py (+1) | 03-development/tests/test_fr02.py | — |
-| FR-03 | verified | 03-development/src/taskq_api/__main__.py, 03-development/src/taskq_api/api/deps.py, 03-development/src/taskq_api/errors.py (+4) | 03-development/tests/test_fr03.py | — |
+| FR-01 | verified | 03-development/src/taskq_api/__init__.py, 03-development/src/taskq_api/api/deps.py, 03-development/src/taskq_api/api/tasks.py (+11) | 03-development/tests/test_fr01.py, 03-development/tests/test_fr06.py | — |
+| FR-02 | verified | 03-development/src/taskq_api/api/tasks.py, 03-development/src/taskq_api/repository/task_repo.py, 03-development/src/taskq_api/service/runner.py (+2) | 03-development/tests/test_fr02.py, 03-development/tests/test_fr06.py | — |
+| FR-03 | verified | 03-development/src/taskq_api/__main__.py, 03-development/src/taskq_api/api/deps.py, 03-development/src/taskq_api/errors.py (+5) | 03-development/tests/test_fr03.py, 03-development/tests/test_fr06.py | — |
 | FR-04 | verified | 03-development/src/taskq_api/api/deps.py, 03-development/src/taskq_api/api/metrics.py, 03-development/src/taskq_api/app.py (+3) | 03-development/tests/test_fr04.py | — |
-| FR-05 | verified | 03-development/src/taskq_api/api/deps.py, 03-development/src/taskq_api/app.py, 03-development/src/taskq_api/config.py (+6) | 03-development/tests/test_fr05.py, 03-development/tests/test_fr09.py | — |
+| FR-05 | verified | 03-development/src/taskq_api/api/deps.py, 03-development/src/taskq_api/app.py, 03-development/src/taskq_api/config.py (+7) | 03-development/tests/test_fr05.py, 03-development/tests/test_fr06.py, 03-development/tests/test_fr09.py | — |
 | FR-06 | verified | 03-development/src/taskq_api/repository/key_repo.py, 03-development/src/taskq_api/repository/rate_repo.py, 03-development/src/taskq_api/repository/session.py (+2) | 03-development/tests/test_fr06.py | *_repo.py |
 | FR-07 | verified | 03-development/src/migrations/env.py, 03-development/src/migrations/versions/v1_initial.py, 03-development/src/migrations/versions/v2_tags.py (+2) | 03-development/tests/test_fr07.py | migrations/versions/{v1_initial,v2_tags,v3_split_results}.py |
 | FR-08 | verified | 03-development/src/taskq_api/service/runner.py, 03-development/tests/test_fr08.py | 03-development/tests/test_fr08.py | — |
-| FR-09 | verified | 03-development/src/taskq_api/api/health.py, 03-development/src/taskq_api/api/metrics.py, 03-development/src/taskq_api/repository/session.py (+2) | 03-development/tests/test_fr09.py | __main__.py |
+| FR-09 | verified | 03-development/src/taskq_api/api/health.py, 03-development/src/taskq_api/api/metrics.py, 03-development/src/taskq_api/repository/session.py (+3) | 03-development/tests/test_fr06.py, 03-development/tests/test_fr09.py | __main__.py |
 | FR-10 | verified | 03-development/src/taskq_api/api/deps.py, 03-development/src/taskq_api/app.py, 03-development/src/taskq_api/errors.py (+1) | 03-development/tests/test_fr10.py | — |
 <!-- AUTO-GEN:END -->
 
