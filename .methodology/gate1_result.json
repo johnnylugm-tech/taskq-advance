@@ -1,7 +1,7 @@
 {
   "gate": 1,
   "phase": 8,
-  "fr_id": "FR-06",
+  "fr_id": "FR-07",
   "overall_score": 100.0,
   "quality_complete": true,
   "rounds_used": 1,
@@ -14,20 +14,20 @@
     "type_safety": {
       "score": 100.0,
       "threshold": 100,
-      "tool_evidence": "{\"version\": \"1.1.409\", \"generalDiagnostics\": [], \"summary\": {\"filesAnalyzed\": 29, \"errorCount\": 0, \"warningCount\": 0, \"informationCount\": 0, \"timeInSec\": 1.304}}"
+      "tool_evidence": "{\"version\": \"1.1.409\", \"summary\": {\"filesAnalyzed\": 29, \"errorCount\": 0, \"warningCount\": 0, \"informationCount\": 0}}"
     },
     "test_coverage": {
       "score": 100.0,
       "threshold": 100,
-      "tests_passed": 113,
+      "tests_passed": 61,
       "tests_failed": 0,
       "tests_skipped": 0,
-      "tool_evidence": "collected 113 items ... 113 passed in 4.02s. coverage json totals: {\"covered_lines\": 199, \"num_statements\": 199, \"percent_covered\": 100.0, \"missing_lines\": 0} for repository/session.py, task_repo.py, key_repo.py, rate_repo.py. Required FR-06 tests present: 5/5."
+      "tool_evidence": "61 passed in 1.68s. FR-scoped files: v1_initial.py 100%, v2_tags.py 100%, v3_split_results.py 100%, session.py 100%. spec_cov_pct=100 (5/5 required tests present). All 5 required tests (test_upgrade_head_succeeds, test_downgrade_base_leaves_no_residual, test_round_trip_byte_identical, test_no_drop_table_shortcut, test_migration_offline_sql_render) passed."
     },
     "architecture_constraints": {
       "score": 100.0,
       "threshold": 100,
-      "tool_evidence": "Analyzed 51 files, 91 dependencies. Layering KEPT. SQLAlchemy in repository only KEPT. Contracts: 2 kept, 0 broken."
+      "tool_evidence": "Contracts: 2 kept, 0 broken. Layering KEPT, SQLAlchemy in repository only KEPT. Analyzed 50 files, 120 dependencies."
     }
   },
   "enforcer_sha": "5a87e35f0a01ef096843f5eaa0909a905ba2566a",
@@ -68,23 +68,23 @@
     "type_safety": {
       "source": "tool_evidence (inline)",
       "kind": "inline",
-      "sha256": "7527128c18d997438125860b64191f38428027e9ea34b3e35a7a008ca0090abf",
-      "bytes": 161,
-      "head": "{\"version\": \"1.1.409\", \"generalDiagnostics\": [], \"summary\": {\"filesAnalyzed\": 29, \"errorCount\": 0, \"warningCount\": 0, \"informationCount\": 0, \"timeInSec\": 1.304}}"
+      "sha256": "5464c04b5fecb6db36b8aca76cb1cf5490511adc1201acf3d6de844106a7cbc5",
+      "bytes": 115,
+      "head": "{\"version\": \"1.1.409\", \"summary\": {\"filesAnalyzed\": 29, \"errorCount\": 0, \"warningCount\": 0, \"informationCount\": 0}}"
     },
     "test_coverage": {
       "source": "tool_evidence (inline)",
       "kind": "inline",
-      "sha256": "5e5152b66bfaab6b62caa3352123e5c49c66f774b2bc9808ccd33e3c0fe96233",
-      "bytes": 261,
-      "head": "collected 113 items ... 113 passed in 4.02s. coverage json totals: {\"covered_lines\": 199, \"num_statements\": 199, \"percent_covered\": 100.0, \"missing_lines\": 0} for repository/session.py, task_repo.py, key_repo.py, rate_repo.py. Required FR-06 tests present: 5/5."
+      "sha256": "3277ef882a930c36b5135d781a875879f6823d92de10e4732ea664f7a2bf5afe",
+      "bytes": 357,
+      "head": "61 passed in 1.68s. FR-scoped files: v1_initial.py 100%, v2_tags.py 100%, v3_split_results.py 100%, session.py 100%. spec_cov_pct=100 (5/5 required tests present). All 5 required tests (test_upgrade_head_succeeds, test_downgrade_base_leaves_no_residual, test_round_trip_byte_identical, test_no_drop_table_shortcut, test_migration_offline_sql_render) passed."
     },
     "architecture_constraints": {
       "source": "tool_evidence (inline)",
       "kind": "inline",
-      "sha256": "6b3667d3a80f9a2187c017efecd427cb5716ce3c9a45d066dbc67e92b9c52c16",
-      "bytes": 115,
-      "head": "Analyzed 51 files, 91 dependencies. Layering KEPT. SQLAlchemy in repository only KEPT. Contracts: 2 kept, 0 broken."
+      "sha256": "05a541dd1f05afa2b250d45662ac294658fc77e07ca457c38f44ae7587891dc8",
+      "bytes": 116,
+      "head": "Contracts: 2 kept, 0 broken. Layering KEPT, SQLAlchemy in repository only KEPT. Analyzed 50 files, 120 dependencies."
     }
   },
   "composite_score": 100.0,
