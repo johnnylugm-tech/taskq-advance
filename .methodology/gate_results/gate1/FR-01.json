@@ -1,6 +1,6 @@
 {
   "gate": 1,
-  "phase": 4,
+  "phase": 5,
   "fr_id": "FR-01",
   "overall_score": 100.0,
   "quality_complete": true,
@@ -14,7 +14,7 @@
     "type_safety": {
       "score": 100.0,
       "threshold": 100,
-      "tool_evidence": "{\"version\": \"1.1.409\", \"time\": \"1786426227694\", \"generalDiagnostics\": [], \"summary\": {\"filesAnalyzed\": 29, \"errorCount\": 0, \"warningCount\": 0, \"informationCount\": 0, \"timeInSec\": 1.155}}"
+      "tool_evidence": "{\"version\": \"1.1.409\", \"time\": \"1786433760000\", \"generalDiagnostics\": [], \"summary\": {\"filesAnalyzed\": 29, \"errorCount\": 0, \"warningCount\": 0, \"informationCount\": 0, \"timeInSec\": 1.155}}"
     },
     "test_coverage": {
       "score": 100.0,
@@ -22,12 +22,12 @@
       "tests_passed": 43,
       "tests_failed": 0,
       "tests_skipped": 0,
-      "tool_evidence": "============================== 43 passed in 2.41s ============================== coverage: 100% (225/225 statements) across FR-01 source files (api/tasks.py, service/tasks.py, repository/task_repo.py, models/orm.py, models/schemas.py); 7/7 required tests present and passing"
+      "tool_evidence": "============================== 43 passed in 2.48s ============================== coverage totals: percent_covered=100.0, covered_lines=225, num_statements=225, missing_lines=0. spec_cov_pct=100% (7/7 required tests present and passing)"
     },
     "architecture_constraints": {
       "score": 100.0,
       "threshold": 100,
-      "tool_evidence": "---------\nContracts\n---------\n\nAnalyzed 51 files, 90 dependencies.\n-----------------------------------\n\nLayering KEPT\nSQLAlchemy in repository only KEPT\n\nContracts: 2 kept, 0 broken."
+      "tool_evidence": "Analyzed 51 files, 91 dependencies. Layering KEPT. SQLAlchemy in repository only KEPT. Contracts: 2 kept, 0 broken. (lint-imports exit=0)"
     }
   },
   "enforcer_sha": "258e4267af0bfec584a2e667c2013922fa50aca8",
@@ -68,23 +68,23 @@
     "type_safety": {
       "source": "tool_evidence (inline)",
       "kind": "inline",
-      "sha256": "07b2c7dadc9241f1b9237bbc800c9abcd463758b5654e72da6397a86602ef2ba",
+      "sha256": "9fe3809047e9832a70d11b2fc04831d954a81ce7715315b193f5d174ec27225d",
       "bytes": 186,
-      "head": "{\"version\": \"1.1.409\", \"time\": \"1786426227694\", \"generalDiagnostics\": [], \"summary\": {\"filesAnalyzed\": 29, \"errorCount\": 0, \"warningCount\": 0, \"informationCount\": 0, \"timeInSec\": 1.155}}"
+      "head": "{\"version\": \"1.1.409\", \"time\": \"1786433760000\", \"generalDiagnostics\": [], \"summary\": {\"filesAnalyzed\": 29, \"errorCount\": 0, \"warningCount\": 0, \"informationCount\": 0, \"timeInSec\": 1.155}}"
     },
     "test_coverage": {
       "source": "tool_evidence (inline)",
       "kind": "inline",
-      "sha256": "fe1854f3cac99427c9511556ae541e9b6eeb0da852409faccd235354576b081e",
-      "bytes": 274,
-      "head": "============================== 43 passed in 2.41s ============================== coverage: 100% (225/225 statements) across FR-01 source files (api/tasks.py, service/tasks.py, repository/task_repo.py, models/orm.py, models/schemas.py); 7/7 required tests present and passing"
+      "sha256": "b5bb42026ab4708d1ce712063de01216fc0eb113f5a0f31ad07873be1f89d0be",
+      "bytes": 235,
+      "head": "============================== 43 passed in 2.48s ============================== coverage totals: percent_covered=100.0, covered_lines=225, num_statements=225, missing_lines=0. spec_cov_pct=100% (7/7 required tests present and passing)"
     },
     "architecture_constraints": {
       "source": "tool_evidence (inline)",
       "kind": "inline",
-      "sha256": "77b9464c6361b86f52d33dd21c02af81d465cb710cc5e052dc69c03e6b199439",
-      "bytes": 182,
-      "head": "---------\nContracts\n---------\n\nAnalyzed 51 files, 90 dependencies.\n-----------------------------------\n\nLayering KEPT\nSQLAlchemy in repository only KEPT\n\nContracts: 2 kept, 0 broken."
+      "sha256": "348a596c162600d6fd381ca8f39a32ea837bf5a86db059cea217800b39ce3c7e",
+      "bytes": 137,
+      "head": "Analyzed 51 files, 91 dependencies. Layering KEPT. SQLAlchemy in repository only KEPT. Contracts: 2 kept, 0 broken. (lint-imports exit=0)"
     }
   },
   "composite_score": 100.0,
