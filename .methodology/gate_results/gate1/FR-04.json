@@ -1,7 +1,7 @@
 {
   "gate": 1,
-  "phase": 5,
-  "fr_id": "FR-04",
+  "phase": 6,
+  "fr_id": "FR-10",
   "overall_score": 100.0,
   "quality_complete": true,
   "rounds_used": 1,
@@ -9,14 +9,12 @@
     "linting": {
       "score": 100.0,
       "threshold": 100,
-      "tool_evidence": "All checks passed!\n",
-      "evidence_file": ".sessi-work/round_1/tools/linting.txt"
+      "tool_evidence": "All checks passed!"
     },
     "type_safety": {
       "score": 100.0,
       "threshold": 100,
-      "tool_evidence": "{\n    \"version\": \"1.1.409\",\n    \"time\": \"1786434349127\",\n    \"generalDiagnostics\": [],\n    \"summary\": {\n        \"filesAnalyzed\": 29,\n        \"errorCount\": 0,\n        \"warningCount\": 0,\n        \"informationCount\": 0,\n        \"timeInSec\": 1.142\n    }\n}\n\n",
-      "evidence_file": ".sessi-work/round_1/tools/type_safety.txt"
+      "tool_evidence": "{\"version\": \"1.1.409\", \"summary\": {\"filesAnalyzed\": 29, \"errorCount\": 0, \"warningCount\": 0, \"informationCount\": 0}}"
     },
     "test_coverage": {
       "score": 100.0,
@@ -24,14 +22,12 @@
       "tests_passed": 23,
       "tests_failed": 0,
       "tests_skipped": 0,
-      "tool_evidence": "______________ coverage: platform darwin, python 3.11.15-final-0 _______________\nName                                                         Stmts   Miss  Cover   Missing\n03-development/src/taskq_api/api/deps.py                        50      0   100%\n03-development/src/taskq_api/service/auth.py                    22      0   100%\n============================== 23 passed in 1.03s ==============================",
-      "evidence_file": ".sessi-work/round_1/tools/test_coverage.txt"
+      "tool_evidence": "============================== 23 passed in 0.97s ==============================\ntotals: covered_lines=103, num_statements=103, percent_covered=100.0"
     },
     "architecture_constraints": {
       "score": 100.0,
       "threshold": 100,
-      "tool_evidence": "Analyzed 51 files, 91 dependencies.\nLayering KEPT\nSQLAlchemy in repository only KEPT\nContracts: 2 kept, 0 broken.",
-      "evidence_file": ".sessi-work/round_1/tools/architecture_constraints.txt"
+      "tool_evidence": "Analyzed 51 files, 91 dependencies.\n-----------------------------------\nLayering KEPT\nSQLAlchemy in repository only KEPT\nContracts: 2 kept, 0 broken."
     }
   },
   "enforcer_sha": "258e4267af0bfec584a2e667c2013922fa50aca8",
@@ -44,9 +40,9 @@
     "secrets_scanning::.gitleaksignore": {
       "source": ".gitleaksignore (score-altering exclusions)",
       "kind": "file",
-      "sha256": "4f6f185f89df88aff8cc69108246955bf5769fbb830101201ec40adcf654848c",
-      "bytes": 211,
-      "head": "03-development/tests/test_fr09.py:generic-api-key:308\n03-development/tests/test_fr03.py:generic-api-key:170\n02-architecture/TEST_SPEC.md:generic-api-key:133\n03-development/tests/test_fr03.py:generic-api-key:171"
+      "sha256": "baee380a9a61bff6a7ae02de6fd5c6237beda8bbe7c01aa85c9f6314e2d9296a",
+      "bytes": 336,
+      "head": "03-development/tests/test_fr09.py:generic-api-key:308\n03-development/tests/test_fr03.py:generic-api-key:170\n02-architecture/TEST_SPEC.md:generic-api-key:133\n03-development/tests/test_fr03.py:generic-api-key:171\n03-development/tests/test_security_threats.py:generic-api-key:382\n05-verification/VERIFICATION_REPORT.md:generic-api-key:111"
     },
     "mutation_testing::setup.cfg": {
       "source": "setup.cfg (score-altering exclusions)",
@@ -72,23 +68,23 @@
     "type_safety": {
       "source": "tool_evidence (inline)",
       "kind": "inline",
-      "sha256": "7c8f5b1ddd0209c18e8110292fd133dc864b2d8ca7ef5200062857eb8aac66d2",
-      "bytes": 250,
-      "head": "{\n    \"version\": \"1.1.409\",\n    \"time\": \"1786434349127\",\n    \"generalDiagnostics\": [],\n    \"summary\": {\n        \"filesAnalyzed\": 29,\n        \"errorCount\": 0,\n        \"warningCount\": 0,\n        \"informationCount\": 0,\n        \"timeInSec\": 1.142\n    }\n}"
+      "sha256": "5464c04b5fecb6db36b8aca76cb1cf5490511adc1201acf3d6de844106a7cbc5",
+      "bytes": 115,
+      "head": "{\"version\": \"1.1.409\", \"summary\": {\"filesAnalyzed\": 29, \"errorCount\": 0, \"warningCount\": 0, \"informationCount\": 0}}"
     },
     "test_coverage": {
       "source": "tool_evidence (inline)",
       "kind": "inline",
-      "sha256": "3d88ef801f50c1e4a2a3d1a9471de8cc7debf3b8f1b191db18e506ef586724f9",
-      "bytes": 414,
-      "head": "______________ coverage: platform darwin, python 3.11.15-final-0 _______________\nName                                                         Stmts   Miss  Cover   Missing\n03-development/src/taskq_api/api/deps.py                        50      0   100%\n03-development/src/taskq_api/service/auth.py                    22      0   100%\n============================== 23 passed in 1.03s =============================="
+      "sha256": "5843c469a13c8d2deef8afb5ce1074f8f3dd72e91ccfcb2f9ca08006fddd931b",
+      "bytes": 149,
+      "head": "============================== 23 passed in 0.97s ==============================\ntotals: covered_lines=103, num_statements=103, percent_covered=100.0"
     },
     "architecture_constraints": {
       "source": "tool_evidence (inline)",
       "kind": "inline",
-      "sha256": "d19825bc63256af60b08c22e29fae3a03ae52e8b24d586843034b287935222f0",
-      "bytes": 113,
-      "head": "Analyzed 51 files, 91 dependencies.\nLayering KEPT\nSQLAlchemy in repository only KEPT\nContracts: 2 kept, 0 broken."
+      "sha256": "df7964b2d2eb494e963218ef823ebafeb5f7e3b69502d899fb6805d1aed6d072",
+      "bytes": 149,
+      "head": "Analyzed 51 files, 91 dependencies.\n-----------------------------------\nLayering KEPT\nSQLAlchemy in repository only KEPT\nContracts: 2 kept, 0 broken."
     }
   },
   "composite_score": 100.0,
@@ -107,5 +103,8 @@
     ],
     "dimensions_unscored": [],
     "dimensions_disabled": []
-  }
+  },
+  "score": 100.0,
+  "open_critical_count": 0,
+  "open_high_count": 0
 }
