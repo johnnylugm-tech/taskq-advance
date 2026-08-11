@@ -1,7 +1,7 @@
 {
   "gate": 1,
   "phase": 4,
-  "fr_id": "FR-04",
+  "fr_id": "FR-05",
   "overall_score": 100.0,
   "quality_complete": true,
   "rounds_used": 1,
@@ -14,20 +14,20 @@
     "type_safety": {
       "score": 100.0,
       "threshold": 100,
-      "tool_evidence": "{\"version\": \"1.1.409\", \"time\": \"1786426683573\", \"generalDiagnostics\": [], \"summary\": {\"filesAnalyzed\": 29, \"errorCount\": 0, \"warningCount\": 0, \"informationCount\": 0, \"timeInSec\": 1.16}}"
+      "tool_evidence": "{\"version\":\"1.1.409\",\"time\":\"1786426862911\",\"generalDiagnostics\":[],\"summary\":{\"filesAnalyzed\":29,\"errorCount\":0,\"warningCount\":0,\"informationCount\":0,\"timeInSec\":1.165}}"
     },
     "test_coverage": {
       "score": 100.0,
       "threshold": 100,
-      "tests_passed": 22,
+      "tests_passed": 29,
       "tests_failed": 0,
       "tests_skipped": 0,
-      "tool_evidence": "03-development/tests/test_fr04.py ...                                    [ 13%]\n03-development/tests/test_fr03.py ...........                            [ 63%]\n03-development/tests/test_fr05.py ....                                   [ 81%]\n03-development/tests/test_fr10.py ....                                   [100%]\n\n============================== 22 passed in 0.98s ==============================\ntotals: percent_covered=100.0 covered_lines=69 num_statements=69\nRequired tests for FR-04: test_write_key_cannot_delete_returns_403 PASSED, test_all_v1_routes_use_same_dep PASSED, test_scope_hierarchy_unit PASSED"
+      "tool_evidence": "============================== 29 passed in 1.59s ==============================\nCoverage: deps.py=100%, rate_repo.py=100%, ratelimit.py=100% (totals: covered_lines=99, num_statements=99, percent_covered=100.0). Required tests present: test_exceed_burst_returns_429_with_retry_after, test_row_level_lock_unit, test_healthz_readyz_not_rate_limited. spec_cov_pct=100%."
     },
     "architecture_constraints": {
       "score": 100.0,
       "threshold": 100,
-      "tool_evidence": "---------\nContracts\n---------\n\nAnalyzed 50 files, 119 dependencies.\n------------------------------------\n\nLayering KEPT\nSQLAlchemy in repository only KEPT\n\nContracts: 2 kept, 0 broken.\n"
+      "tool_evidence": "---------\nContracts\n---------\n\nAnalyzed 51 files, 90 dependencies.\n-----------------------------------\n\nLayering KEPT\nSQLAlchemy in repository only KEPT\n\nContracts: 2 kept, 0 broken.\n"
     }
   },
   "enforcer_sha": "258e4267af0bfec584a2e667c2013922fa50aca8",
@@ -68,23 +68,23 @@
     "type_safety": {
       "source": "tool_evidence (inline)",
       "kind": "inline",
-      "sha256": "3e1fb9322cd1c713441517439cc1cd2a9c74390c6d1524a341f46fc4054b53d0",
-      "bytes": 185,
-      "head": "{\"version\": \"1.1.409\", \"time\": \"1786426683573\", \"generalDiagnostics\": [], \"summary\": {\"filesAnalyzed\": 29, \"errorCount\": 0, \"warningCount\": 0, \"informationCount\": 0, \"timeInSec\": 1.16}}"
+      "sha256": "c4cb0b4ab6f8a4fe0ac63035220916aeb3297aa3205dfdfab6cad5aab9a5a4b0",
+      "bytes": 170,
+      "head": "{\"version\":\"1.1.409\",\"time\":\"1786426862911\",\"generalDiagnostics\":[],\"summary\":{\"filesAnalyzed\":29,\"errorCount\":0,\"warningCount\":0,\"informationCount\":0,\"timeInSec\":1.165}}"
     },
     "test_coverage": {
       "source": "tool_evidence (inline)",
       "kind": "inline",
-      "sha256": "9db91f1716cbfe90e927c329409da74c77a15a0cf7a4ce5879e815f219e15029",
-      "bytes": 614,
-      "head": "03-development/tests/test_fr04.py ...                                    [ 13%]\n03-development/tests/test_fr03.py ...........                            [ 63%]\n03-development/tests/test_fr05.py ....                                   [ 81%]\n03-development/tests/test_fr10.py ....                                   [100%]\n\n============================== 22 passed in 0.98s ==============================\ntotals: percent_covered=100.0 covered_lines=69 num_statements=69\nRequired tests for FR-04: test_write_key_cannot_delete_returns_403 PASSED, test_all_v1_routes_use_same_dep PASSED, test_scope_hierarchy_unit PASSED"
+      "sha256": "1fe02150d4dc9137bda0f28214a59ca1acbadb86497aa6a313bf942c6d43c246",
+      "bytes": 366,
+      "head": "============================== 29 passed in 1.59s ==============================\nCoverage: deps.py=100%, rate_repo.py=100%, ratelimit.py=100% (totals: covered_lines=99, num_statements=99, percent_covered=100.0). Required tests present: test_exceed_burst_returns_429_with_retry_after, test_row_level_lock_unit, test_healthz_readyz_not_rate_limited. spec_cov_pct=100%."
     },
     "architecture_constraints": {
       "source": "tool_evidence (inline)",
       "kind": "inline",
-      "sha256": "fef0004caa4a54b74f319ebd28fe8d8b95ed3bcdb2689c143c63ae464dbc1561",
-      "bytes": 184,
-      "head": "---------\nContracts\n---------\n\nAnalyzed 50 files, 119 dependencies.\n------------------------------------\n\nLayering KEPT\nSQLAlchemy in repository only KEPT\n\nContracts: 2 kept, 0 broken."
+      "sha256": "77b9464c6361b86f52d33dd21c02af81d465cb710cc5e052dc69c03e6b199439",
+      "bytes": 182,
+      "head": "---------\nContracts\n---------\n\nAnalyzed 51 files, 90 dependencies.\n-----------------------------------\n\nLayering KEPT\nSQLAlchemy in repository only KEPT\n\nContracts: 2 kept, 0 broken."
     }
   },
   "composite_score": 100.0,
