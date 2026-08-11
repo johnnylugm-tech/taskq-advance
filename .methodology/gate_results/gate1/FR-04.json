@@ -1,6 +1,6 @@
 {
   "gate": 1,
-  "phase": 4,
+  "phase": 5,
   "fr_id": "FR-04",
   "overall_score": 100.0,
   "quality_complete": true,
@@ -9,25 +9,29 @@
     "linting": {
       "score": 100.0,
       "threshold": 100,
-      "tool_evidence": "All checks passed!\n"
+      "tool_evidence": "All checks passed!\n",
+      "evidence_file": ".sessi-work/round_1/tools/linting.txt"
     },
     "type_safety": {
       "score": 100.0,
       "threshold": 100,
-      "tool_evidence": "{\"version\": \"1.1.409\", \"time\": \"1786426683573\", \"generalDiagnostics\": [], \"summary\": {\"filesAnalyzed\": 29, \"errorCount\": 0, \"warningCount\": 0, \"informationCount\": 0, \"timeInSec\": 1.16}}"
+      "tool_evidence": "{\n    \"version\": \"1.1.409\",\n    \"time\": \"1786434349127\",\n    \"generalDiagnostics\": [],\n    \"summary\": {\n        \"filesAnalyzed\": 29,\n        \"errorCount\": 0,\n        \"warningCount\": 0,\n        \"informationCount\": 0,\n        \"timeInSec\": 1.142\n    }\n}\n\n",
+      "evidence_file": ".sessi-work/round_1/tools/type_safety.txt"
     },
     "test_coverage": {
       "score": 100.0,
       "threshold": 100,
-      "tests_passed": 22,
+      "tests_passed": 23,
       "tests_failed": 0,
       "tests_skipped": 0,
-      "tool_evidence": "03-development/tests/test_fr04.py ...                                    [ 13%]\n03-development/tests/test_fr03.py ...........                            [ 63%]\n03-development/tests/test_fr05.py ....                                   [ 81%]\n03-development/tests/test_fr10.py ....                                   [100%]\n\n============================== 22 passed in 0.98s ==============================\ntotals: percent_covered=100.0 covered_lines=69 num_statements=69\nRequired tests for FR-04: test_write_key_cannot_delete_returns_403 PASSED, test_all_v1_routes_use_same_dep PASSED, test_scope_hierarchy_unit PASSED"
+      "tool_evidence": "______________ coverage: platform darwin, python 3.11.15-final-0 _______________\nName                                                         Stmts   Miss  Cover   Missing\n03-development/src/taskq_api/api/deps.py                        50      0   100%\n03-development/src/taskq_api/service/auth.py                    22      0   100%\n============================== 23 passed in 1.03s ==============================",
+      "evidence_file": ".sessi-work/round_1/tools/test_coverage.txt"
     },
     "architecture_constraints": {
       "score": 100.0,
       "threshold": 100,
-      "tool_evidence": "---------\nContracts\n---------\n\nAnalyzed 50 files, 119 dependencies.\n------------------------------------\n\nLayering KEPT\nSQLAlchemy in repository only KEPT\n\nContracts: 2 kept, 0 broken.\n"
+      "tool_evidence": "Analyzed 51 files, 91 dependencies.\nLayering KEPT\nSQLAlchemy in repository only KEPT\nContracts: 2 kept, 0 broken.",
+      "evidence_file": ".sessi-work/round_1/tools/architecture_constraints.txt"
     }
   },
   "enforcer_sha": "258e4267af0bfec584a2e667c2013922fa50aca8",
@@ -68,23 +72,23 @@
     "type_safety": {
       "source": "tool_evidence (inline)",
       "kind": "inline",
-      "sha256": "3e1fb9322cd1c713441517439cc1cd2a9c74390c6d1524a341f46fc4054b53d0",
-      "bytes": 185,
-      "head": "{\"version\": \"1.1.409\", \"time\": \"1786426683573\", \"generalDiagnostics\": [], \"summary\": {\"filesAnalyzed\": 29, \"errorCount\": 0, \"warningCount\": 0, \"informationCount\": 0, \"timeInSec\": 1.16}}"
+      "sha256": "7c8f5b1ddd0209c18e8110292fd133dc864b2d8ca7ef5200062857eb8aac66d2",
+      "bytes": 250,
+      "head": "{\n    \"version\": \"1.1.409\",\n    \"time\": \"1786434349127\",\n    \"generalDiagnostics\": [],\n    \"summary\": {\n        \"filesAnalyzed\": 29,\n        \"errorCount\": 0,\n        \"warningCount\": 0,\n        \"informationCount\": 0,\n        \"timeInSec\": 1.142\n    }\n}"
     },
     "test_coverage": {
       "source": "tool_evidence (inline)",
       "kind": "inline",
-      "sha256": "9db91f1716cbfe90e927c329409da74c77a15a0cf7a4ce5879e815f219e15029",
-      "bytes": 614,
-      "head": "03-development/tests/test_fr04.py ...                                    [ 13%]\n03-development/tests/test_fr03.py ...........                            [ 63%]\n03-development/tests/test_fr05.py ....                                   [ 81%]\n03-development/tests/test_fr10.py ....                                   [100%]\n\n============================== 22 passed in 0.98s ==============================\ntotals: percent_covered=100.0 covered_lines=69 num_statements=69\nRequired tests for FR-04: test_write_key_cannot_delete_returns_403 PASSED, test_all_v1_routes_use_same_dep PASSED, test_scope_hierarchy_unit PASSED"
+      "sha256": "3d88ef801f50c1e4a2a3d1a9471de8cc7debf3b8f1b191db18e506ef586724f9",
+      "bytes": 414,
+      "head": "______________ coverage: platform darwin, python 3.11.15-final-0 _______________\nName                                                         Stmts   Miss  Cover   Missing\n03-development/src/taskq_api/api/deps.py                        50      0   100%\n03-development/src/taskq_api/service/auth.py                    22      0   100%\n============================== 23 passed in 1.03s =============================="
     },
     "architecture_constraints": {
       "source": "tool_evidence (inline)",
       "kind": "inline",
-      "sha256": "fef0004caa4a54b74f319ebd28fe8d8b95ed3bcdb2689c143c63ae464dbc1561",
-      "bytes": 184,
-      "head": "---------\nContracts\n---------\n\nAnalyzed 50 files, 119 dependencies.\n------------------------------------\n\nLayering KEPT\nSQLAlchemy in repository only KEPT\n\nContracts: 2 kept, 0 broken."
+      "sha256": "d19825bc63256af60b08c22e29fae3a03ae52e8b24d586843034b287935222f0",
+      "bytes": 113,
+      "head": "Analyzed 51 files, 91 dependencies.\nLayering KEPT\nSQLAlchemy in repository only KEPT\nContracts: 2 kept, 0 broken."
     }
   },
   "composite_score": 100.0,
