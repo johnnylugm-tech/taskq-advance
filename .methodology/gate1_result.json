@@ -1,7 +1,7 @@
 {
   "gate": 1,
   "phase": 5,
-  "fr_id": "FR-06",
+  "fr_id": "FR-07",
   "overall_score": 100.0,
   "quality_complete": true,
   "rounds_used": 1,
@@ -14,15 +14,15 @@
     "type_safety": {
       "score": 100.0,
       "threshold": 100,
-      "tool_evidence": "{\"version\": \"1.1.409\", \"time\": \"1786434815181\", \"generalDiagnostics\": [], \"summary\": {\"filesAnalyzed\": 29, \"errorCount\": 0, \"warningCount\": 0, \"informationCount\": 0, \"timeInSec\": 1.154}}"
+      "tool_evidence": "{\"version\": \"1.1.409\", \"time\": \"1786434995527\", \"generalDiagnostics\": [], \"summary\": {\"filesAnalyzed\": 29, \"errorCount\": 0, \"warningCount\": 0, \"informationCount\": 0, \"timeInSec\": 1.16}}"
     },
     "test_coverage": {
       "score": 100.0,
       "threshold": 100,
-      "tests_passed": 75,
+      "tests_passed": 23,
       "tests_failed": 0,
       "tests_skipped": 0,
-      "tool_evidence": "75 passed in 3.26s; coverage.json totals percent_covered=100.0; spec_cov_pct=100 (0 missing of 5 required)"
+      "tool_evidence": "collected 23 items\n\n03-development/tests/test_fr07.py .....                                  [ 21%]\n03-development/tests/test_fr06.py .......                                [ 52%]\n03-development/tests/test_fr09.py ...........                            [100%]\n\n============================== 23 passed in 1.24s ==============================\nCoverage totals: covered_lines=127, num_statements=127, percent_covered=100.0%"
     },
     "architecture_constraints": {
       "score": 100.0,
@@ -68,16 +68,16 @@
     "type_safety": {
       "source": "tool_evidence (inline)",
       "kind": "inline",
-      "sha256": "92a387760a9b69976e9fc52a1c38bfc6fc549cdf1862c621916d07caba352b7b",
-      "bytes": 186,
-      "head": "{\"version\": \"1.1.409\", \"time\": \"1786434815181\", \"generalDiagnostics\": [], \"summary\": {\"filesAnalyzed\": 29, \"errorCount\": 0, \"warningCount\": 0, \"informationCount\": 0, \"timeInSec\": 1.154}}"
+      "sha256": "3f7783d154fc2586813319d04a2d1ef9765bf19b971fa24a6923c91fdcad6107",
+      "bytes": 185,
+      "head": "{\"version\": \"1.1.409\", \"time\": \"1786434995527\", \"generalDiagnostics\": [], \"summary\": {\"filesAnalyzed\": 29, \"errorCount\": 0, \"warningCount\": 0, \"informationCount\": 0, \"timeInSec\": 1.16}}"
     },
     "test_coverage": {
       "source": "tool_evidence (inline)",
       "kind": "inline",
-      "sha256": "3178762450fb0edf1dbbfd1c4cf93ede3b12e611275bbe1d87cf4decd5cdc82b",
-      "bytes": 106,
-      "head": "75 passed in 3.26s; coverage.json totals percent_covered=100.0; spec_cov_pct=100 (0 missing of 5 required)"
+      "sha256": "1afae4ab7612fece25916ef155508c33767ad43814f4412c85c386475ca379c5",
+      "bytes": 420,
+      "head": "collected 23 items\n\n03-development/tests/test_fr07.py .....                                  [ 21%]\n03-development/tests/test_fr06.py .......                                [ 52%]\n03-development/tests/test_fr09.py ...........                            [100%]\n\n============================== 23 passed in 1.24s ==============================\nCoverage totals: covered_lines=127, num_statements=127, percent_covered=100.0%"
     },
     "architecture_constraints": {
       "source": "tool_evidence (inline)",

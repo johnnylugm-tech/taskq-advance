@@ -1,6 +1,6 @@
 {
   "gate": 1,
-  "phase": 4,
+  "phase": 5,
   "fr_id": "FR-07",
   "overall_score": 100.0,
   "quality_complete": true,
@@ -14,20 +14,20 @@
     "type_safety": {
       "score": 100.0,
       "threshold": 100,
-      "tool_evidence": "{\"version\":\"1.1.409\",\"time\":\"1786427207102\",\"generalDiagnostics\":[],\"summary\":{\"filesAnalyzed\":29,\"errorCount\":0,\"warningCount\":0,\"informationCount\":0,\"timeInSec\":1.172}}"
+      "tool_evidence": "{\"version\": \"1.1.409\", \"time\": \"1786434995527\", \"generalDiagnostics\": [], \"summary\": {\"filesAnalyzed\": 29, \"errorCount\": 0, \"warningCount\": 0, \"informationCount\": 0, \"timeInSec\": 1.16}}"
     },
     "test_coverage": {
       "score": 100.0,
       "threshold": 100,
-      "tests_passed": 21,
+      "tests_passed": 23,
       "tests_failed": 0,
       "tests_skipped": 0,
-      "tool_evidence": "collected 21 items\n03-development/tests/test_fr07.py .....                                  [ 23%]\n03-development/tests/test_fr06.py .......                                [ 57%]\n03-development/tests/test_fr09.py .........                              [100%]\n============================== 21 passed in 1.21s ============================== {\"totals\": {\"covered_lines\": 125, \"num_statements\": 125, \"percent_covered\": 100.0, \"missing_lines\": 0, \"excluded_lines\": 0, \"percent_statements_covered\": 100.0}} Required tests present: test_upgrade_head_succeeds, test_downgrade_base_leaves_no_residual, test_round_trip_byte_identical, test_no_drop_table_shortcut, test_migration_offline_sql_render. spec_cov_pct=100%."
+      "tool_evidence": "collected 23 items\n\n03-development/tests/test_fr07.py .....                                  [ 21%]\n03-development/tests/test_fr06.py .......                                [ 52%]\n03-development/tests/test_fr09.py ...........                            [100%]\n\n============================== 23 passed in 1.24s ==============================\nCoverage totals: covered_lines=127, num_statements=127, percent_covered=100.0%"
     },
     "architecture_constraints": {
       "score": 100.0,
       "threshold": 100,
-      "tool_evidence": "---------\nContracts\n---------\n\nAnalyzed 51 files, 90 dependencies.\n-----------------------------------\n\nLayering KEPT\nSQLAlchemy in repository only KEPT\n\nContracts: 2 kept, 0 broken."
+      "tool_evidence": "Analyzed 51 files, 91 dependencies. Layering KEPT. SQLAlchemy in repository only KEPT. Contracts: 2 kept, 0 broken."
     }
   },
   "enforcer_sha": "258e4267af0bfec584a2e667c2013922fa50aca8",
@@ -68,23 +68,23 @@
     "type_safety": {
       "source": "tool_evidence (inline)",
       "kind": "inline",
-      "sha256": "15bcc8069f1c684636fe21b172db89874d87afb09ec55416e5253514f8234d70",
-      "bytes": 170,
-      "head": "{\"version\":\"1.1.409\",\"time\":\"1786427207102\",\"generalDiagnostics\":[],\"summary\":{\"filesAnalyzed\":29,\"errorCount\":0,\"warningCount\":0,\"informationCount\":0,\"timeInSec\":1.172}}"
+      "sha256": "3f7783d154fc2586813319d04a2d1ef9765bf19b971fa24a6923c91fdcad6107",
+      "bytes": 185,
+      "head": "{\"version\": \"1.1.409\", \"time\": \"1786434995527\", \"generalDiagnostics\": [], \"summary\": {\"filesAnalyzed\": 29, \"errorCount\": 0, \"warningCount\": 0, \"informationCount\": 0, \"timeInSec\": 1.16}}"
     },
     "test_coverage": {
       "source": "tool_evidence (inline)",
       "kind": "inline",
-      "sha256": "cbcb4b6805f50cc450868ff5d3725c2f0c4cefb02686f81910f564a0bcdb3571",
-      "bytes": 708,
-      "head": "collected 21 items\n03-development/tests/test_fr07.py .....                                  [ 23%]\n03-development/tests/test_fr06.py .......                                [ 57%]\n03-development/tests/test_fr09.py .........                              [100%]\n============================== 21 passed in 1.21s ============================== {\"totals\": {\"covered_lines\": 125, \"num_statements\": 125, \"percent_covered\": 100.0, \"missing_lines\": 0, \"excluded_lines\": 0, \"percent_statements_covered\": 100.0}} Required tests present: test_upgrade_head_succeeds, test_downgrade_base_leaves_no_residual, test_round_trip_byte_identical, test_no_drop_table_shortcut, test_migration_offline_sql_render. spec_cov_pct=100%."
+      "sha256": "1afae4ab7612fece25916ef155508c33767ad43814f4412c85c386475ca379c5",
+      "bytes": 420,
+      "head": "collected 23 items\n\n03-development/tests/test_fr07.py .....                                  [ 21%]\n03-development/tests/test_fr06.py .......                                [ 52%]\n03-development/tests/test_fr09.py ...........                            [100%]\n\n============================== 23 passed in 1.24s ==============================\nCoverage totals: covered_lines=127, num_statements=127, percent_covered=100.0%"
     },
     "architecture_constraints": {
       "source": "tool_evidence (inline)",
       "kind": "inline",
-      "sha256": "77b9464c6361b86f52d33dd21c02af81d465cb710cc5e052dc69c03e6b199439",
-      "bytes": 182,
-      "head": "---------\nContracts\n---------\n\nAnalyzed 51 files, 90 dependencies.\n-----------------------------------\n\nLayering KEPT\nSQLAlchemy in repository only KEPT\n\nContracts: 2 kept, 0 broken."
+      "sha256": "6b3667d3a80f9a2187c017efecd427cb5716ce3c9a45d066dbc67e92b9c52c16",
+      "bytes": 115,
+      "head": "Analyzed 51 files, 91 dependencies. Layering KEPT. SQLAlchemy in repository only KEPT. Contracts: 2 kept, 0 broken."
     }
   },
   "composite_score": 100.0,
