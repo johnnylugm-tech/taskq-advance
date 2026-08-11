@@ -10,7 +10,6 @@ import asyncio
 import uuid
 from pathlib import Path
 
-import pytest
 from httpx import ASGITransport, AsyncClient
 
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
@@ -38,7 +37,6 @@ def _reset_engine(tmp_path, monkeypatch):
 
 def _seed_key(scope: str = "write"):
     """Create a fresh API key + return its plaintext for X-API-Key."""
-    from taskq_api.models import orm
     from taskq_api.repository import key_repo
 
     db_session = _db_session()
