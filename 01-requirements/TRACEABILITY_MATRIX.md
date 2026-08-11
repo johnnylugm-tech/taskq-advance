@@ -47,9 +47,9 @@
 | NFR ID | Test Coverage | Status |
 |--------|--------------|--------|
 | NFR-01 | test_benchmark_placeholder.py, test_fr01.py, test_spec_nfr.py | VERIFIED |
-| NFR-02 | test_fr01.py, test_fr02.py, test_fr10.py, test_security_threats.py, test_spec_nfr.py | VERIFIED |
+| NFR-02 | test_fr01.py, test_fr02.py, test_fr04.py, test_fr10.py, test_security_threats.py, test_spec_nfr.py | VERIFIED |
 | NFR-03 | test_service_coverage.py, test_fr01.py, test_fr03.py, test_fr05.py, test_fr08.py, test_fr09.py, test_fr10.py, test_security_threats.py, test_spec_nfr.py | VERIFIED |
-| NFR-04 | test_fr01.py, test_fr05.py, test_security_threats.py, test_spec_nfr.py | VERIFIED |
+| NFR-04 | test_fr01.py, test_fr04.py, test_fr05.py, test_security_threats.py, test_spec_nfr.py | VERIFIED |
 | NFR-05 | test_fr01.py, test_spec_nfr.py | VERIFIED |
 | NFR-06 | test_fr01.py, test_fr05.py, test_fr06.py | VERIFIED |
 | NFR-07 | test_spec_nfr.py | VERIFIED |
