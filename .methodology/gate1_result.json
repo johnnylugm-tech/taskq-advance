@@ -1,7 +1,7 @@
 {
   "gate": 1,
   "phase": 4,
-  "fr_id": "FR-06",
+  "fr_id": "FR-07",
   "overall_score": 100.0,
   "quality_complete": true,
   "rounds_used": 1,
@@ -14,15 +14,15 @@
     "type_safety": {
       "score": 100.0,
       "threshold": 100,
-      "tool_evidence": "{\"version\": \"1.1.409\", \"time\": \"1786427040030\", \"generalDiagnostics\": [], \"summary\": {\"filesAnalyzed\": 29, \"errorCount\": 0, \"warningCount\": 0, \"informationCount\": 0, \"timeInSec\": 1.162}}"
+      "tool_evidence": "{\"version\":\"1.1.409\",\"time\":\"1786427207102\",\"generalDiagnostics\":[],\"summary\":{\"filesAnalyzed\":29,\"errorCount\":0,\"warningCount\":0,\"informationCount\":0,\"timeInSec\":1.172}}"
     },
     "test_coverage": {
       "score": 100.0,
       "threshold": 100,
-      "tests_passed": 72,
+      "tests_passed": 21,
       "tests_failed": 0,
       "tests_skipped": 0,
-      "tool_evidence": "============================== 72 passed in 3.38s ============================== {\"totals\": {\"covered_lines\": 197, \"num_statements\": 197, \"percent_covered\": 100.0, \"missing_lines\": 0}} Required tests present: test_repository_only_owns_session, test_context_manager_commit_unit, test_no_string_concatenated_sql_grep, test_list_endpoint_constant_sql_count, test_pool_pre_ping_unit. spec_cov_pct=100%."
+      "tool_evidence": "collected 21 items\n03-development/tests/test_fr07.py .....                                  [ 23%]\n03-development/tests/test_fr06.py .......                                [ 57%]\n03-development/tests/test_fr09.py .........                              [100%]\n============================== 21 passed in 1.21s ============================== {\"totals\": {\"covered_lines\": 125, \"num_statements\": 125, \"percent_covered\": 100.0, \"missing_lines\": 0, \"excluded_lines\": 0, \"percent_statements_covered\": 100.0}} Required tests present: test_upgrade_head_succeeds, test_downgrade_base_leaves_no_residual, test_round_trip_byte_identical, test_no_drop_table_shortcut, test_migration_offline_sql_render. spec_cov_pct=100%."
     },
     "architecture_constraints": {
       "score": 100.0,
@@ -68,16 +68,16 @@
     "type_safety": {
       "source": "tool_evidence (inline)",
       "kind": "inline",
-      "sha256": "84daf23bcb70f182f8d64e36517c0fa3b9bbff63f6670e88fda7d011fae198fa",
-      "bytes": 186,
-      "head": "{\"version\": \"1.1.409\", \"time\": \"1786427040030\", \"generalDiagnostics\": [], \"summary\": {\"filesAnalyzed\": 29, \"errorCount\": 0, \"warningCount\": 0, \"informationCount\": 0, \"timeInSec\": 1.162}}"
+      "sha256": "15bcc8069f1c684636fe21b172db89874d87afb09ec55416e5253514f8234d70",
+      "bytes": 170,
+      "head": "{\"version\":\"1.1.409\",\"time\":\"1786427207102\",\"generalDiagnostics\":[],\"summary\":{\"filesAnalyzed\":29,\"errorCount\":0,\"warningCount\":0,\"informationCount\":0,\"timeInSec\":1.172}}"
     },
     "test_coverage": {
       "source": "tool_evidence (inline)",
       "kind": "inline",
-      "sha256": "b6c6d8f6438b70ee3c3a18bab4641abfdc574afe5c52dbf0215c3b25aea34bcc",
-      "bytes": 398,
-      "head": "============================== 72 passed in 3.38s ============================== {\"totals\": {\"covered_lines\": 197, \"num_statements\": 197, \"percent_covered\": 100.0, \"missing_lines\": 0}} Required tests present: test_repository_only_owns_session, test_context_manager_commit_unit, test_no_string_concatenated_sql_grep, test_list_endpoint_constant_sql_count, test_pool_pre_ping_unit. spec_cov_pct=100%."
+      "sha256": "cbcb4b6805f50cc450868ff5d3725c2f0c4cefb02686f81910f564a0bcdb3571",
+      "bytes": 708,
+      "head": "collected 21 items\n03-development/tests/test_fr07.py .....                                  [ 23%]\n03-development/tests/test_fr06.py .......                                [ 57%]\n03-development/tests/test_fr09.py .........                              [100%]\n============================== 21 passed in 1.21s ============================== {\"totals\": {\"covered_lines\": 125, \"num_statements\": 125, \"percent_covered\": 100.0, \"missing_lines\": 0, \"excluded_lines\": 0, \"percent_statements_covered\": 100.0}} Required tests present: test_upgrade_head_succeeds, test_downgrade_base_leaves_no_residual, test_round_trip_byte_identical, test_no_drop_table_shortcut, test_migration_offline_sql_render. spec_cov_pct=100%."
     },
     "architecture_constraints": {
       "source": "tool_evidence (inline)",
