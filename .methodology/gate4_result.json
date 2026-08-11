@@ -83,7 +83,7 @@
       "calibration": {
         "cohesion_healthy": 0.2,
         "community_oversized": 50,
-        "graph_files": 51,
+        "graph_files": 53,
         "source_files": 53
       }
     },
@@ -287,9 +287,9 @@
     "architecture": {
       "source": ".sessi-work/crg_metrics.json",
       "kind": "file",
-      "sha256": "d5eaab4def75319c651d9b27187e45871a6372e23f1ecb5a5032ffaa3bae1989",
-      "bytes": 655,
-      "head": "{\n  \"community_cohesion\": {\n    \"score\": 91.7,\n    \"healthy\": 11,\n    \"total\": 12,\n    \"total_all\": 37,\n    \"excluded_test_communities\": 25,\n    \"unhealthy\": [\n      {\n        \"name\": \"repository-task\",\n        \"cohesion\": 0.129,\n        \"size\": 5,\n        \"issues\": [\n          \"low_cohesion(0.13)\"\n        ]\n      }\n    ],\n    \"_cohesion_threshold\": 0.2,\n    \"_community_oversized\": 50,\n    \"_community_min_size\": 5,"
+      "sha256": "e52f2af006490585bd64c73f24e2e294ca49bbcf8c5058b482d04cbdac0a871f",
+      "bytes": 656,
+      "head": "{\n  \"community_cohesion\": {\n    \"score\": 91.7,\n    \"healthy\": 11,\n    \"total\": 12,\n    \"total_all\": 38,\n    \"excluded_test_communities\": 26,\n    \"unhealthy\": [\n      {\n        \"name\": \"repository-task\",\n        \"cohesion\": 0.129,\n        \"size\": 5,\n        \"issues\": [\n          \"low_cohesion(0.13)\"\n        ]\n      }\n    ],\n    \"_cohesion_threshold\": 0.2,\n    \"_community_oversized\": 50,\n    \"_community_min_size\": 5,"
     },
     "readability": {
       "source": ".sessi-work/round_1/tools/tier3_full.txt",
@@ -336,18 +336,12 @@
   },
   "crg_review_context": {
     "status": "ok",
-    "summary": "Review context for 16 changed file(s):\n  - Risk: high\n  - 312 impacted nodes in 40 files",
-    "risk": "high",
-    "changed_file_count": 16,
-    "impacted_file_count": 40,
-    "key_entities": [
-      "/Users/johnny/projects/taskq-advance/03-development/tests/conftest.py",
-      "anyio_backend",
-      "sqlite_db_url",
-      "/Users/johnny/projects/taskq-advance/03-development/tests/test_spec_nfr.py",
-      "_app_with_key"
-    ],
-    "test_gaps": 5,
+    "summary": "Review context for 12 changed file(s):\n  - Risk: low\n  - 0 impacted nodes in 0 files",
+    "risk": "low",
+    "changed_file_count": 12,
+    "impacted_file_count": 0,
+    "key_entities": [],
+    "test_gaps": 0,
     "next_tool_suggestions": [
       "detect_changes",
       "get_affected_flows",
@@ -355,26 +349,20 @@
     ],
     "context_savings": {
       "estimated": true,
-      "saved_tokens": 141847,
+      "saved_tokens": 28410,
       "saved_percent": 100
     }
   },
   "crg_impact_radius": {
     "status": "ok",
-    "summary": "Blast radius for 16 changed file(s):\n  - 62 nodes directly changed\n  - 312 nodes impacted (within 2 hops)\n  - 40 additional files affected",
-    "risk": "high",
-    "impacted_file_count": 40,
-    "key_entities": [
-      "/Users/johnny/projects/taskq-advance/03-development/src/migrations/env.py",
-      "run_migrations_online",
-      "/Users/johnny/projects/taskq-advance/03-development/src/migrations/versions/v1_initial.py",
-      "/Users/johnny/projects/taskq-advance/03-development/src/migrations/versions/v2_tags.py",
-      "/Users/johnny/projects/taskq-advance/03-development/src/migrations/versions/v3_split_results.py"
-    ],
+    "summary": "Blast radius for 12 changed file(s):\n  - 0 nodes directly changed\n  - 0 nodes impacted (within 2 hops)\n  - 0 additional files affected",
+    "risk": "low",
+    "impacted_file_count": 0,
+    "key_entities": [],
     "truncated": false,
     "context_savings": {
       "estimated": true,
-      "saved_tokens": 141815,
+      "saved_tokens": 28423,
       "saved_percent": 100
     }
   },

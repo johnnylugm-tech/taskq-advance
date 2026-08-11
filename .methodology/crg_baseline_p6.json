@@ -3,8 +3,8 @@
     "score": 91.7,
     "healthy": 11,
     "total": 12,
-    "total_all": 37,
-    "excluded_test_communities": 25,
+    "total_all": 38,
+    "excluded_test_communities": 26,
     "unhealthy": [
       {
         "name": "repository-task",
@@ -24,9 +24,9 @@
   "large_functions_penalty": 0,
   "architecture_score": 91.7,
   "_source": "framework-independent",
-  "_graph_files": 51,
+  "_graph_files": 53,
   "_source_files": 53,
-  "_build_type": "build",
-  "_baseline_sha": "3b90c3b6a9b79b93cb1dcafddb2f1d7e93fba162",
+  "_build_type": "update",
+  "_baseline_sha": "fdd23fc5528e32b534f47107f2e06e6f3bf5dcc3",
   "_baseline_phase": 6
 }
