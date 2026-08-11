@@ -1,6 +1,6 @@
 {
   "gate": 1,
-  "phase": 4,
+  "phase": 5,
   "fr_id": "FR-09",
   "overall_score": 100.0,
   "quality_complete": true,
@@ -14,7 +14,7 @@
     "type_safety": {
       "score": 100.0,
       "threshold": 100,
-      "tool_evidence": "{\"version\": \"1.1.409\", \"time\": \"1786427828625\", \"generalDiagnostics\": [], \"summary\": {\"filesAnalyzed\": 29, \"errorCount\": 0, \"warningCount\": 0, \"informationCount\": 0, \"timeInSec\": 1.147}}"
+      "tool_evidence": "{\"version\":\"1.1.409\",\"time\":\"1786435451413\",\"generalDiagnostics\":[],\"summary\":{\"filesAnalyzed\":29,\"errorCount\":0,\"warningCount\":0,\"informationCount\":0,\"timeInSec\":1.167}}"
     },
     "test_coverage": {
       "score": 100.0,
@@ -22,12 +22,12 @@
       "tests_passed": 23,
       "tests_failed": 0,
       "tests_skipped": 0,
-      "tool_evidence": "collected 23 items\n\n03-development/tests/test_fr09.py ...........                            [ 47%]\n03-development/tests/test_fr06.py .......                                [ 78%]\n03-development/tests/test_fr07.py .....                                  [100%]\n\n============================== 23 passed in 1.27s ==============================\nFR-scoped coverage: {\"totals\": {\"covered_lines\": 94, \"num_statements\": 94, \"percent_covered\": 100.0, \"missing_lines\": 0, \"excluded_lines\": 0}}. Required tests present: test_readyz_503_when_db_unreachable, test_readyz_503_when_migration_lag, test_readyz_fails_closed_without_migration, test_healthz_readyz_no_auth_no_rate_limit, test_metrics_requires_admin. spec_cov_pct=100%."
+      "tool_evidence": "collected 23 items\n03-development/tests/test_fr09.py ...........                            [ 47%]\n03-development/tests/test_fr06.py .......                                [ 78%]\n03-development/tests/test_fr07.py .....                                  [100%]\n============================== 23 passed in 0.79s ==============================\nCoverage: 100% (96/96 statements) across health.py (22), session.py (74)"
     },
     "architecture_constraints": {
       "score": 100.0,
       "threshold": 100,
-      "tool_evidence": "Contracts\n\nAnalyzed 51 files, 90 dependencies.\nLayering KEPT\nSQLAlchemy in repository only KEPT\n\nContracts: 2 kept, 0 broken."
+      "tool_evidence": "lint-imports: Analyzed 51 files, 91 dependencies. Layering KEPT. SQLAlchemy in repository only KEPT. Contracts: 2 kept, 0 broken. File max lines: 376 (< 400 threshold). handler_max_lines_40 OK. directory_max_files_15 OK. no_shell_true_eval_exec_in_src OK (only asyncio.create_subprocess_exec)."
     }
   },
   "enforcer_sha": "258e4267af0bfec584a2e667c2013922fa50aca8",
@@ -68,23 +68,23 @@
     "type_safety": {
       "source": "tool_evidence (inline)",
       "kind": "inline",
-      "sha256": "2745672a08080d59c2083cbd295acb6c7ec824cb809615627e8801357756d0fc",
-      "bytes": 186,
-      "head": "{\"version\": \"1.1.409\", \"time\": \"1786427828625\", \"generalDiagnostics\": [], \"summary\": {\"filesAnalyzed\": 29, \"errorCount\": 0, \"warningCount\": 0, \"informationCount\": 0, \"timeInSec\": 1.147}}"
+      "sha256": "34a5c9781702d004bdf1ac3904e49288b7782754913b6fc90755c483e384d35a",
+      "bytes": 170,
+      "head": "{\"version\":\"1.1.409\",\"time\":\"1786435451413\",\"generalDiagnostics\":[],\"summary\":{\"filesAnalyzed\":29,\"errorCount\":0,\"warningCount\":0,\"informationCount\":0,\"timeInSec\":1.167}}"
     },
     "test_coverage": {
       "source": "tool_evidence (inline)",
       "kind": "inline",
-      "sha256": "83d7c2387fe17a467f8f2971818fdfa383033b6ad492dd77684981cfee242d43",
-      "bytes": 717,
-      "head": "collected 23 items\n\n03-development/tests/test_fr09.py ...........                            [ 47%]\n03-development/tests/test_fr06.py .......                                [ 78%]\n03-development/tests/test_fr07.py .....                                  [100%]\n\n============================== 23 passed in 1.27s ==============================\nFR-scoped coverage: {\"totals\": {\"covered_lines\": 94, \"num_statements\": 94, \"percent_covered\": 100.0, \"missing_lines\": 0, \"excluded_lines\": 0}}. Required tests present: test_readyz_503_when_db_unreachable, test_readyz_503_when_migration_lag, test_readyz_fails_closed_without_migration, test_healthz_readyz_no_auth_no_rate_limit, test_metrics_requires_admin. spec_cov_pct=100%."
+      "sha256": "c8dc6a6662eac1917261d4b5b1616db16ab2e593d692b64c4f16b730fa178834",
+      "bytes": 412,
+      "head": "collected 23 items\n03-development/tests/test_fr09.py ...........                            [ 47%]\n03-development/tests/test_fr06.py .......                                [ 78%]\n03-development/tests/test_fr07.py .....                                  [100%]\n============================== 23 passed in 0.79s ==============================\nCoverage: 100% (96/96 statements) across health.py (22), session.py (74)"
     },
     "architecture_constraints": {
       "source": "tool_evidence (inline)",
       "kind": "inline",
-      "sha256": "ac0837d108a65e2ea9ebe16dc18a28211b6d625eed7a7a58b7760a7a9ab36696",
-      "bytes": 125,
-      "head": "Contracts\n\nAnalyzed 51 files, 90 dependencies.\nLayering KEPT\nSQLAlchemy in repository only KEPT\n\nContracts: 2 kept, 0 broken."
+      "sha256": "579231f83449a84a72605d9fca83f32ec1bb8879b57566e2fe9a744aa42af7ef",
+      "bytes": 293,
+      "head": "lint-imports: Analyzed 51 files, 91 dependencies. Layering KEPT. SQLAlchemy in repository only KEPT. Contracts: 2 kept, 0 broken. File max lines: 376 (< 400 threshold). handler_max_lines_40 OK. directory_max_files_15 OK. no_shell_true_eval_exec_in_src OK (only asyncio.create_subprocess_exec)."
     }
   },
   "composite_score": 100.0,

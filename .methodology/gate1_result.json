@@ -1,7 +1,7 @@
 {
   "gate": 1,
   "phase": 5,
-  "fr_id": "FR-08",
+  "fr_id": "FR-09",
   "overall_score": 100.0,
   "quality_complete": true,
   "rounds_used": 1,
@@ -14,20 +14,20 @@
     "type_safety": {
       "score": 100.0,
       "threshold": 100,
-      "tool_evidence": "{\"version\":\"1.1.409\",\"time\":\"1786435277303\",\"generalDiagnostics\":[],\"summary\":{\"filesAnalyzed\":29,\"errorCount\":0,\"warningCount\":0,\"informationCount\":0,\"timeInSec\":1.167}}"
+      "tool_evidence": "{\"version\":\"1.1.409\",\"time\":\"1786435451413\",\"generalDiagnostics\":[],\"summary\":{\"filesAnalyzed\":29,\"errorCount\":0,\"warningCount\":0,\"informationCount\":0,\"timeInSec\":1.167}}"
     },
     "test_coverage": {
       "score": 100.0,
       "threshold": 100,
-      "tests_passed": 32,
+      "tests_passed": 23,
       "tests_failed": 0,
       "tests_skipped": 0,
-      "tool_evidence": "Name                                             Stmts   Miss  Cover\n--------------------------------------------------------------------\n03-development/src/taskq_api/service/runner.py     141      0   100%\n--------------------------------------------------------------------\nTOTAL                                              141      0   100%\n============================== 32 passed in 3.60s =============================="
+      "tool_evidence": "collected 23 items\n03-development/tests/test_fr09.py ...........                            [ 47%]\n03-development/tests/test_fr06.py .......                                [ 78%]\n03-development/tests/test_fr07.py .....                                  [100%]\n============================== 23 passed in 0.79s ==============================\nCoverage: 100% (96/96 statements) across health.py (22), session.py (74)"
     },
     "architecture_constraints": {
       "score": 100.0,
       "threshold": 100,
-      "tool_evidence": "Analyzed 51 files, 91 dependencies. Layering KEPT. SQLAlchemy in repository only KEPT. Contracts: 2 kept, 0 broken."
+      "tool_evidence": "lint-imports: Analyzed 51 files, 91 dependencies. Layering KEPT. SQLAlchemy in repository only KEPT. Contracts: 2 kept, 0 broken. File max lines: 376 (< 400 threshold). handler_max_lines_40 OK. directory_max_files_15 OK. no_shell_true_eval_exec_in_src OK (only asyncio.create_subprocess_exec)."
     }
   },
   "enforcer_sha": "258e4267af0bfec584a2e667c2013922fa50aca8",
@@ -68,23 +68,23 @@
     "type_safety": {
       "source": "tool_evidence (inline)",
       "kind": "inline",
-      "sha256": "29025677ab8b10f13812f3746276fbc9c2215e18d029af680483e6ee009630d5",
+      "sha256": "34a5c9781702d004bdf1ac3904e49288b7782754913b6fc90755c483e384d35a",
       "bytes": 170,
-      "head": "{\"version\":\"1.1.409\",\"time\":\"1786435277303\",\"generalDiagnostics\":[],\"summary\":{\"filesAnalyzed\":29,\"errorCount\":0,\"warningCount\":0,\"informationCount\":0,\"timeInSec\":1.167}}"
+      "head": "{\"version\":\"1.1.409\",\"time\":\"1786435451413\",\"generalDiagnostics\":[],\"summary\":{\"filesAnalyzed\":29,\"errorCount\":0,\"warningCount\":0,\"informationCount\":0,\"timeInSec\":1.167}}"
     },
     "test_coverage": {
       "source": "tool_evidence (inline)",
       "kind": "inline",
-      "sha256": "66664b3df302cae3d985a6437756ff7e9af0101af55f25d1e6d6bb3163fa59a5",
-      "bytes": 425,
-      "head": "Name                                             Stmts   Miss  Cover\n--------------------------------------------------------------------\n03-development/src/taskq_api/service/runner.py     141      0   100%\n--------------------------------------------------------------------\nTOTAL                                              141      0   100%\n============================== 32 passed in 3.60s =============================="
+      "sha256": "c8dc6a6662eac1917261d4b5b1616db16ab2e593d692b64c4f16b730fa178834",
+      "bytes": 412,
+      "head": "collected 23 items\n03-development/tests/test_fr09.py ...........                            [ 47%]\n03-development/tests/test_fr06.py .......                                [ 78%]\n03-development/tests/test_fr07.py .....                                  [100%]\n============================== 23 passed in 0.79s ==============================\nCoverage: 100% (96/96 statements) across health.py (22), session.py (74)"
     },
     "architecture_constraints": {
       "source": "tool_evidence (inline)",
       "kind": "inline",
-      "sha256": "6b3667d3a80f9a2187c017efecd427cb5716ce3c9a45d066dbc67e92b9c52c16",
-      "bytes": 115,
-      "head": "Analyzed 51 files, 91 dependencies. Layering KEPT. SQLAlchemy in repository only KEPT. Contracts: 2 kept, 0 broken."
+      "sha256": "579231f83449a84a72605d9fca83f32ec1bb8879b57566e2fe9a744aa42af7ef",
+      "bytes": 293,
+      "head": "lint-imports: Analyzed 51 files, 91 dependencies. Layering KEPT. SQLAlchemy in repository only KEPT. Contracts: 2 kept, 0 broken. File max lines: 376 (< 400 threshold). handler_max_lines_40 OK. directory_max_files_15 OK. no_shell_true_eval_exec_in_src OK (only asyncio.create_subprocess_exec)."
     }
   },
   "composite_score": 100.0,
