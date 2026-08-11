@@ -1,7 +1,7 @@
 {
   "gate": 1,
   "phase": 5,
-  "fr_id": "FR-09",
+  "fr_id": "FR-10",
   "overall_score": 100.0,
   "quality_complete": true,
   "rounds_used": 1,
@@ -14,7 +14,7 @@
     "type_safety": {
       "score": 100.0,
       "threshold": 100,
-      "tool_evidence": "{\"version\":\"1.1.409\",\"time\":\"1786435451413\",\"generalDiagnostics\":[],\"summary\":{\"filesAnalyzed\":29,\"errorCount\":0,\"warningCount\":0,\"informationCount\":0,\"timeInSec\":1.167}}"
+      "tool_evidence": "{\"version\": \"1.1.409\", \"summary\": {\"filesAnalyzed\": 29, \"errorCount\": 0, \"warningCount\": 0, \"informationCount\": 0}}"
     },
     "test_coverage": {
       "score": 100.0,
@@ -22,12 +22,12 @@
       "tests_passed": 23,
       "tests_failed": 0,
       "tests_skipped": 0,
-      "tool_evidence": "collected 23 items\n03-development/tests/test_fr09.py ...........                            [ 47%]\n03-development/tests/test_fr06.py .......                                [ 78%]\n03-development/tests/test_fr07.py .....                                  [100%]\n============================== 23 passed in 0.79s ==============================\nCoverage: 100% (96/96 statements) across health.py (22), session.py (74)"
+      "tool_evidence": "============================== 23 passed in 0.97s ==============================\ntotals: covered_lines=103, num_statements=103, percent_covered=100.0"
     },
     "architecture_constraints": {
       "score": 100.0,
       "threshold": 100,
-      "tool_evidence": "lint-imports: Analyzed 51 files, 91 dependencies. Layering KEPT. SQLAlchemy in repository only KEPT. Contracts: 2 kept, 0 broken. File max lines: 376 (< 400 threshold). handler_max_lines_40 OK. directory_max_files_15 OK. no_shell_true_eval_exec_in_src OK (only asyncio.create_subprocess_exec)."
+      "tool_evidence": "Analyzed 51 files, 91 dependencies.\n-----------------------------------\nLayering KEPT\nSQLAlchemy in repository only KEPT\nContracts: 2 kept, 0 broken."
     }
   },
   "enforcer_sha": "258e4267af0bfec584a2e667c2013922fa50aca8",
@@ -68,23 +68,23 @@
     "type_safety": {
       "source": "tool_evidence (inline)",
       "kind": "inline",
-      "sha256": "34a5c9781702d004bdf1ac3904e49288b7782754913b6fc90755c483e384d35a",
-      "bytes": 170,
-      "head": "{\"version\":\"1.1.409\",\"time\":\"1786435451413\",\"generalDiagnostics\":[],\"summary\":{\"filesAnalyzed\":29,\"errorCount\":0,\"warningCount\":0,\"informationCount\":0,\"timeInSec\":1.167}}"
+      "sha256": "5464c04b5fecb6db36b8aca76cb1cf5490511adc1201acf3d6de844106a7cbc5",
+      "bytes": 115,
+      "head": "{\"version\": \"1.1.409\", \"summary\": {\"filesAnalyzed\": 29, \"errorCount\": 0, \"warningCount\": 0, \"informationCount\": 0}}"
     },
     "test_coverage": {
       "source": "tool_evidence (inline)",
       "kind": "inline",
-      "sha256": "c8dc6a6662eac1917261d4b5b1616db16ab2e593d692b64c4f16b730fa178834",
-      "bytes": 412,
-      "head": "collected 23 items\n03-development/tests/test_fr09.py ...........                            [ 47%]\n03-development/tests/test_fr06.py .......                                [ 78%]\n03-development/tests/test_fr07.py .....                                  [100%]\n============================== 23 passed in 0.79s ==============================\nCoverage: 100% (96/96 statements) across health.py (22), session.py (74)"
+      "sha256": "5843c469a13c8d2deef8afb5ce1074f8f3dd72e91ccfcb2f9ca08006fddd931b",
+      "bytes": 149,
+      "head": "============================== 23 passed in 0.97s ==============================\ntotals: covered_lines=103, num_statements=103, percent_covered=100.0"
     },
     "architecture_constraints": {
       "source": "tool_evidence (inline)",
       "kind": "inline",
-      "sha256": "579231f83449a84a72605d9fca83f32ec1bb8879b57566e2fe9a744aa42af7ef",
-      "bytes": 293,
-      "head": "lint-imports: Analyzed 51 files, 91 dependencies. Layering KEPT. SQLAlchemy in repository only KEPT. Contracts: 2 kept, 0 broken. File max lines: 376 (< 400 threshold). handler_max_lines_40 OK. directory_max_files_15 OK. no_shell_true_eval_exec_in_src OK (only asyncio.create_subprocess_exec)."
+      "sha256": "df7964b2d2eb494e963218ef823ebafeb5f7e3b69502d899fb6805d1aed6d072",
+      "bytes": 149,
+      "head": "Analyzed 51 files, 91 dependencies.\n-----------------------------------\nLayering KEPT\nSQLAlchemy in repository only KEPT\nContracts: 2 kept, 0 broken."
     }
   },
   "composite_score": 100.0,
