@@ -30,6 +30,7 @@ them by exact name match.
 from __future__ import annotations
 
 import asyncio
+import hashlib
 from types import SimpleNamespace
 
 import pytest
@@ -40,6 +41,8 @@ from httpx import ASGITransport, AsyncClient
 # a Collection Error (Exit Code 2), which is the intended RED state.
 from taskq_api.api import deps
 from taskq_api.app import create_app
+from taskq_api.errors import UnauthorizedError
+from taskq_api.repository import key_repo
 from taskq_api.repository import session as db_session
 from taskq_api.service import auth  # FR-04 SAB module — scope hierarchy helper.
 
