@@ -561,3 +561,103 @@ def test_readyz_returns_200_when_db_and_migration_healthy(
     response = _run(_probe())
     assert response.status_code == 200
     assert response.json()["status"] == "ready"
+
+
+# --------------------------------------------------------------------------
+# Additional coverage tests — pin the ``session_scope`` rollback branch
+# and the ``reset_engine`` exception-swallow branch (NFR-03 + test
+# isolation contract). Both branches are reachable from FR-09's per-test
+# schema-reset cycle, but neither is exercised by the spec cases above.
+# --------------------------------------------------------------------------
+# NFR-03
+
+
+def test_session_scope_rolls_back_on_exception(sqlite_db_url):
+    """``session_scope`` rolls back and re-raises on exception (NFR-03).
+
+    [FR-06 / FR-09] The per-test schema-reset cycle calls
+    ``db_session.session_scope()`` from inside every case that mints a
+    key; if a handler raises mid-transaction the session MUST rollback
+    (so a half-written row cannot leak into the next test) and re-raise
+    (so the route layer can surface the error). The coverage-evidence
+    line was previously uncovered because no case deliberately
+    triggered the failure branch.
+    """
+    import pytest as _pytest
+
+    db_session.reset_engine()
+    # Build the schema so the rollback target row lives somewhere real —
+    # the ``tasks`` table must exist before ``session.add`` can dirty the
+    # session, otherwise the rollback branch is never reached (the
+    # ``add`` itself would error before the exception is raised).
+    from taskq_api.models import orm as orm_mod
+
+    orm_mod.Base.metadata.create_all(db_session.get_engine())
+
+    with _pytest.raises(RuntimeError, match="fr09-rollback-trigger"):
+        with db_session.session_scope() as session:
+            # Add a row we expect to be rolled back — the engine is reset
+            # by the fixture so the per-test SQLite file is fresh and
+            # the rollback target cannot leak across cases.
+            from taskq_api.models import orm
+
+            session.add(orm.Task(name="fr09-rb-target", command="noop"))
+            raise RuntimeError("fr09-rollback-trigger")
+
+    # The rolled-back row must NOT survive the context exit: a fresh
+    # session sees an empty ``tasks`` table, which is the NFR-03
+    # guarantee that a failing transaction cannot leak.
+    from sqlalchemy import select as sa_select
+    from taskq_api.models import orm
+
+    with db_session.session_scope() as verify:
+        rows = (
+            verify.execute(
+                sa_select(orm.Task).where(orm.Task.name == "fr09-rb-target")
+            )
+            .scalars()
+            .all()
+        )
+    assert rows == [], (
+        f"session_scope must rollback on exception (NFR-03), but "
+        f"{len(rows)} row(s) survived: {[r.name for r in rows]!r}"
+    )
+
+
+# NFR-03
+
+
+def test_reset_engine_swallows_drop_all_failure(sqlite_db_url, monkeypatch):
+    """``reset_engine`` swallows ``drop_all`` errors so the next case starts fresh.
+
+    [FR-01 / FR-09] The fixture's per-test setup builds a fresh engine
+    and calls ``reset_engine`` between cases so the on-disk SQLite file
+    does not retain rows. The bare ``except`` inside ``reset_engine``
+    covers the ``drop_all``-against-a-half-built-engine case: when a
+    stale engine is passed in, ``Base.metadata.drop_all`` can raise and
+    the next ``create_all`` still has to start from a clean slate.
+    Without the swallow, the test isolation contract breaks the moment
+    an engine fails to drop.
+    """
+    db_session.reset_engine()
+    # Force a fresh engine so ``_engine`` is set, then plant a
+    # ``Base.metadata.drop_all`` that raises — exercises the
+    # ``except Exception: pass`` branch.
+    db_session.get_engine()
+
+    def _raise_on_drop_all(_bind):
+        raise RuntimeError("fr09-drop-all-failure")
+
+    import taskq_api.models.orm as orm_mod
+
+    monkeypatch.setattr(
+        orm_mod.Base.metadata, "drop_all", _raise_on_drop_all, raising=True
+    )
+
+    # Must NOT raise — the except branch is the contract.
+    db_session.reset_engine()
+
+    # And the next ``create_all`` works (no stale engine reference): the
+    # engine cache is reset, so a subsequent ``get_engine`` rebuilds.
+    db_session.get_engine()
+    orm_mod.Base.metadata.create_all(db_session.get_engine())

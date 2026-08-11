@@ -48,11 +48,6 @@ __all__ = ["router"]
 router = APIRouter(tags=["health"])
 
 
-def _ready() -> dict:
-    """Build the 200 readiness envelope. [FR-09] AC-9.1."""
-    return {"status": "ready"}
-
-
 def _is_database_ready() -> bool:
     """Return True iff ``check_db_ready`` reports a healthy database.
 
