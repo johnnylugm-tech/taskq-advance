@@ -1,0 +1,670 @@
+{
+  "generated_at": "2026-08-11T06:08:38.599468+00:00",
+  "git_sha": "e219fa53b5e43b7a7e229e8594579b431de903c1",
+  "language": "python",
+  "high_risk": [
+    {
+      "path": "/Users/johnny/projects/taskq-advance/03-development/src/taskq_api/repository/key_repo.py",
+      "name": "key_repo",
+      "reasons": [
+        "mutation_survivors:4"
+      ]
+    },
+    {
+      "path": "/Users/johnny/projects/taskq-advance/03-development/src/taskq_api/repository/session.py",
+      "name": "session",
+      "reasons": [
+        "mutation_survivors:17"
+      ]
+    },
+    {
+      "path": "/Users/johnny/projects/taskq-advance/03-development/src/taskq_api/repository/task_repo.py",
+      "name": "task_repo",
+      "reasons": [
+        "mutation_survivors:5"
+      ]
+    },
+    {
+      "path": "/Users/johnny/projects/taskq-advance/03-development/src/taskq_api/service/auth.py",
+      "name": "auth",
+      "reasons": [
+        "mutation_survivors:7"
+      ]
+    },
+    {
+      "path": "/Users/johnny/projects/taskq-advance/03-development/src/taskq_api/service/runner.py",
+      "name": "runner",
+      "reasons": [
+        "mutation_survivors:16"
+      ]
+    },
+    {
+      "path": "/Users/johnny/projects/taskq-advance/03-development/src/taskq_api/service/tasks.py",
+      "name": "tasks",
+      "reasons": [
+        "mutation_survivors:7"
+      ]
+    },
+    {
+      "path": "03-development/src/taskq_api/api/deps.py",
+      "name": "deps",
+      "reasons": [
+        "threat_model:T-02 spoofing",
+        "threat_model:T-04 elevation_of_privilege"
+      ]
+    },
+    {
+      "path": "03-development/src/taskq_api/api/tasks.py",
+      "name": "tasks",
+      "reasons": [
+        "threat_model:T-01 tampering"
+      ]
+    },
+    {
+      "path": "03-development/src/taskq_api/errors.py",
+      "name": "errors",
+      "reasons": [
+        "threat_model:T-10 information_disclosure",
+        "threat_model:T-11 information_disclosure"
+      ]
+    },
+    {
+      "path": "03-development/src/taskq_api/repository/key_repo.py",
+      "name": "key_repo",
+      "reasons": [
+        "threat_model:T-03 spoofing"
+      ]
+    },
+    {
+      "path": "03-development/src/taskq_api/repository/session.py",
+      "name": "session",
+      "reasons": [
+        "threat_model:T-08 tampering",
+        "threat_model:T-09 repudiation"
+      ]
+    },
+    {
+      "path": "03-development/src/taskq_api/service/auth.py",
+      "name": "auth",
+      "reasons": [
+        "threat_model:T-05 information_disclosure"
+      ]
+    },
+    {
+      "path": "03-development/src/taskq_api/service/ratelimit.py",
+      "name": "ratelimit",
+      "reasons": [
+        "threat_model:T-12 denial_of_service"
+      ]
+    },
+    {
+      "path": "03-development/src/taskq_api/service/runner.py",
+      "name": "runner",
+      "reasons": [
+        "threat_model:T-06 elevation_of_privilege",
+        "threat_model:T-07 denial_of_service"
+      ]
+    },
+    {
+      "path": "migrations.versions.v3_split_results",
+      "name": "migrations.versions",
+      "reasons": [
+        "declared"
+      ]
+    },
+    {
+      "path": "taskq_api.repository.session",
+      "name": "taskq_api.repository",
+      "reasons": [
+        "declared"
+      ]
+    },
+    {
+      "path": "taskq_api.service.auth",
+      "name": "taskq_api.service",
+      "reasons": [
+        "declared"
+      ]
+    },
+    {
+      "path": "taskq_api.service.runner",
+      "name": "taskq_api.service",
+      "reasons": [
+        "declared"
+      ]
+    }
+  ],
+  "standard": [
+    {
+      "path": "03-development/src/migrations/__init__.py",
+      "name": "__init__"
+    },
+    {
+      "path": "03-development/src/migrations/env.py",
+      "name": "env"
+    },
+    {
+      "path": "03-development/src/migrations/versions/__init__.py",
+      "name": "__init__"
+    },
+    {
+      "path": "03-development/src/migrations/versions/v1_initial.py",
+      "name": "v1_initial"
+    },
+    {
+      "path": "03-development/src/migrations/versions/v2_tags.py",
+      "name": "v2_tags"
+    },
+    {
+      "path": "03-development/src/migrations/versions/v3_split_results.py",
+      "name": "v3_split_results"
+    },
+    {
+      "path": "03-development/src/taskq_api/__init__.py",
+      "name": "__init__"
+    },
+    {
+      "path": "03-development/src/taskq_api/__main__.py",
+      "name": "__main__"
+    },
+    {
+      "path": "03-development/src/taskq_api/api/__init__.py",
+      "name": "__init__"
+    },
+    {
+      "path": "03-development/src/taskq_api/api/health.py",
+      "name": "health"
+    },
+    {
+      "path": "03-development/src/taskq_api/api/metrics.py",
+      "name": "metrics"
+    },
+    {
+      "path": "03-development/src/taskq_api/app.py",
+      "name": "app"
+    },
+    {
+      "path": "03-development/src/taskq_api/config.py",
+      "name": "config"
+    },
+    {
+      "path": "03-development/src/taskq_api/models/__init__.py",
+      "name": "__init__"
+    },
+    {
+      "path": "03-development/src/taskq_api/models/orm.py",
+      "name": "orm"
+    },
+    {
+      "path": "03-development/src/taskq_api/models/schemas.py",
+      "name": "schemas"
+    },
+    {
+      "path": "03-development/src/taskq_api/repository/__init__.py",
+      "name": "__init__"
+    },
+    {
+      "path": "03-development/src/taskq_api/repository/rate_repo.py",
+      "name": "rate_repo"
+    },
+    {
+      "path": "03-development/src/taskq_api/repository/task_repo.py",
+      "name": "task_repo"
+    },
+    {
+      "path": "03-development/src/taskq_api/service/__init__.py",
+      "name": "__init__"
+    },
+    {
+      "path": "03-development/src/taskq_api/service/tasks.py",
+      "name": "tasks"
+    }
+  ],
+  "mutation_survivors": [
+    {
+      "file": "/Users/johnny/projects/taskq-advance/03-development/src/taskq_api/repository/key_repo.py",
+      "line": null,
+      "mutant_id": "110",
+      "mutator": null
+    },
+    {
+      "file": "/Users/johnny/projects/taskq-advance/03-development/src/taskq_api/repository/key_repo.py",
+      "line": null,
+      "mutant_id": "112",
+      "mutator": null
+    },
+    {
+      "file": "/Users/johnny/projects/taskq-advance/03-development/src/taskq_api/repository/key_repo.py",
+      "line": null,
+      "mutant_id": "117",
+      "mutator": null
+    },
+    {
+      "file": "/Users/johnny/projects/taskq-advance/03-development/src/taskq_api/repository/key_repo.py",
+      "line": null,
+      "mutant_id": "121",
+      "mutator": null
+    },
+    {
+      "file": "/Users/johnny/projects/taskq-advance/03-development/src/taskq_api/repository/session.py",
+      "line": null,
+      "mutant_id": "21",
+      "mutator": null
+    },
+    {
+      "file": "/Users/johnny/projects/taskq-advance/03-development/src/taskq_api/repository/session.py",
+      "line": null,
+      "mutant_id": "23",
+      "mutator": null
+    },
+    {
+      "file": "/Users/johnny/projects/taskq-advance/03-development/src/taskq_api/repository/session.py",
+      "line": null,
+      "mutant_id": "24",
+      "mutator": null
+    },
+    {
+      "file": "/Users/johnny/projects/taskq-advance/03-development/src/taskq_api/repository/session.py",
+      "line": null,
+      "mutant_id": "25",
+      "mutator": null
+    },
+    {
+      "file": "/Users/johnny/projects/taskq-advance/03-development/src/taskq_api/repository/session.py",
+      "line": null,
+      "mutant_id": "26",
+      "mutator": null
+    },
+    {
+      "file": "/Users/johnny/projects/taskq-advance/03-development/src/taskq_api/repository/session.py",
+      "line": null,
+      "mutant_id": "29",
+      "mutator": null
+    },
+    {
+      "file": "/Users/johnny/projects/taskq-advance/03-development/src/taskq_api/repository/session.py",
+      "line": null,
+      "mutant_id": "30",
+      "mutator": null
+    },
+    {
+      "file": "/Users/johnny/projects/taskq-advance/03-development/src/taskq_api/repository/session.py",
+      "line": null,
+      "mutant_id": "31",
+      "mutator": null
+    },
+    {
+      "file": "/Users/johnny/projects/taskq-advance/03-development/src/taskq_api/repository/session.py",
+      "line": null,
+      "mutant_id": "34",
+      "mutator": null
+    },
+    {
+      "file": "/Users/johnny/projects/taskq-advance/03-development/src/taskq_api/repository/session.py",
+      "line": null,
+      "mutant_id": "36",
+      "mutator": null
+    },
+    {
+      "file": "/Users/johnny/projects/taskq-advance/03-development/src/taskq_api/repository/session.py",
+      "line": null,
+      "mutant_id": "37",
+      "mutator": null
+    },
+    {
+      "file": "/Users/johnny/projects/taskq-advance/03-development/src/taskq_api/repository/session.py",
+      "line": null,
+      "mutant_id": "38",
+      "mutator": null
+    },
+    {
+      "file": "/Users/johnny/projects/taskq-advance/03-development/src/taskq_api/repository/session.py",
+      "line": null,
+      "mutant_id": "39",
+      "mutator": null
+    },
+    {
+      "file": "/Users/johnny/projects/taskq-advance/03-development/src/taskq_api/repository/session.py",
+      "line": null,
+      "mutant_id": "40",
+      "mutator": null
+    },
+    {
+      "file": "/Users/johnny/projects/taskq-advance/03-development/src/taskq_api/repository/session.py",
+      "line": null,
+      "mutant_id": "41",
+      "mutator": null
+    },
+    {
+      "file": "/Users/johnny/projects/taskq-advance/03-development/src/taskq_api/repository/session.py",
+      "line": null,
+      "mutant_id": "46",
+      "mutator": null
+    },
+    {
+      "file": "/Users/johnny/projects/taskq-advance/03-development/src/taskq_api/repository/session.py",
+      "line": null,
+      "mutant_id": "58",
+      "mutator": null
+    },
+    {
+      "file": "/Users/johnny/projects/taskq-advance/03-development/src/taskq_api/repository/task_repo.py",
+      "line": null,
+      "mutant_id": "69",
+      "mutator": null
+    },
+    {
+      "file": "/Users/johnny/projects/taskq-advance/03-development/src/taskq_api/repository/task_repo.py",
+      "line": null,
+      "mutant_id": "73",
+      "mutator": null
+    },
+    {
+      "file": "/Users/johnny/projects/taskq-advance/03-development/src/taskq_api/repository/task_repo.py",
+      "line": null,
+      "mutant_id": "76",
+      "mutator": null
+    },
+    {
+      "file": "/Users/johnny/projects/taskq-advance/03-development/src/taskq_api/repository/task_repo.py",
+      "line": null,
+      "mutant_id": "77",
+      "mutator": null
+    },
+    {
+      "file": "/Users/johnny/projects/taskq-advance/03-development/src/taskq_api/repository/task_repo.py",
+      "line": null,
+      "mutant_id": "90",
+      "mutator": null
+    },
+    {
+      "file": "/Users/johnny/projects/taskq-advance/03-development/src/taskq_api/service/auth.py",
+      "line": null,
+      "mutant_id": "131",
+      "mutator": null
+    },
+    {
+      "file": "/Users/johnny/projects/taskq-advance/03-development/src/taskq_api/service/auth.py",
+      "line": null,
+      "mutant_id": "136",
+      "mutator": null
+    },
+    {
+      "file": "/Users/johnny/projects/taskq-advance/03-development/src/taskq_api/service/auth.py",
+      "line": null,
+      "mutant_id": "138",
+      "mutator": null
+    },
+    {
+      "file": "/Users/johnny/projects/taskq-advance/03-development/src/taskq_api/service/auth.py",
+      "line": null,
+      "mutant_id": "142",
+      "mutator": null
+    },
+    {
+      "file": "/Users/johnny/projects/taskq-advance/03-development/src/taskq_api/service/auth.py",
+      "line": null,
+      "mutant_id": "143",
+      "mutator": null
+    },
+    {
+      "file": "/Users/johnny/projects/taskq-advance/03-development/src/taskq_api/service/auth.py",
+      "line": null,
+      "mutant_id": "149",
+      "mutator": null
+    },
+    {
+      "file": "/Users/johnny/projects/taskq-advance/03-development/src/taskq_api/service/auth.py",
+      "line": null,
+      "mutant_id": "151",
+      "mutator": null
+    },
+    {
+      "file": "/Users/johnny/projects/taskq-advance/03-development/src/taskq_api/service/ratelimit.py",
+      "line": null,
+      "mutant_id": "252",
+      "mutator": null
+    },
+    {
+      "file": "/Users/johnny/projects/taskq-advance/03-development/src/taskq_api/service/ratelimit.py",
+      "line": null,
+      "mutant_id": "254",
+      "mutator": null
+    },
+    {
+      "file": "/Users/johnny/projects/taskq-advance/03-development/src/taskq_api/service/runner.py",
+      "line": null,
+      "mutant_id": "152",
+      "mutator": null
+    },
+    {
+      "file": "/Users/johnny/projects/taskq-advance/03-development/src/taskq_api/service/runner.py",
+      "line": null,
+      "mutant_id": "154",
+      "mutator": null
+    },
+    {
+      "file": "/Users/johnny/projects/taskq-advance/03-development/src/taskq_api/service/runner.py",
+      "line": null,
+      "mutant_id": "164",
+      "mutator": null
+    },
+    {
+      "file": "/Users/johnny/projects/taskq-advance/03-development/src/taskq_api/service/runner.py",
+      "line": null,
+      "mutant_id": "165",
+      "mutator": null
+    },
+    {
+      "file": "/Users/johnny/projects/taskq-advance/03-development/src/taskq_api/service/runner.py",
+      "line": null,
+      "mutant_id": "170",
+      "mutator": null
+    },
+    {
+      "file": "/Users/johnny/projects/taskq-advance/03-development/src/taskq_api/service/runner.py",
+      "line": null,
+      "mutant_id": "171",
+      "mutator": null
+    },
+    {
+      "file": "/Users/johnny/projects/taskq-advance/03-development/src/taskq_api/service/runner.py",
+      "line": null,
+      "mutant_id": "174",
+      "mutator": null
+    },
+    {
+      "file": "/Users/johnny/projects/taskq-advance/03-development/src/taskq_api/service/runner.py",
+      "line": null,
+      "mutant_id": "176",
+      "mutator": null
+    },
+    {
+      "file": "/Users/johnny/projects/taskq-advance/03-development/src/taskq_api/service/runner.py",
+      "line": null,
+      "mutant_id": "177",
+      "mutator": null
+    },
+    {
+      "file": "/Users/johnny/projects/taskq-advance/03-development/src/taskq_api/service/runner.py",
+      "line": null,
+      "mutant_id": "178",
+      "mutator": null
+    },
+    {
+      "file": "/Users/johnny/projects/taskq-advance/03-development/src/taskq_api/service/runner.py",
+      "line": null,
+      "mutant_id": "179",
+      "mutator": null
+    },
+    {
+      "file": "/Users/johnny/projects/taskq-advance/03-development/src/taskq_api/service/runner.py",
+      "line": null,
+      "mutant_id": "180",
+      "mutator": null
+    },
+    {
+      "file": "/Users/johnny/projects/taskq-advance/03-development/src/taskq_api/service/runner.py",
+      "line": null,
+      "mutant_id": "198",
+      "mutator": null
+    },
+    {
+      "file": "/Users/johnny/projects/taskq-advance/03-development/src/taskq_api/service/runner.py",
+      "line": null,
+      "mutant_id": "199",
+      "mutator": null
+    },
+    {
+      "file": "/Users/johnny/projects/taskq-advance/03-development/src/taskq_api/service/runner.py",
+      "line": null,
+      "mutant_id": "210",
+      "mutator": null
+    },
+    {
+      "file": "/Users/johnny/projects/taskq-advance/03-development/src/taskq_api/service/runner.py",
+      "line": null,
+      "mutant_id": "211",
+      "mutator": null
+    },
+    {
+      "file": "/Users/johnny/projects/taskq-advance/03-development/src/taskq_api/service/tasks.py",
+      "line": null,
+      "mutant_id": "219",
+      "mutator": null
+    },
+    {
+      "file": "/Users/johnny/projects/taskq-advance/03-development/src/taskq_api/service/tasks.py",
+      "line": null,
+      "mutant_id": "226",
+      "mutator": null
+    },
+    {
+      "file": "/Users/johnny/projects/taskq-advance/03-development/src/taskq_api/service/tasks.py",
+      "line": null,
+      "mutant_id": "228",
+      "mutator": null
+    },
+    {
+      "file": "/Users/johnny/projects/taskq-advance/03-development/src/taskq_api/service/tasks.py",
+      "line": null,
+      "mutant_id": "230",
+      "mutator": null
+    },
+    {
+      "file": "/Users/johnny/projects/taskq-advance/03-development/src/taskq_api/service/tasks.py",
+      "line": null,
+      "mutant_id": "234",
+      "mutator": null
+    },
+    {
+      "file": "/Users/johnny/projects/taskq-advance/03-development/src/taskq_api/service/tasks.py",
+      "line": null,
+      "mutant_id": "241",
+      "mutator": null
+    },
+    {
+      "file": "/Users/johnny/projects/taskq-advance/03-development/src/taskq_api/service/tasks.py",
+      "line": null,
+      "mutant_id": "251",
+      "mutator": null
+    }
+  ],
+  "integration_coverage": {
+    "gate": 2,
+    "score": 80.0
+  },
+  "threat_model": [
+    {
+      "threat_id": "T-01",
+      "category": "tampering",
+      "description": "Malformed or hostile payload mutates task state without validation",
+      "owner_module": "taskq_api.api.tasks",
+      "boundary": "TB-01"
+    },
+    {
+      "threat_id": "T-02",
+      "category": "spoofing",
+      "description": "Missing or forged X-API-Key header bypasses authentication",
+      "owner_module": "taskq_api.api.deps",
+      "boundary": "TB-01"
+    },
+    {
+      "threat_id": "T-03",
+      "category": "spoofing",
+      "description": "API key stored as plaintext allows credential recovery from DB",
+      "owner_module": "taskq_api.repository.key_repo",
+      "boundary": "TB-02"
+    },
+    {
+      "threat_id": "T-04",
+      "category": "elevation_of_privilege",
+      "description": "Read-only key performs write/admin operations",
+      "owner_module": "taskq_api.api.deps",
+      "boundary": "TB-02"
+    },
+    {
+      "threat_id": "T-05",
+      "category": "information_disclosure",
+      "description": "403 response reveals whether a resource exists",
+      "owner_module": "taskq_api.service.auth",
+      "boundary": "TB-02"
+    },
+    {
+      "threat_id": "T-06",
+      "category": "elevation_of_privilege",
+      "description": "Command injection via task command string executed by shell",
+      "owner_module": "taskq_api.service.runner",
+      "boundary": "TB-03"
+    },
+    {
+      "threat_id": "T-07",
+      "category": "denial_of_service",
+      "description": "Subprocess hangs forever, exhausting concurrency budget",
+      "owner_module": "taskq_api.service.runner",
+      "boundary": "TB-03"
+    },
+    {
+      "threat_id": "T-08",
+      "category": "tampering",
+      "description": "SQL injection via string concatenation of query fragments",
+      "owner_module": "taskq_api.repository.session",
+      "boundary": "TB-04"
+    },
+    {
+      "threat_id": "T-09",
+      "category": "repudiation",
+      "description": "Transaction boundaries lost on exception, leaving partial writes",
+      "owner_module": "taskq_api.repository.session",
+      "boundary": "TB-04"
+    },
+    {
+      "threat_id": "T-10",
+      "category": "information_disclosure",
+      "description": "API key, bearer token, or DB URL leaked through logs or /v1/metrics",
+      "owner_module": "taskq_api.errors",
+      "boundary": "TB-05"
+    },
+    {
+      "threat_id": "T-11",
+      "category": "information_disclosure",
+      "description": "500 error body leaks stack trace, SQL, or filesystem path",
+      "owner_module": "taskq_api.errors",
+      "boundary": "TB-01"
+    },
+    {
+      "threat_id": "T-12",
+      "category": "denial_of_service",
+      "description": "Attacker exhausts per-token rate budget to starve other clients",
+      "owner_module": "taskq_api.service.ratelimit",
+      "boundary": "TB-01"
+    }
+  ],
+  "sources": {
+    "declared": 4,
+    "crg_hubs": 0,
+    "mutation_survivors": 58,
+    "integration_coverage": true,
+    "threat_model": 12
+  }
+}

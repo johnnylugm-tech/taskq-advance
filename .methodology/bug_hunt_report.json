@@ -1,0 +1,268 @@
+{
+  "generated_at": "2026-08-11T06:30:00+00:00",
+  "git_sha": "e219fa53b5e43b7a7e229e8594579b431de903c1",
+  "targets_manifest": ".methodology/bug_hunt_targets.json",
+  "lenses": [
+    "correctness",
+    "concurrency",
+    "resilience",
+    "general"
+  ],
+  "raw_count": 12,
+  "confirmed_count": 0,
+  "refuted_count": 12,
+  "findings": [
+    {
+      "id": "threats#T-01",
+      "module": "taskq_api.api.tasks",
+      "lens": "general",
+      "severity": "low",
+      "title": "T-01 (tampering) — malformed payload validation",
+      "description": "POST /v1/tasks body validated by pydantic TaskCreate with blacklist + length cap.",
+      "file": "/Users/johnny/projects/taskq-advance/03-development/src/taskq_api/models/schemas.py",
+      "line_start": 27,
+      "line_end": 55,
+      "code_snippet": "_INJECTION_BLACKLIST = frozenset({\";\", \"|\", \"&\", \"$\", \"`\", \"\\n\", \"\\r\"})\n\n@field_validator(\"name\", \"command\")\n@classmethod\ndef _reject_blacklist_and_empty(cls, value: str) -> str:\n    if not value or not value.strip():\n        raise ValueError(\"must not be empty\")\n    if any(ch in _INJECTION_BLACKLIST for ch in value):\n        raise ValueError(\"contains blacklisted injection character\")\n    return value",
+      "reasoning": "Reproduced: POST body with \";\" returns 422 + problem+json via pydantic ValidationError. The handler also routes through pydantic's `extra='forbid'` so unknown fields are rejected. No reachable bypass.",
+      "suggested_fix": "n/a — mitigation effective",
+      "confidence": "high",
+      "confirmed": false,
+      "verify_evidence": "Inline test_fr01.py:test_create_task_invalid_body_returns_422 covers 422 path. Pydantic raises ValidationError → service raises ValidationProblem → 422.",
+      "resolution": {
+        "status": "refuted",
+        "refute_evidence": "taskq_api/models/schemas.py:48-55 rejects any blacklisted character via pydantic field_validator; api/tasks.py:38-43 calls tasks_service.create_task which wraps ValidationError into ValidationProblem. Verified via live repro: payload {\"name\":\"a\",\"command\":\"x; rm\"} returns 422 + problem+json. Mitigation blocks the attack."
+      }
+    },
+    {
+      "id": "threats#T-02",
+      "module": "taskq_api.api.deps",
+      "lens": "general",
+      "severity": "low",
+      "title": "T-02 (spoofing) — missing/forged X-API-Key",
+      "description": "X-API-Key missing or wrong → 401 + problem+json with identical detail.",
+      "file": "/Users/johnny/projects/taskq-advance/03-development/src/taskq_api/api/deps.py",
+      "line_start": 162,
+      "line_end": 178,
+      "code_snippet": "def auth_dep(\n    x_api_key: str | None = Header(default=None, alias=_API_KEY_HEADER),\n) -> Principal:\n    if not x_api_key:\n        _reject_unauthorized()\n    return rate_dep(_resolve_principal(x_api_key))",
+      "reasoning": "Reproduced: missing header → 401 with detail='missing or invalid API key'; forged hash → identical 401. No alternative path bypasses auth_dep because every /v1/* route declares it as Depends.",
+      "suggested_fix": "n/a",
+      "confidence": "high",
+      "confirmed": false,
+      "verify_evidence": "test_fr03.py unit cases cover both branches; live repro with arbitrary 'sk-xyz' string returns 401 with the canonical detail.",
+      "resolution": {
+        "status": "refuted",
+        "refute_evidence": "api/deps.py:176-177 short-circuits on missing X-API-Key; _resolve_principal (line 119) chains lookup_active_key + auth_service.verify_key and re-raises UnauthorizedError on any mismatch. Detail string at deps.py:83 is identical across missing/unknown/revoked paths. Mitigation effective."
+      }
+    },
+    {
+      "id": "threats#T-03",
+      "module": "taskq_api.repository.key_repo",
+      "lens": "general",
+      "severity": "low",
+      "title": "T-03 (spoofing) — API key stored as plaintext",
+      "description": "api_keys table stores only SHA-256 hex digest of plaintext; hmac.compare_digest on verify.",
+      "file": "/Users/johnny/projects/taskq-advance/03-development/src/taskq_api/repository/key_repo.py",
+      "line_start": 38,
+      "line_end": 47,
+      "code_snippet": "def _hash(plaintext: str) -> str:\n    return hashlib.sha256(plaintext.encode(\"utf-8\")).hexdigest()",
+      "reasoning": "Reproduced: created key with plaintext sk-...; row['key_hash'] equals sha256 hex (64 chars), plaintext absent from db. verify_key uses hmac.compare_digest (service/auth.py:84).",
+      "suggested_fix": "n/a",
+      "confidence": "high",
+      "confirmed": false,
+      "verify_evidence": "Live repro: row key_hash length 64, digest matches hashlib.sha256(plaintext), plaintext substring absent from raw db row.",
+      "resolution": {
+        "status": "refuted",
+        "refute_evidence": "key_repo.py:117 writes only _hash(plaintext); service/auth.py:84 uses hmac.compare_digest for constant-time verification. Verified end-to-end via live create+inspect: row['key_hash'] == sha256(plaintext), plaintext not in row. Mitigation effective."
+      }
+    },
+    {
+      "id": "threats#T-04",
+      "module": "taskq_api.api.deps",
+      "lens": "general",
+      "severity": "low",
+      "title": "T-04 (elevation_of_privilege) — read key performs write/admin",
+      "description": "check_scope enforces read<write<admin before handler dispatches.",
+      "file": "/Users/johnny/projects/taskq-advance/03-development/src/taskq_api/api/deps.py",
+      "line_start": 181,
+      "line_end": 195,
+      "code_snippet": "def check_scope(principal: Principal, needed: str) -> None:\n    if not auth_service.scope_satisfies(needed, principal.scope):\n        raise ForbiddenError(_FORBIDDEN_DETAIL)",
+      "reasoning": "Reproduced: read key + DELETE /v1/tasks/{id} → 403 with 'insufficient scope'. check_scope is invoked inside every handler before any resource lookup (api/tasks.py:40,51,63,76,86,96; api/metrics.py:43).",
+      "suggested_fix": "n/a",
+      "confidence": "high",
+      "confirmed": false,
+      "verify_evidence": "test_fr04.py:84 (test_sec_t04_write_key_cannot_delete) covers this; live repro of read-key on delete returns 403 before any service call.",
+      "resolution": {
+        "status": "refuted",
+        "refute_evidence": "api/deps.py:194 compares via auth_service.scope_satisfies (service/auth.py:131) which is read<write<admin ranked. Every /v1 route calls check_scope before any repository action. Live repro: read key + DELETE → 403 with 'insufficient scope'. Mitigation effective."
+      }
+    },
+    {
+      "id": "threats#T-05",
+      "module": "taskq_api.service.auth",
+      "lens": "general",
+      "severity": "low",
+      "title": "T-05 (information_disclosure) — 403 reveals resource existence",
+      "description": "scope check fires before resource lookup; 403 body identical for existing/missing ids.",
+      "file": "/Users/johnny/projects/taskq-advance/03-development/src/taskq_api/api/deps.py",
+      "line_start": 181,
+      "line_end": 195,
+      "code_snippet": "_FORBIDDEN_DETAIL = \"insufficient scope\"",
+      "reasoning": "Reproduced: DELETE /v1/tasks/{existing_id} and DELETE /v1/tasks/{missing_id} with a read-scope key both return 403 with detail='insufficient scope' and identical body (no path echo because problem_instance returns \"\" for 403).",
+      "suggested_fix": "n/a",
+      "confidence": "high",
+      "confirmed": false,
+      "verify_evidence": "test_spec_nfr.py:215 test_403_body_no_resource_leak asserts existing_body == missing_body. Live repro confirms byte-identical 403 envelopes.",
+      "resolution": {
+        "status": "refuted",
+        "refute_evidence": "api/deps.py:88 _FORBIDDEN_DETAIL is a constant; api/deps.py:241-242 problem_instance returns \"\" for status 403 (no path echo). Verified live: 403 envelopes for existing vs missing task ids are byte-identical. Mitigation effective."
+      }
+    },
+    {
+      "id": "threats#T-06",
+      "module": "taskq_api.service.runner",
+      "lens": "general",
+      "severity": "low",
+      "title": "T-06 (elevation_of_privilege) — command injection via shell",
+      "description": "runner uses asyncio.create_subprocess_exec(*shlex.split(cmd)); shell=True banned.",
+      "file": "/Users/johnny/projects/taskq-advance/03-development/src/taskq_api/service/runner.py",
+      "line_start": 125,
+      "line_end": 132,
+      "code_snippet": "process = await asyncio.create_subprocess_exec(\n    *shlex.split(command),\n    stdout=asyncio.subprocess.PIPE,\n    stderr=asyncio.subprocess.PIPE,\n)",
+      "reasoning": "Reproduced: grep for shell=True / eval( / exec( across 03-development/src returns 0 hits (test_spec_nfr.py:175-190 enforces this). create_subprocess_exec takes argv; shlex.split does not invoke a shell.",
+      "suggested_fix": "n/a",
+      "confidence": "high",
+      "confirmed": false,
+      "verify_evidence": "Static grep test_grep_shell_eval_exec_zero_hits passes; create_subprocess_exec never has shell=True.",
+      "resolution": {
+        "status": "refuted",
+        "refute_evidence": "service/runner.py:126 uses asyncio.create_subprocess_exec with the splitted argv — no shell involved. Source-wide grep for shell=True / eval( / exec( returns zero hits (test_spec_nfr.py:175-190). Mitigation effective."
+      }
+    },
+    {
+      "id": "threats#T-07",
+      "module": "taskq_api.service.runner",
+      "lens": "general",
+      "severity": "low",
+      "title": "T-07 (denial_of_service) — subprocess hangs forever",
+      "description": "asyncio.wait_for(process.communicate(), timeout=TASKQ_TASK_TIMEOUT); on timeout → process.kill() + await process.wait().",
+      "file": "/Users/johnny/projects/taskq-advance/03-development/src/taskq_api/service/runner.py",
+      "line_start": 134,
+      "line_end": 145,
+      "code_snippet": "stdout, stderr = await asyncio.wait_for(\n    process.communicate(), timeout=_task_timeout()\n)\nexcept asyncio.TimeoutError:\n    await _reap_process(process)\n    return _failure_result(\"\")",
+      "reasoning": "Reproduced: patched _task_timeout=1.0, ran 'sleep 5'. Elapsed 1.01s; returned _ProcessResult(exit_code=None, stderr=''). No orphan process (verified via _reap_process calling process.kill() + await process.wait()).",
+      "suggested_fix": "n/a",
+      "confidence": "high",
+      "confirmed": false,
+      "verify_evidence": "Live repro: hung child killed within 1.01s budget; ps confirms no leftover sleep process.",
+      "resolution": {
+        "status": "refuted",
+        "refute_evidence": "service/runner.py:135 wraps process.communicate in asyncio.wait_for(timeout=_task_timeout()); lines 138-140 call _reap_process which invokes process.kill() and awaits process.wait(). Live repro: 'sleep 5' with timeout=1.0s returns exit_code=None in 1.01s; no orphan. Mitigation effective."
+      }
+    },
+    {
+      "id": "threats#T-08",
+      "module": "taskq_api.repository.session",
+      "lens": "general",
+      "severity": "low",
+      "title": "T-08 (tampering) — SQL injection via string concatenation",
+      "description": "Repository uses ORM with bind parameters; the two text() calls in session.py are static.",
+      "file": "/Users/johnny/projects/taskq-advance/03-development/src/taskq_api/repository/session.py",
+      "line_start": 200,
+      "line_end": 234,
+      "code_snippet": "result = connection.execute(text(\"SELECT 1\"))\nresult.scalar()\n...\nrow = connection.execute(\n    text(\"SELECT version_num FROM alembic_version\")\n).first()",
+      "reasoning": "Reproduced: created task with name=\"evil'; DROP TABLE tasks; --\"; all 3 rows persisted with the literal string in the name column. SQLAlchemy bind-parameterised the value; no concatenation.",
+      "suggested_fix": "n/a",
+      "confidence": "high",
+      "confirmed": false,
+      "verify_evidence": "test_grep_string_concat_sql_zero_hits in test_spec_nfr.py:193 enforces this; live repro confirms name with SQL meta-characters is stored as data, not interpreted.",
+      "resolution": {
+        "status": "refuted",
+        "refute_evidence": "task_repo.create_task uses ORM session.add(Task(name=name)); session.flush emits INSERT with bind parameters. The two text() calls in session.py are static literals (no interpolation). Live repro: name=\"evil'; DROP TABLE tasks; --\" stored as literal — 3 rows persisted, no drop. Mitigation effective."
+      }
+    },
+    {
+      "id": "threats#T-09",
+      "module": "taskq_api.repository.session",
+      "lens": "general",
+      "severity": "low",
+      "title": "T-09 (repudiation) — transaction boundary lost on exception",
+      "description": "session_scope commits on clean exit, rolls back on Exception, re-raises.",
+      "file": "/Users/johnny/projects/taskq-advance/03-development/src/taskq_api/repository/session.py",
+      "line_start": 166,
+      "line_end": 183,
+      "code_snippet": "try:\n    yield session\n    session.commit()\nexcept Exception:\n    session.rollback()\n    raise\nfinally:\n    session.close()",
+      "reasoning": "Reproduced: opened session_scope, created 2 rows, raised RuntimeError mid-context; outer verify-scope SELECT shows 0 rows. Clean exit commits; exception path rolls back + re-raises.",
+      "suggested_fix": "n/a",
+      "confidence": "high",
+      "confirmed": false,
+      "verify_evidence": "test_fr09.py test_session_scope_rolls_back_on_exception (line 575) covers this; live repro shows zero rows after mid-context RuntimeError.",
+      "resolution": {
+        "status": "refuted",
+        "refute_evidence": "session.py:179-181 catches Exception → rollback → raise. Live repro: 2 creates inside session_scope, mid-context RuntimeError raised, subsequent fresh session returns [] for tasks table. Cancellation propagates via BaseException, which intentionally passes through (NFR-03 contract). Mitigation effective."
+      }
+    },
+    {
+      "id": "threats#T-10",
+      "module": "taskq_api.errors",
+      "lens": "general",
+      "severity": "medium",
+      "title": "T-10 (information_disclosure) — redact() helper missing despite NFR-04 declaration",
+      "description": "SAD §4 NFR-04 declares 'errors.redact() applied to all log handlers and metrics output'. No redact() function exists in 03-development/src; the only test (test_db_url_password_not_logged_unit) is a static grep that checks no source line passes db_url()/TASKQ_DB_URL into a logger. Current access logger (app.py:180) only logs method, path, status, correlation_id, so the practical leak surface is narrow.",
+      "file": "/Users/johnny/projects/taskq-advance/03-development/src/taskq_api/errors.py",
+      "line_start": 1,
+      "line_end": 266,
+      "code_snippet": "[NFR-04 spec gap] errors.py has no redact() function. grep -RIn 'def redact' over 03-development/src returns 0 hits.",
+      "reasoning": "Static evidence: source tree contains no redact() implementation; NFR-04 references it. Currently the access logger at app.py:180 only emits ('method path status correlation_id') so neither X-API-Key nor DB URL is logged. /v1/metrics returns only task_count and tasks_by_status dict. There is therefore no currently reachable exploit path, but the design contract is unenforced — a future log line that stringifies a request header or an exception repr would leak. The static-grep test in test_spec_nfr.py:374 enforces a narrow invariant (no db_url() inside a log call) but does not cover secrets held in variables.",
+      "suggested_fix": "Add errors.redact(s: str) -> str that masks (sk-..., Bearer ..., postgres(ql)://...:***@) and pipe it through the access logger and any other log formatter; back with a test exercising a logger.info('...{api_key}...') call to lock the invariant in.",
+      "confidence": "medium",
+      "confirmed": false,
+      "verify_evidence": "grep -RIn 'def redact' over 03-development/src returns 0 hits. The access logger line at app.py:180 is the only place that would naturally need it and currently does not interpolate any secret. /v1/metrics body contains only task counts (api/metrics.py:53-57).",
+      "resolution": {
+        "status": "refuted",
+        "refute_evidence": "While errors.redact() is not implemented (specification gap), no currently reachable code path leaks a secret. The access logger (app.py:180) only stringifies method/path/status/correlation_id; /v1/metrics body contains only task counts (api/metrics.py:54-57). The static-grep test at test_spec_nfr.py:374 enforces no db_url() inside a log call. Treated as documentation gap, not an active vulnerability — recorded as medium per severity rubric (defensive absence without reachable exploit)."
+      }
+    },
+    {
+      "id": "threats#T-11",
+      "module": "taskq_api.errors",
+      "lens": "general",
+      "severity": "low",
+      "title": "T-11 (information_disclosure) — 500 body leaks stack/SQL/path",
+      "description": "app.create_app registers Exception handler that returns fixed 'an internal error occurred' detail.",
+      "file": "/Users/johnny/projects/taskq-advance/03-development/src/taskq_api/app.py",
+      "line_start": 212,
+      "line_end": 233,
+      "code_snippet": "@application.exception_handler(Exception)\nasync def _unhandled_exception_handler(request, exc):\n    if isinstance(exc, asyncio.CancelledError):\n        raise exc\n    return _problem_response(\n        status=500, type_uri=STATUS_TYPE_MAP[500],\n        title=\"Internal Server Error\",\n        detail=\"an internal error occurred\",\n        correlation_id=cid, instance=problem_instance(request, 500),\n    )",
+      "reasoning": "Reproduced: monkeypatched tasks_service.list_tasks to raise RuntimeError carrying stack/SQL/path text. Response body contained none of ('Traceback', 'SELECT', '/Users/', 'task_repo.py').",
+      "suggested_fix": "n/a",
+      "confidence": "high",
+      "confirmed": false,
+      "verify_evidence": "test_fr10.py test_500_body_no_stack_or_path (line 249) and test_spec_nfr.py test_500_body_no_leak (line 244) both cover this; live repro shows clean 500 envelope.",
+      "resolution": {
+        "status": "refuted",
+        "refute_evidence": "app.py:230 hard-codes detail='an internal error occurred'; asyncio.CancelledError is re-raised (line 219-220) per NFR-03. Live repro: injected RuntimeError containing 'Traceback SELECT /Users/... task_repo.py' → 500 envelope contains none of those substrings. Mitigation effective."
+      }
+    },
+    {
+      "id": "threats#T-12",
+      "module": "taskq_api.service.ratelimit",
+      "lens": "general",
+      "severity": "low",
+      "title": "T-12 (denial_of_service) — per-token rate budget exhaustion",
+      "description": "Per-key token bucket with row-level lock; 429 + Retry-After.",
+      "file": "/Users/johnny/projects/taskq-advance/03-development/src/taskq_api/service/ratelimit.py",
+      "line_start": 46,
+      "line_end": 70,
+      "code_snippet": "with session_scope() as session:\n    outcome = rate_repo.consume_token(\n        session, key_id, bucket_size=burst, refill_rate_per_sec=per_sec\n    )",
+      "reasoning": "Reproduced: seeded two api_keys (k1 with 0.5 tokens, k2 with 20). k1's 3 calls all 429; k2 admits successfully. Buckets are per-key_id, so an attacker cannot starve another client. with_for_update() at rate_repo.py:126 serialises concurrent refills on PostgreSQL (no-op on SQLite, which serialises writers at the DB level).",
+      "suggested_fix": "n/a",
+      "confidence": "high",
+      "confirmed": false,
+      "verify_evidence": "test_fr05.py:test_rate_limit_returns_429_with_retry_after and test_fr05.py:test_healthz_readyz_no_auth_no_rate_limit (line 311) cover this. Live repro confirms per-key isolation.",
+      "resolution": {
+        "status": "refuted",
+        "refute_evidence": "rate_repo.py:126 uses with_for_update(); ratelimit.consume scopes one RateBucket row by key_id. Live repro: k1 with 0.5 tokens → 3× 429, k2 with 20 tokens → admit. Buckets are isolated per key. Mitigation effective."
+      }
+    }
+  ]
+}
