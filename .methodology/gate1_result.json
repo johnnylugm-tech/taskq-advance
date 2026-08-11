@@ -1,7 +1,7 @@
 {
   "gate": 1,
   "phase": 8,
-  "fr_id": "FR-08",
+  "fr_id": "FR-09",
   "overall_score": 100.0,
   "quality_complete": true,
   "rounds_used": 1,
@@ -14,20 +14,20 @@
     "type_safety": {
       "score": 100.0,
       "threshold": 100,
-      "tool_evidence": "{\"version\": \"1.1.409\", \"time\": \"1786463918344\", \"generalDiagnostics\": [], \"summary\": {\"filesAnalyzed\": 29, \"errorCount\": 0, \"warningCount\": 0, \"informationCount\": 0, \"timeInSec\": 1.152}}"
+      "tool_evidence": "{\"version\": \"1.1.409\", \"time\": \"1786464136892\", \"generalDiagnostics\": [], \"summary\": {\"filesAnalyzed\": 29, \"errorCount\": 0, \"warningCount\": 0, \"informationCount\": 0, \"timeInSec\": 1.201}}"
     },
     "test_coverage": {
       "score": 100.0,
       "threshold": 100,
-      "tests_passed": 32,
+      "tests_passed": 61,
       "tests_failed": 0,
       "tests_skipped": 0,
-      "tool_evidence": "32 passed in 3.73s. test_fr08.py: 21 passed, test_fr02.py: 11 passed. FR-08 source file runner.py: 141/141 statements covered (100%). spec_cov_pct=100 (4/4 required tests present). All 4 required tests (test_concurrency_cap_unit, test_drain_timeout_marks_interrupted, test_timeout_terminates_child, test_cancelled_error_propagates) passed."
+      "tool_evidence": "61 passed in 1.51s. test_fr09.py: 11 passed, test_fr06.py: 45 passed, test_fr07.py: 5 passed. FR-09 source files health.py + session.py covered 96/96 statements (100%). spec_cov_pct=100 (5/5 required tests present). All 5 required tests (test_readyz_503_when_db_unreachable, test_readyz_503_when_migration_lag, test_readyz_fails_closed_without_migration, test_healthz_readyz_no_auth_no_rate_limit, test_metrics_requires_admin) passed."
     },
     "architecture_constraints": {
       "score": 100.0,
       "threshold": 100,
-      "tool_evidence": "Analyzed 50 files, 120 dependencies. Layering KEPT. SQLAlchemy in repository only KEPT. Contracts: 2 kept, 0 broken."
+      "tool_evidence": "Analyzed 51 files, 91 dependencies. Layering KEPT. SQLAlchemy in repository only KEPT. Contracts: 2 kept, 0 broken."
     }
   },
   "enforcer_sha": "5a87e35f0a01ef096843f5eaa0909a905ba2566a",
@@ -68,23 +68,23 @@
     "type_safety": {
       "source": "tool_evidence (inline)",
       "kind": "inline",
-      "sha256": "092f599a916d4cda62ecda7121b259af2829451eca4f20c46b988c7b8b496aee",
+      "sha256": "98e23bbaccf01c3ab2488dfc7f1ec70525edebd80ab3785f3827f970a653eb66",
       "bytes": 186,
-      "head": "{\"version\": \"1.1.409\", \"time\": \"1786463918344\", \"generalDiagnostics\": [], \"summary\": {\"filesAnalyzed\": 29, \"errorCount\": 0, \"warningCount\": 0, \"informationCount\": 0, \"timeInSec\": 1.152}}"
+      "head": "{\"version\": \"1.1.409\", \"time\": \"1786464136892\", \"generalDiagnostics\": [], \"summary\": {\"filesAnalyzed\": 29, \"errorCount\": 0, \"warningCount\": 0, \"informationCount\": 0, \"timeInSec\": 1.201}}"
     },
     "test_coverage": {
       "source": "tool_evidence (inline)",
       "kind": "inline",
-      "sha256": "26f6bdd792486945645443dbcad1ebf0775a781a629c45078c540c2fb4c57fff",
-      "bytes": 339,
-      "head": "32 passed in 3.73s. test_fr08.py: 21 passed, test_fr02.py: 11 passed. FR-08 source file runner.py: 141/141 statements covered (100%). spec_cov_pct=100 (4/4 required tests present). All 4 required tests (test_concurrency_cap_unit, test_drain_timeout_marks_interrupted, test_timeout_terminates_child, test_cancelled_error_propagates) passed."
+      "sha256": "7d9c395c189cedfb71039040b8ae92a18662974f9a563adf60847ba1690904ee",
+      "bytes": 434,
+      "head": "61 passed in 1.51s. test_fr09.py: 11 passed, test_fr06.py: 45 passed, test_fr07.py: 5 passed. FR-09 source files health.py + session.py covered 96/96 statements (100%). spec_cov_pct=100 (5/5 required tests present). All 5 required tests (test_readyz_503_when_db_unreachable, test_readyz_503_when_migration_lag, test_readyz_fails_closed_without_migration, test_healthz_readyz_no_auth_no_rate_limit, test_metrics_requires_admin) passed."
     },
     "architecture_constraints": {
       "source": "tool_evidence (inline)",
       "kind": "inline",
-      "sha256": "bff3fd6e286a042ef14373fa7d2950bac8fe713964823a41daf92e6f7ac2fead",
-      "bytes": 116,
-      "head": "Analyzed 50 files, 120 dependencies. Layering KEPT. SQLAlchemy in repository only KEPT. Contracts: 2 kept, 0 broken."
+      "sha256": "6b3667d3a80f9a2187c017efecd427cb5716ce3c9a45d066dbc67e92b9c52c16",
+      "bytes": 115,
+      "head": "Analyzed 51 files, 91 dependencies. Layering KEPT. SQLAlchemy in repository only KEPT. Contracts: 2 kept, 0 broken."
     }
   },
   "composite_score": 100.0,
