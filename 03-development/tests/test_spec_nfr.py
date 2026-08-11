@@ -915,7 +915,8 @@ def test_mutmut_scope_recorded() -> None:
         setup_cfg = (PROJECT_ROOT / "setup.cfg").read_text()
         assert "taskq_api/repository" in setup_cfg and "taskq_api/service" in setup_cfg
         return
-    layers = scope.get("layers") if isinstance(scope, dict) else scope
+    layers: object = scope.get("layers") if isinstance(scope, dict) else scope
+    assert isinstance(layers, list), f"mutation scope layers must be a list, got {type(layers).__name__}"
     assert "service" in layers and "repository" in layers
 
 

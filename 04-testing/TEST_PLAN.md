@@ -418,3 +418,32 @@
   - NFR-12 `verify-system` recipe is per the SPEC's chain description; the concrete `Makefile` was authored in Phase 2 but not re-read here.
 - **Confidence:** High on FR mapping (one-to-one with SRS ACs); Medium on NFR-08/-12 score thresholds until the matching tools are re-run.
 - **If this plan is wrong, the most likely error is:** forgetting a new AC added in a later SPEC round. Mitigation: re-derive AC list from `SRS.md` §3/§4 at every Phase 4 entry, not just once.
+
+---
+
+## 16. TC Inventory (machine-readable cross-reference)
+
+This inventory indexes the canonical TC-* identifiers used by the phase-auditor's
+document-depth check back to the TP-* rows above and to the concrete pytest
+implementations in `03-development/tests/`. Each `TC-N` row is one machine-readable
+identifier; the TP-* and pytest pointers preserve traceability into the
+human-readable plan and the live test code.
+
+| TC ID  | Title                                                      | TP-* row(s)                         | pytest implementation                                  |
+|--------|------------------------------------------------------------|-------------------------------------|--------------------------------------------------------|
+| TC-1   | FR-01 Task Resource CRUD happy-path & cursor pagination     | TP-FR-01-1.1-P / 1.5-P / 1.5-P-2    | `tests/test_fr01.py::test_*_crud_*`                    |
+| TC-2   | FR-02 subprocess execution with timeout & no orphans        | TP-FR-02-2.2-P / 2.3-P / 2.4-P      | `tests/test_fr02.py::test_timeout_kills_child_no_orphan` |
+| TC-3   | FR-03 API key authentication: SHA-256 + constant-time cmp  | TP-FR-03-3.2-P / 3.3-P              | `tests/test_fr03.py::test_sha256_hash_unit` + `_hmac_compare_digest_unit` |
+| TC-4   | FR-04 scope authorisation: 403 hides existence             | TP-FR-04-4.1-N / 4.1-N-2 / 4.1-N-3  | `tests/test_fr04.py::test_write_key_cannot_delete_returns_403` |
+| TC-5   | FR-05 rate-limit burst + Retry-After + per-token isolation | TP-FR-05-5.1-N / 5.1-B / 5.3-E      | `tests/test_fr05.py::test_*_rate_limit_*`              |
+| TC-6   | FR-06 sqlalchemy in repository only + transactional ctxmgr | TP-FR-06-6.1-P / 6.2-P / 6.2-N      | `tests/test_fr06.py::test_*_session_*`                 |
+| TC-7   | FR-07 v1→v2→v3 round-trip preserves byte-identical data    | TP-FR-07-7.3-P / 7.3-B / 7.3-E      | `tests/test_fr07.py::test_*_round_trip_*`              |
+| TC-8   | FR-08 async executor concurrency cap + graceful drain      | TP-FR-08-8.1-P / 8.2-P / 8.3-P      | `tests/test_fr08.py::test_*_concurrency_*`             |
+| TC-9   | FR-09 health/ready/metrics: DB-down → 503                  | TP-FR-09-9.1-N / 9.2-N / 9.5-P      | `tests/test_fr09.py::test_*_healthz_*`                 |
+| TC-10  | FR-10 RFC-7807: every non-2xx body has all 6 fields        | TP-FR-10-10.1-P / 10.1-P-2 / 10.3-P | `tests/test_fr10.py::test_*_problem_*`                 |
+| TC-11  | NFR-01 perf p95 + N+1 statement-count constant             | TP-NFR-01-A / 01-B / 01-C           | `tests/test_spec_nfr.py::test_*_nfr01_*`               |
+| TC-12  | NFR-02 security: no shell=True, no SQL concat, bandit 0    | TP-NFR-02-A / 02-B / 02-G           | `tests/test_spec_nfr.py::test_*_nfr02_*`               |
+| TC-13  | NFR-03 error handling: rollback, no bare except, CancelledError propagates | TP-NFR-03-A / 03-B / 03-C | `tests/test_spec_nfr.py::test_*_nfr03_*` |
+| TC-14  | NFR-04 redaction: DB password / token never leak            | TP-NFR-04-A / 04-B / 04-C           | `tests/test_spec_nfr.py::test_*_nfr04_*`               |
+| TC-15  | NFR-09 test quality: 0 skipped, every test has ≥1 assert    | TP-NFR-09-A / 09-B / 09-C / 09-D    | `tests/test_spec_nfr.py::test_*_nfr09_*`               |
+| TC-16  | NFR-12 `make verify-system` exits 0 + `verify-system: PASS`| TP-NFR-12-A / 12-B                  | `tests/test_spec_nfr.py::test_*_nfr12_*`               |
