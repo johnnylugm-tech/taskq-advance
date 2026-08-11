@@ -1,6 +1,6 @@
 {
   "gate": 1,
-  "phase": 4,
+  "phase": 5,
   "fr_id": "FR-03",
   "overall_score": 100.0,
   "quality_complete": true,
@@ -14,20 +14,20 @@
     "type_safety": {
       "score": 100.0,
       "threshold": 100,
-      "tool_evidence": "{\"version\":\"1.1.409\",\"time\":\"1786426517989\",\"generalDiagnostics\":[],\"summary\":{\"filesAnalyzed\":29,\"errorCount\":0,\"warningCount\":0,\"informationCount\":0,\"timeInSec\":1.147}}\n"
+      "tool_evidence": "{\"version\": \"1.1.409\", \"summary\": {\"filesAnalyzed\": 29, \"errorCount\": 0, \"warningCount\": 0, \"informationCount\": 0}}"
     },
     "test_coverage": {
       "score": 100.0,
       "threshold": 100,
-      "tests_passed": 29,
+      "tests_passed": 30,
       "tests_failed": 0,
       "tests_skipped": 0,
-      "tool_evidence": "============================== 29 passed in 1.55s ==============================\nCoverage 100% (107/107 statements) across deps.py (47), auth.py (22), key_repo.py (38).\nRequired tests present and passing: test_missing_api_key_returns_401, test_sha256_hash_unit, test_hmac_compare_digest_unit, test_revoked_key_rejected_unit, test_key_create_prints_once_unit\n"
+      "tool_evidence": "============================== 30 passed in 1.52s ============================== totals: percent_covered: 100.0 covered_lines: 110 num_statements: 110 missing_lines: 0"
     },
     "architecture_constraints": {
       "score": 100.0,
       "threshold": 100,
-      "tool_evidence": "---------\nContracts\n---------\n\nAnalyzed 51 files, 90 dependencies.\n\nLayering KEPT\nSQLAlchemy in repository only KEPT\n\nContracts: 2 kept, 0 broken.\n"
+      "tool_evidence": "Contracts: 2 kept, 0 broken.\nLayering KEPT\nSQLAlchemy in repository only KEPT\nAnalyzed 51 files, 91 dependencies."
     }
   },
   "enforcer_sha": "258e4267af0bfec584a2e667c2013922fa50aca8",
@@ -68,23 +68,23 @@
     "type_safety": {
       "source": "tool_evidence (inline)",
       "kind": "inline",
-      "sha256": "aa46ab7dbd93fa1cbb371f667ea380f280bdc057e59067d70a7f9168ca4d5d2a",
-      "bytes": 170,
-      "head": "{\"version\":\"1.1.409\",\"time\":\"1786426517989\",\"generalDiagnostics\":[],\"summary\":{\"filesAnalyzed\":29,\"errorCount\":0,\"warningCount\":0,\"informationCount\":0,\"timeInSec\":1.147}}"
+      "sha256": "5464c04b5fecb6db36b8aca76cb1cf5490511adc1201acf3d6de844106a7cbc5",
+      "bytes": 115,
+      "head": "{\"version\": \"1.1.409\", \"summary\": {\"filesAnalyzed\": 29, \"errorCount\": 0, \"warningCount\": 0, \"informationCount\": 0}}"
     },
     "test_coverage": {
       "source": "tool_evidence (inline)",
       "kind": "inline",
-      "sha256": "beaa152bd9bc636e70c580b84d7a905a766b521b04154bf7170f8ac9d009dcfb",
-      "bytes": 357,
-      "head": "============================== 29 passed in 1.55s ==============================\nCoverage 100% (107/107 statements) across deps.py (47), auth.py (22), key_repo.py (38).\nRequired tests present and passing: test_missing_api_key_returns_401, test_sha256_hash_unit, test_hmac_compare_digest_unit, test_revoked_key_rejected_unit, test_key_create_prints_once_unit"
+      "sha256": "9710e1c3b4ac66306cf1c6ea3f4ac560d7a5e199fe7e4c8f15f6b354a43a1a68",
+      "bytes": 167,
+      "head": "============================== 30 passed in 1.52s ============================== totals: percent_covered: 100.0 covered_lines: 110 num_statements: 110 missing_lines: 0"
     },
     "architecture_constraints": {
       "source": "tool_evidence (inline)",
       "kind": "inline",
-      "sha256": "d80c8ac427a7c3338b98d20a5f30d37a987f24dd01d62233a7b859796b45e6dc",
-      "bytes": 146,
-      "head": "---------\nContracts\n---------\n\nAnalyzed 51 files, 90 dependencies.\n\nLayering KEPT\nSQLAlchemy in repository only KEPT\n\nContracts: 2 kept, 0 broken."
+      "sha256": "b14d622c438bb5350447967fedaea9b45c01fd9681a31dec330a40ca1a773f04",
+      "bytes": 113,
+      "head": "Contracts: 2 kept, 0 broken.\nLayering KEPT\nSQLAlchemy in repository only KEPT\nAnalyzed 51 files, 91 dependencies."
     }
   },
   "composite_score": 100.0,

@@ -1,7 +1,7 @@
 {
   "gate": 1,
   "phase": 5,
-  "fr_id": "FR-02",
+  "fr_id": "FR-03",
   "overall_score": 100.0,
   "quality_complete": true,
   "rounds_used": 1,
@@ -14,20 +14,20 @@
     "type_safety": {
       "score": 100.0,
       "threshold": 100,
-      "tool_evidence": "{\n    \"version\": \"1.1.409\",\n    \"time\": \"1786433912310\",\n    \"generalDiagnostics\": [],\n    \"summary\": {\n        \"filesAnalyzed\": 29,\n        \"errorCount\": 0,\n        \"warningCount\": 0,\n        \"informationCount\": 0,\n        \"timeInSec\": 1.152\n    }\n}\n\n"
+      "tool_evidence": "{\"version\": \"1.1.409\", \"summary\": {\"filesAnalyzed\": 29, \"errorCount\": 0, \"warningCount\": 0, \"informationCount\": 0}}"
     },
     "test_coverage": {
       "score": 100.0,
       "threshold": 100,
-      "tests_passed": 64,
+      "tests_passed": 30,
       "tests_failed": 0,
       "tests_skipped": 0,
-      "tool_evidence": "collected 64 items\n\n03-development/tests/test_fr02.py ...........                            [ 17%]\n03-development/tests/test_fr01.py .........................              [ 56%]\n03-development/tests/test_fr06.py .......                                [ 67%]\n03-development/tests/test_fr08.py .....................                  [100%]\n\n============================== 64 passed in 4.48s ==============================\n\n--- coverage json (FR-02 sources) ---\n{\"meta\": {\"format\": 3, \"version\": \"7.15"
+      "tool_evidence": "============================== 30 passed in 1.52s ============================== totals: percent_covered: 100.0 covered_lines: 110 num_statements: 110 missing_lines: 0"
     },
     "architecture_constraints": {
       "score": 100.0,
       "threshold": 100,
-      "tool_evidence": "---------\nContracts\n---------\n\nAnalyzed 51 files, 91 dependencies.\n-----------------------------------\n\nLayering KEPT\nSQLAlchemy in repository only KEPT\n\nContracts: 2 kept, 0 broken.\n"
+      "tool_evidence": "Contracts: 2 kept, 0 broken.\nLayering KEPT\nSQLAlchemy in repository only KEPT\nAnalyzed 51 files, 91 dependencies."
     }
   },
   "enforcer_sha": "258e4267af0bfec584a2e667c2013922fa50aca8",
@@ -68,23 +68,23 @@
     "type_safety": {
       "source": "tool_evidence (inline)",
       "kind": "inline",
-      "sha256": "fd541b27bf5675020834339259a98337375eb57bc4712f8e33ab99a1d9085e35",
-      "bytes": 250,
-      "head": "{\n    \"version\": \"1.1.409\",\n    \"time\": \"1786433912310\",\n    \"generalDiagnostics\": [],\n    \"summary\": {\n        \"filesAnalyzed\": 29,\n        \"errorCount\": 0,\n        \"warningCount\": 0,\n        \"informationCount\": 0,\n        \"timeInSec\": 1.152\n    }\n}"
+      "sha256": "5464c04b5fecb6db36b8aca76cb1cf5490511adc1201acf3d6de844106a7cbc5",
+      "bytes": 115,
+      "head": "{\"version\": \"1.1.409\", \"summary\": {\"filesAnalyzed\": 29, \"errorCount\": 0, \"warningCount\": 0, \"informationCount\": 0}}"
     },
     "test_coverage": {
       "source": "tool_evidence (inline)",
       "kind": "inline",
-      "sha256": "d2dc6fbf48a10cc296b6e17de94ace68d17d3364abe11c73ac19f9afaf94dad5",
-      "bytes": 500,
-      "head": "collected 64 items\n\n03-development/tests/test_fr02.py ...........                            [ 17%]\n03-development/tests/test_fr01.py .........................              [ 56%]\n03-development/tests/test_fr06.py .......                                [ 67%]\n03-development/tests/test_fr08.py .....................                  [100%]\n\n============================== 64 passed in 4.48s ==============================\n\n--- coverage json (FR-02 sources) ---\n{\"meta\": {\"format\": 3, \"version\": \"7.15"
+      "sha256": "9710e1c3b4ac66306cf1c6ea3f4ac560d7a5e199fe7e4c8f15f6b354a43a1a68",
+      "bytes": 167,
+      "head": "============================== 30 passed in 1.52s ============================== totals: percent_covered: 100.0 covered_lines: 110 num_statements: 110 missing_lines: 0"
     },
     "architecture_constraints": {
       "source": "tool_evidence (inline)",
       "kind": "inline",
-      "sha256": "557c96ca0690d946035d91ffc8e818e89fd988787a07f5de3e3c8f7f21e0a679",
-      "bytes": 182,
-      "head": "---------\nContracts\n---------\n\nAnalyzed 51 files, 91 dependencies.\n-----------------------------------\n\nLayering KEPT\nSQLAlchemy in repository only KEPT\n\nContracts: 2 kept, 0 broken."
+      "sha256": "b14d622c438bb5350447967fedaea9b45c01fd9681a31dec330a40ca1a773f04",
+      "bytes": 113,
+      "head": "Contracts: 2 kept, 0 broken.\nLayering KEPT\nSQLAlchemy in repository only KEPT\nAnalyzed 51 files, 91 dependencies."
     }
   },
   "composite_score": 100.0,
