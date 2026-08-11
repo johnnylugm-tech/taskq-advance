@@ -74,12 +74,11 @@
   "gate_results": {
     "gate1": {
       "FR-01": {
-        "dimensions_disabled": [],
+        "score": 100.0,
+        "quality_complete": true,
+        "rounds_used": 2,
         "open_critical": 0,
-        "open_high": 0,
-        "quality_complete": false,
-        "rounds_used": 1,
-        "score": 82.32
+        "open_high": 0
       },
       "FR-02": {
         "dimensions_disabled": [],
