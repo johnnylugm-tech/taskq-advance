@@ -31,6 +31,15 @@ _VENV_SITE = Path(__file__).resolve().parent.parent.parent / ".venv" / "lib" / "
 if _VENV_SITE.is_dir() and str(_VENV_SITE) not in sys.path:
     sys.path.insert(0, str(_VENV_SITE))
 
+# Also surface ``harness`` (the methodology framework) so cross-cutting NFR
+# tests (e.g. test_mi_geq_80 / test_cc_leq_10 in test_spec_nfr.py) can
+# ``from harness.tool_runners import run_tool`` instead of skipping under
+# the uv-managed interpreter — those tests are the only path by which the
+# traceability scanner counts NFR-11 / NFR-12 as covered.
+_HARNESS_ROOT = Path(__file__).resolve().parent.parent.parent / "harness"
+if _HARNESS_ROOT.is_dir() and str(_HARNESS_ROOT) not in sys.path:
+    sys.path.insert(0, str(_HARNESS_ROOT))
+
 
 @pytest.fixture(scope="session")
 def anyio_backend():

@@ -1,7 +1,7 @@
 {
-  "generated_at": "2026-08-11T06:28:26.357974+00:00",
+  "generated_at": "2026-08-11T08:33:41.746717+00:00",
   "tool": "mutmut",
-  "survivor_count": 58,
+  "survivor_count": 59,
   "survivors": [
     {
       "file": "/Users/johnny/projects/taskq-advance/03-development/src/taskq_api/repository/key_repo.py",
@@ -127,6 +127,12 @@
       "file": "/Users/johnny/projects/taskq-advance/03-development/src/taskq_api/repository/session.py",
       "line": null,
       "mutant_id": "58",
+      "mutator": null
+    },
+    {
+      "file": "/Users/johnny/projects/taskq-advance/03-development/src/taskq_api/repository/session.py",
+      "line": null,
+      "mutant_id": "263",
       "mutator": null
     },
     {
@@ -352,6 +358,6 @@
       "mutator": null
     }
   ],
-  "raw": "To apply a mutant on disk:\n    mutmut apply <id>\n\nTo show a mutant:\n    mutmut show <id>\n\n\nSurvived 🙁 (58)\n\n---- /Users/johnny/projects/taskq-advance/03-development/src/taskq_api/repository/key_repo.py (4) ----\n\n110, 112, 117, 121\n\n---- /Users/johnny/projects/taskq-advance/03-development/src/taskq_api/repository/session.py (17) ----\n\n21, 23-26, 29-31, 34, 36-41, 46, 58\n\n---- /Users/johnny/projects/taskq-advance/03-development/src/taskq_api/repository/task_repo.py (5) ----\n\n69, 73, 76-77, 90\n\n---- /Users/johnny/projects/taskq-advance/03-development/src/taskq_api/service/auth.py (7) ----\n\n131, 136, 138, 142-143, 149, 151\n\n---- /Users/johnny/projects/taskq-advance/03-development/src/taskq_api/service/ratelimit.py (2) ----\n\n252, 254\n\n---- /Users/johnny/projects/taskq-advance/03-development/src/taskq_api/service/runner.py (16) ----\n\n152, 154, 164-165, 170-171, 174, 176-180, 198-199, 210-211\n\n---- /Users/johnny/projects/taskq-advance/03-development/src/taskq_api/service/tasks.py (7) ----\n\n219, 226, 228, 230, 234, 241, 251",
-  "reported_total": 58
+  "raw": "To apply a mutant on disk:\n    mutmut apply <id>\n\nTo show a mutant:\n    mutmut show <id>\n\n\nSurvived 🙁 (59)\n\n---- /Users/johnny/projects/taskq-advance/03-development/src/taskq_api/repository/key_repo.py (4) ----\n\n110, 112, 117, 121\n\n---- /Users/johnny/projects/taskq-advance/03-development/src/taskq_api/repository/session.py (18) ----\n\n21, 23-26, 29-31, 34, 36-41, 46, 58, 263\n\n---- /Users/johnny/projects/taskq-advance/03-development/src/taskq_api/repository/task_repo.py (5) ----\n\n69, 73, 76-77, 90\n\n---- /Users/johnny/projects/taskq-advance/03-development/src/taskq_api/service/auth.py (7) ----\n\n131, 136, 138, 142-143, 149, 151\n\n---- /Users/johnny/projects/taskq-advance/03-development/src/taskq_api/service/ratelimit.py (2) ----\n\n252, 254\n\n---- /Users/johnny/projects/taskq-advance/03-development/src/taskq_api/service/runner.py (16) ----\n\n152, 154, 164-165, 170-171, 174, 176-180, 198-199, 210-211\n\n---- /Users/johnny/projects/taskq-advance/03-development/src/taskq_api/service/tasks.py (7) ----\n\n219, 226, 228, 230, 234, 241, 251",
+  "reported_total": 59
 }

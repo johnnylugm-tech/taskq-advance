@@ -1,9 +1,9 @@
 {
   "state": "RUNNING",
   "current_phase": 6,
-  "last_gate": 3,
-  "last_fr": "FR-10",
-  "last_update": "2026-08-11T08:19:52.883382+00:00",
+  "last_gate": 4,
+  "last_fr": null,
+  "last_update": "2026-08-11T08:55:55.694367+00:00",
   "language": "python",
   "phase_completed": {
     "1": {
@@ -45,11 +45,21 @@
         "harness/harness_bridge.py": "9e737f9cdee109cd3fc55b3b170f811c0840f078",
         "harness/gate_configs": "ceaa48942d7a61abaa8d1612061f6a8868ad7c5b"
       }
+    },
+    "5": {
+      "sha": "3b90c3b6a9b79b93cb1dcafddb2f1d7e93fba162",
+      "timestamp": "2026-08-11T08:19:53.411546+00:00",
+      "enforcer_sha": "258e4267af0bfec584a2e667c2013922fa50aca8",
+      "enforcer_surface": {
+        "core/quality_gate": "f2ff29e7187cd45108f67dc43758d9405838366a",
+        "harness/harness_bridge.py": "9e737f9cdee109cd3fc55b3b170f811c0840f078",
+        "harness/gate_configs": "ceaa48942d7a61abaa8d1612061f6a8868ad7c5b"
+      }
     }
   },
   "test_inventory_checksum": "ce45bf5a899f45a02922a8dcbea9b5441182a363a0c5e621b5e5bf75f83c45cd",
   "phase_truth_passed": true,
-  "last_milestone_command": "advance-phase --completed-phase 5",
+  "last_milestone_command": "finalize-gate --gate 4 --phase 6",
   "last_milestone_at": "2026-08-11T08:16:03.682111+00:00",
   "last_milestone_head": {
     "p4-pre-gate3": "cf99fd3f48b8448e7eabe600abc200b17577d0fa",
