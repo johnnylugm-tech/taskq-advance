@@ -1,0 +1,107 @@
+{
+  "gate": 1,
+  "phase": 8,
+  "fr_id": "FR-06",
+  "overall_score": 100.0,
+  "quality_complete": true,
+  "rounds_used": 1,
+  "breakdown": {
+    "linting": {
+      "score": 100.0,
+      "threshold": 100,
+      "tool_evidence": "All checks passed!"
+    },
+    "type_safety": {
+      "score": 100.0,
+      "threshold": 100,
+      "tool_evidence": "{\"version\": \"1.1.409\", \"generalDiagnostics\": [], \"summary\": {\"filesAnalyzed\": 29, \"errorCount\": 0, \"warningCount\": 0, \"informationCount\": 0, \"timeInSec\": 1.304}}"
+    },
+    "test_coverage": {
+      "score": 100.0,
+      "threshold": 100,
+      "tests_passed": 113,
+      "tests_failed": 0,
+      "tests_skipped": 0,
+      "tool_evidence": "collected 113 items ... 113 passed in 4.02s. coverage json totals: {\"covered_lines\": 199, \"num_statements\": 199, \"percent_covered\": 100.0, \"missing_lines\": 0} for repository/session.py, task_repo.py, key_repo.py, rate_repo.py. Required FR-06 tests present: 5/5."
+    },
+    "architecture_constraints": {
+      "score": 100.0,
+      "threshold": 100,
+      "tool_evidence": "Analyzed 51 files, 91 dependencies. Layering KEPT. SQLAlchemy in repository only KEPT. Contracts: 2 kept, 0 broken."
+    }
+  },
+  "enforcer_sha": "5a87e35f0a01ef096843f5eaa0909a905ba2566a",
+  "enforcer_surface": {
+    "core/quality_gate": "39694c4358578073e5e8192f0ee6a03d53f64dbf",
+    "harness/harness_bridge.py": "83827f393fc69b4ee9f6dc2cd879f58ea9268f62",
+    "harness/gate_configs": "ceaa48942d7a61abaa8d1612061f6a8868ad7c5b"
+  },
+  "evidence_digest": {
+    "secrets_scanning::.gitleaksignore": {
+      "source": ".gitleaksignore (score-altering exclusions)",
+      "kind": "file",
+      "sha256": "baee380a9a61bff6a7ae02de6fd5c6237beda8bbe7c01aa85c9f6314e2d9296a",
+      "bytes": 336,
+      "head": "03-development/tests/test_fr09.py:generic-api-key:308\n03-development/tests/test_fr03.py:generic-api-key:170\n02-architecture/TEST_SPEC.md:generic-api-key:133\n03-development/tests/test_fr03.py:generic-api-key:171\n03-development/tests/test_security_threats.py:generic-api-key:382\n05-verification/VERIFICATION_REPORT.md:generic-api-key:111"
+    },
+    "mutation_testing::setup.cfg": {
+      "source": "setup.cfg (score-altering exclusions)",
+      "kind": "file",
+      "sha256": "1b3cfe47c18fbfb4ac3b9faa79eab4eb7e56861222938ef51cfbf897290095b3",
+      "bytes": 1586,
+      "head": "[coverage:run]\n# ``__main__.py`` is the operator CLI entry point — invoked via\n# ``python -m taskq_api ...`` and not imported by the FR-09 test suite.\n# The ``if __name__ == \"__main__\":`` block at the bottom is unreachable\n# from in-process tests, so we omit the file at the source level rather\n# than sprinkling pragma markers on a CLI entry-point guard.\nomit =\n    03-development/src/taskq_api/__main__.py\n\n[mutmut]\n# Mutation test scope — limited to the taskq-api source tree.\n# Uses mutmut 2.x syntax (not 3.x); pin: pip install \"mutmut<3\".\n# Mutation scope must match the SAB's mutation_testing NFR (NFR-08):\n# the service and repository layers.\npaths_to_mutate=03-development/src/taskq_api/repository,03-development/src/taskq_api/service\n# Data-only / equivalent-mutant files. These contain only string literals,\n# argparse setup, route boilerplate, ORM declarations, alembic DDL, or\n# module-level constants — mutations in these locations are equivalent (no\n# test exercises the specific edge they would change) and cannot be killed\n# without writing assertions against implementation details the gate does"
+    },
+    "test_coverage::setup.cfg": {
+      "source": "setup.cfg (score-altering exclusions)",
+      "kind": "file",
+      "sha256": "1b3cfe47c18fbfb4ac3b9faa79eab4eb7e56861222938ef51cfbf897290095b3",
+      "bytes": 1586,
+      "head": "[coverage:run]\n# ``__main__.py`` is the operator CLI entry point — invoked via\n# ``python -m taskq_api ...`` and not imported by the FR-09 test suite.\n# The ``if __name__ == \"__main__\":`` block at the bottom is unreachable\n# from in-process tests, so we omit the file at the source level rather\n# than sprinkling pragma markers on a CLI entry-point guard.\nomit =\n    03-development/src/taskq_api/__main__.py\n\n[mutmut]\n# Mutation test scope — limited to the taskq-api source tree.\n# Uses mutmut 2.x syntax (not 3.x); pin: pip install \"mutmut<3\".\n# Mutation scope must match the SAB's mutation_testing NFR (NFR-08):\n# the service and repository layers.\npaths_to_mutate=03-development/src/taskq_api/repository,03-development/src/taskq_api/service\n# Data-only / equivalent-mutant files. These contain only string literals,\n# argparse setup, route boilerplate, ORM declarations, alembic DDL, or\n# module-level constants — mutations in these locations are equivalent (no\n# test exercises the specific edge they would change) and cannot be killed\n# without writing assertions against implementation details the gate does"
+    },
+    "linting": {
+      "source": "tool_evidence (inline)",
+      "kind": "inline",
+      "sha256": "f0d0b1081d9d3ebb26c4c93543053ecdc0a58998f22c071dc4ddb26021b57645",
+      "bytes": 18,
+      "head": "All checks passed!"
+    },
+    "type_safety": {
+      "source": "tool_evidence (inline)",
+      "kind": "inline",
+      "sha256": "7527128c18d997438125860b64191f38428027e9ea34b3e35a7a008ca0090abf",
+      "bytes": 161,
+      "head": "{\"version\": \"1.1.409\", \"generalDiagnostics\": [], \"summary\": {\"filesAnalyzed\": 29, \"errorCount\": 0, \"warningCount\": 0, \"informationCount\": 0, \"timeInSec\": 1.304}}"
+    },
+    "test_coverage": {
+      "source": "tool_evidence (inline)",
+      "kind": "inline",
+      "sha256": "5e5152b66bfaab6b62caa3352123e5c49c66f774b2bc9808ccd33e3c0fe96233",
+      "bytes": 261,
+      "head": "collected 113 items ... 113 passed in 4.02s. coverage json totals: {\"covered_lines\": 199, \"num_statements\": 199, \"percent_covered\": 100.0, \"missing_lines\": 0} for repository/session.py, task_repo.py, key_repo.py, rate_repo.py. Required FR-06 tests present: 5/5."
+    },
+    "architecture_constraints": {
+      "source": "tool_evidence (inline)",
+      "kind": "inline",
+      "sha256": "6b3667d3a80f9a2187c017efecd427cb5716ce3c9a45d066dbc67e92b9c52c16",
+      "bytes": 115,
+      "head": "Analyzed 51 files, 91 dependencies. Layering KEPT. SQLAlchemy in repository only KEPT. Contracts: 2 kept, 0 broken."
+    }
+  },
+  "composite_score": 100.0,
+  "verdict": "PASS",
+  "passed": true,
+  "spec_undelivered": [],
+  "spec_declared": 0,
+  "measurement_scope": {
+    "weight_covered": 1.0,
+    "weight_total": 1.0,
+    "dimensions_scored": [
+      "architecture_constraints",
+      "linting",
+      "test_coverage",
+      "type_safety"
+    ],
+    "dimensions_unscored": [],
+    "dimensions_disabled": []
+  }
+}

@@ -1,0 +1,26 @@
+{
+  "fr": "ADR.md",
+  "review_status": "APPROVE",
+  "reason": "ADR.md delivers 12 decision records (ADR-001..ADR-012), each with Status/Context/Decision/Rationale/Consequences as required by harness/templates/ADR.md (the Alternatives Considered section is additive, not a deviation). Coverage is comprehensive: four-layer rule (ADR-001 ↔ SAD §2.2 lines 74-78), Python 3.11 + FastAPI stack (ADR-002), SQLAlchemy + Alembic persistence (ADR-003), asyncio.TaskGroup supervision (ADR-004 ↔ SAD §3.3 task-run flow), DB-backed token bucket (ADR-005 ↔ SAD §3.3 rate-limit flow), RFC 7807 envelope (ADR-006), SHA-256 + hmac.compare_digest auth (ADR-007 ↔ SAD T-03 mitigation), reversible Alembic v3 (ADR-008 ↔ SAD §3.3 schema evolution flow), session_scope() transaction boundary (ADR-009 ↔ SAD §3.2 step 5), module hub re-exports (ADR-010 ↔ SAD §2.5 lines 182-191), licen",
+  "citations": [
+    "/Users/johnny/projects/taskq-advance/02-architecture/adr/ADR.md:14-21",
+    "/Users/johnny/projects/taskq-advance/02-architecture/adr/ADR.md:46",
+    "/Users/johnny/projects/taskq-advance/02-architecture/adr/ADR.md:96",
+    "/Users/johnny/projects/taskq-advance/02-architecture/adr/ADR.md:121",
+    "/Users/johnny/projects/taskq-advance/02-architecture/adr/ADR.md:171-173",
+    "/Users/johnny/projects/taskq-advance/02-architecture/adr/ADR.md:249",
+    "/Users/johnny/projects/taskq-advance/02-architecture/SAD.md:7",
+    "/Users/johnny/projects/taskq-advance/02-architecture/SAD.md:74-78",
+    "/Users/johnny/projects/taskq-advance/02-architecture/SAD.md:182-191",
+    "/Users/johnny/projects/taskq-advance/02-architecture/SAD.md:11-17",
+    "/Users/johnny/projects/taskq-advance/01-requirements/SRS.md:67",
+    "/Users/johnny/projects/taskq-advance/01-requirements/SRS.md:497",
+    "/Users/johnny/projects/taskq-advance/harness/templates/ADR.md:16-32"
+  ],
+  "docs_embedded": [
+    "ADR.md",
+    "SAD.md",
+    "SRS.md"
+  ],
+  "confidence": 0.9
+}

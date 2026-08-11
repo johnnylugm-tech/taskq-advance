@@ -1,0 +1,32 @@
+{
+  "community_cohesion": {
+    "score": 91.7,
+    "healthy": 11,
+    "total": 12,
+    "total_all": 38,
+    "excluded_test_communities": 26,
+    "unhealthy": [
+      {
+        "name": "repository-task",
+        "cohesion": 0.129,
+        "size": 5,
+        "issues": [
+          "low_cohesion(0.13)"
+        ]
+      }
+    ],
+    "_cohesion_threshold": 0.2,
+    "_community_oversized": 50,
+    "_community_min_size": 5,
+    "_extra_excludes": []
+  },
+  "large_functions_critical": [],
+  "large_functions_penalty": 0,
+  "architecture_score": 91.7,
+  "_source": "framework-independent",
+  "_graph_files": 53,
+  "_source_files": 53,
+  "_build_type": "update",
+  "_baseline_sha": "fdd23fc5528e32b534f47107f2e06e6f3bf5dcc3",
+  "_baseline_phase": 6
+}
