@@ -1,6 +1,6 @@
 {
   "gate": 1,
-  "phase": 5,
+  "phase": 6,
   "fr_id": "FR-10",
   "overall_score": 100.0,
   "quality_complete": true,
@@ -40,9 +40,9 @@
     "secrets_scanning::.gitleaksignore": {
       "source": ".gitleaksignore (score-altering exclusions)",
       "kind": "file",
-      "sha256": "4f6f185f89df88aff8cc69108246955bf5769fbb830101201ec40adcf654848c",
-      "bytes": 211,
-      "head": "03-development/tests/test_fr09.py:generic-api-key:308\n03-development/tests/test_fr03.py:generic-api-key:170\n02-architecture/TEST_SPEC.md:generic-api-key:133\n03-development/tests/test_fr03.py:generic-api-key:171"
+      "sha256": "baee380a9a61bff6a7ae02de6fd5c6237beda8bbe7c01aa85c9f6314e2d9296a",
+      "bytes": 336,
+      "head": "03-development/tests/test_fr09.py:generic-api-key:308\n03-development/tests/test_fr03.py:generic-api-key:170\n02-architecture/TEST_SPEC.md:generic-api-key:133\n03-development/tests/test_fr03.py:generic-api-key:171\n03-development/tests/test_security_threats.py:generic-api-key:382\n05-verification/VERIFICATION_REPORT.md:generic-api-key:111"
     },
     "mutation_testing::setup.cfg": {
       "source": "setup.cfg (score-altering exclusions)",
@@ -103,5 +103,8 @@
     ],
     "dimensions_unscored": [],
     "dimensions_disabled": []
-  }
+  },
+  "score": 100.0,
+  "open_critical_count": 0,
+  "open_high_count": 0
 }
