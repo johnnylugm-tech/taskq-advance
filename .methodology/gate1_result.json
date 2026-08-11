@@ -1,7 +1,7 @@
 {
   "gate": 1,
   "phase": 4,
-  "fr_id": "FR-02",
+  "fr_id": "FR-03",
   "overall_score": 100.0,
   "quality_complete": true,
   "rounds_used": 1,
@@ -9,25 +9,25 @@
     "linting": {
       "score": 100.0,
       "threshold": 100,
-      "tool_evidence": "All checks passed!"
+      "tool_evidence": "All checks passed!\n"
     },
     "type_safety": {
       "score": 100.0,
       "threshold": 100,
-      "tool_evidence": "{\"version\": \"1.1.409\", \"time\": \"1786426385462\", \"generalDiagnostics\": [], \"summary\": {\"filesAnalyzed\": 29, \"errorCount\": 0, \"warningCount\": 0, \"informationCount\": 0, \"timeInSec\": 1.151}}"
+      "tool_evidence": "{\"version\":\"1.1.409\",\"time\":\"1786426517989\",\"generalDiagnostics\":[],\"summary\":{\"filesAnalyzed\":29,\"errorCount\":0,\"warningCount\":0,\"informationCount\":0,\"timeInSec\":1.147}}\n"
     },
     "test_coverage": {
       "score": 100.0,
       "threshold": 100,
-      "tests_passed": 64,
+      "tests_passed": 29,
       "tests_failed": 0,
       "tests_skipped": 0,
-      "tool_evidence": "============================== 64 passed in 4.49s ============================== collected 64 items: test_fr02.py 11, test_fr01.py 25, test_fr06.py 7, test_fr08.py 21; coverage totals percent_covered=100.0 covered_lines=232 num_statements=232 across FR-02 source files (api/tasks.py, service/runner.py, repository/task_repo.py); 5/5 required tests present and passing"
+      "tool_evidence": "============================== 29 passed in 1.55s ==============================\nCoverage 100% (107/107 statements) across deps.py (47), auth.py (22), key_repo.py (38).\nRequired tests present and passing: test_missing_api_key_returns_401, test_sha256_hash_unit, test_hmac_compare_digest_unit, test_revoked_key_rejected_unit, test_key_create_prints_once_unit\n"
     },
     "architecture_constraints": {
       "score": 100.0,
       "threshold": 100,
-      "tool_evidence": "---------\nContracts\n---------\n\nAnalyzed 51 files, 90 dependencies.\n-----------------------------------\n\nLayering KEPT\nSQLAlchemy in repository only KEPT\n\nContracts: 2 kept, 0 broken."
+      "tool_evidence": "---------\nContracts\n---------\n\nAnalyzed 51 files, 90 dependencies.\n\nLayering KEPT\nSQLAlchemy in repository only KEPT\n\nContracts: 2 kept, 0 broken.\n"
     }
   },
   "enforcer_sha": "258e4267af0bfec584a2e667c2013922fa50aca8",
@@ -68,23 +68,23 @@
     "type_safety": {
       "source": "tool_evidence (inline)",
       "kind": "inline",
-      "sha256": "2a260228286741380e646a97c8696c33f59ffd9f6bffd33e3f7a93c5cf2c16bb",
-      "bytes": 186,
-      "head": "{\"version\": \"1.1.409\", \"time\": \"1786426385462\", \"generalDiagnostics\": [], \"summary\": {\"filesAnalyzed\": 29, \"errorCount\": 0, \"warningCount\": 0, \"informationCount\": 0, \"timeInSec\": 1.151}}"
+      "sha256": "aa46ab7dbd93fa1cbb371f667ea380f280bdc057e59067d70a7f9168ca4d5d2a",
+      "bytes": 170,
+      "head": "{\"version\":\"1.1.409\",\"time\":\"1786426517989\",\"generalDiagnostics\":[],\"summary\":{\"filesAnalyzed\":29,\"errorCount\":0,\"warningCount\":0,\"informationCount\":0,\"timeInSec\":1.147}}"
     },
     "test_coverage": {
       "source": "tool_evidence (inline)",
       "kind": "inline",
-      "sha256": "3442f634d79d7884c170470e18ef2917185ebd1d0b97d4b75f54632e3c6a726b",
-      "bytes": 367,
-      "head": "============================== 64 passed in 4.49s ============================== collected 64 items: test_fr02.py 11, test_fr01.py 25, test_fr06.py 7, test_fr08.py 21; coverage totals percent_covered=100.0 covered_lines=232 num_statements=232 across FR-02 source files (api/tasks.py, service/runner.py, repository/task_repo.py); 5/5 required tests present and passing"
+      "sha256": "beaa152bd9bc636e70c580b84d7a905a766b521b04154bf7170f8ac9d009dcfb",
+      "bytes": 357,
+      "head": "============================== 29 passed in 1.55s ==============================\nCoverage 100% (107/107 statements) across deps.py (47), auth.py (22), key_repo.py (38).\nRequired tests present and passing: test_missing_api_key_returns_401, test_sha256_hash_unit, test_hmac_compare_digest_unit, test_revoked_key_rejected_unit, test_key_create_prints_once_unit"
     },
     "architecture_constraints": {
       "source": "tool_evidence (inline)",
       "kind": "inline",
-      "sha256": "77b9464c6361b86f52d33dd21c02af81d465cb710cc5e052dc69c03e6b199439",
-      "bytes": 182,
-      "head": "---------\nContracts\n---------\n\nAnalyzed 51 files, 90 dependencies.\n-----------------------------------\n\nLayering KEPT\nSQLAlchemy in repository only KEPT\n\nContracts: 2 kept, 0 broken."
+      "sha256": "d80c8ac427a7c3338b98d20a5f30d37a987f24dd01d62233a7b859796b45e6dc",
+      "bytes": 146,
+      "head": "---------\nContracts\n---------\n\nAnalyzed 51 files, 90 dependencies.\n\nLayering KEPT\nSQLAlchemy in repository only KEPT\n\nContracts: 2 kept, 0 broken."
     }
   },
   "composite_score": 100.0,
