@@ -1,7 +1,7 @@
 {
   "gate": 1,
   "phase": 4,
-  "fr_id": "FR-01",
+  "fr_id": "FR-02",
   "overall_score": 100.0,
   "quality_complete": true,
   "rounds_used": 1,
@@ -14,15 +14,15 @@
     "type_safety": {
       "score": 100.0,
       "threshold": 100,
-      "tool_evidence": "{\"version\": \"1.1.409\", \"time\": \"1786426227694\", \"generalDiagnostics\": [], \"summary\": {\"filesAnalyzed\": 29, \"errorCount\": 0, \"warningCount\": 0, \"informationCount\": 0, \"timeInSec\": 1.155}}"
+      "tool_evidence": "{\"version\": \"1.1.409\", \"time\": \"1786426385462\", \"generalDiagnostics\": [], \"summary\": {\"filesAnalyzed\": 29, \"errorCount\": 0, \"warningCount\": 0, \"informationCount\": 0, \"timeInSec\": 1.151}}"
     },
     "test_coverage": {
       "score": 100.0,
       "threshold": 100,
-      "tests_passed": 43,
+      "tests_passed": 64,
       "tests_failed": 0,
       "tests_skipped": 0,
-      "tool_evidence": "============================== 43 passed in 2.41s ============================== coverage: 100% (225/225 statements) across FR-01 source files (api/tasks.py, service/tasks.py, repository/task_repo.py, models/orm.py, models/schemas.py); 7/7 required tests present and passing"
+      "tool_evidence": "============================== 64 passed in 4.49s ============================== collected 64 items: test_fr02.py 11, test_fr01.py 25, test_fr06.py 7, test_fr08.py 21; coverage totals percent_covered=100.0 covered_lines=232 num_statements=232 across FR-02 source files (api/tasks.py, service/runner.py, repository/task_repo.py); 5/5 required tests present and passing"
     },
     "architecture_constraints": {
       "score": 100.0,
@@ -68,16 +68,16 @@
     "type_safety": {
       "source": "tool_evidence (inline)",
       "kind": "inline",
-      "sha256": "07b2c7dadc9241f1b9237bbc800c9abcd463758b5654e72da6397a86602ef2ba",
+      "sha256": "2a260228286741380e646a97c8696c33f59ffd9f6bffd33e3f7a93c5cf2c16bb",
       "bytes": 186,
-      "head": "{\"version\": \"1.1.409\", \"time\": \"1786426227694\", \"generalDiagnostics\": [], \"summary\": {\"filesAnalyzed\": 29, \"errorCount\": 0, \"warningCount\": 0, \"informationCount\": 0, \"timeInSec\": 1.155}}"
+      "head": "{\"version\": \"1.1.409\", \"time\": \"1786426385462\", \"generalDiagnostics\": [], \"summary\": {\"filesAnalyzed\": 29, \"errorCount\": 0, \"warningCount\": 0, \"informationCount\": 0, \"timeInSec\": 1.151}}"
     },
     "test_coverage": {
       "source": "tool_evidence (inline)",
       "kind": "inline",
-      "sha256": "fe1854f3cac99427c9511556ae541e9b6eeb0da852409faccd235354576b081e",
-      "bytes": 274,
-      "head": "============================== 43 passed in 2.41s ============================== coverage: 100% (225/225 statements) across FR-01 source files (api/tasks.py, service/tasks.py, repository/task_repo.py, models/orm.py, models/schemas.py); 7/7 required tests present and passing"
+      "sha256": "3442f634d79d7884c170470e18ef2917185ebd1d0b97d4b75f54632e3c6a726b",
+      "bytes": 367,
+      "head": "============================== 64 passed in 4.49s ============================== collected 64 items: test_fr02.py 11, test_fr01.py 25, test_fr06.py 7, test_fr08.py 21; coverage totals percent_covered=100.0 covered_lines=232 num_statements=232 across FR-02 source files (api/tasks.py, service/runner.py, repository/task_repo.py); 5/5 required tests present and passing"
     },
     "architecture_constraints": {
       "source": "tool_evidence (inline)",
