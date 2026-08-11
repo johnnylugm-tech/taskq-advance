@@ -1,6 +1,6 @@
 {
   "gate": 1,
-  "phase": 3,
+  "phase": 4,
   "fr_id": "FR-09",
   "overall_score": 100.0,
   "quality_complete": true,
@@ -14,29 +14,50 @@
     "type_safety": {
       "score": 100.0,
       "threshold": 100,
-      "tool_evidence": "{\"version\": \"1.1.409\", \"time\": \"1786350404579\", \"generalDiagnostics\": [], \"summary\": {\"filesAnalyzed\": 29, \"errorCount\": 0, \"warningCount\": 0, \"informationCount\": 0, \"timeInSec\": 1.161}}"
+      "tool_evidence": "{\"version\": \"1.1.409\", \"time\": \"1786427828625\", \"generalDiagnostics\": [], \"summary\": {\"filesAnalyzed\": 29, \"errorCount\": 0, \"warningCount\": 0, \"informationCount\": 0, \"timeInSec\": 1.147}}"
     },
     "test_coverage": {
       "score": 100.0,
       "threshold": 100,
-      "tests_passed": 20,
+      "tests_passed": 23,
       "tests_failed": 0,
       "tests_skipped": 0,
-      "tool_evidence": "20 passed in 0.75s. health.py 100% (27 statements), session.py 100% (72 statements), totals 99 statements covered, 0 missing lines. 0 failed."
+      "tool_evidence": "collected 23 items\n\n03-development/tests/test_fr09.py ...........                            [ 47%]\n03-development/tests/test_fr06.py .......                                [ 78%]\n03-development/tests/test_fr07.py .....                                  [100%]\n\n============================== 23 passed in 1.27s ==============================\nFR-scoped coverage: {\"totals\": {\"covered_lines\": 94, \"num_statements\": 94, \"percent_covered\": 100.0, \"missing_lines\": 0, \"excluded_lines\": 0}}. Required tests present: test_readyz_503_when_db_unreachable, test_readyz_503_when_migration_lag, test_readyz_fails_closed_without_migration, test_healthz_readyz_no_auth_no_rate_limit, test_metrics_requires_admin. spec_cov_pct=100%."
     },
     "architecture_constraints": {
       "score": 100.0,
       "threshold": 100,
-      "tool_evidence": "Analyzed 48 files, 115 dependencies. Layering KEPT. SQLAlchemy in repository only KEPT. Contracts: 2 kept, 0 broken."
+      "tool_evidence": "Contracts\n\nAnalyzed 51 files, 90 dependencies.\nLayering KEPT\nSQLAlchemy in repository only KEPT\n\nContracts: 2 kept, 0 broken."
     }
   },
-  "enforcer_sha": "db16717e4e7be7853f72a9c354da71be132ae3ec",
+  "enforcer_sha": "258e4267af0bfec584a2e667c2013922fa50aca8",
   "enforcer_surface": {
-    "core/quality_gate": "2f36303585e948f41d2b372e127e013471cdc7ff",
+    "core/quality_gate": "f2ff29e7187cd45108f67dc43758d9405838366a",
     "harness/harness_bridge.py": "9e737f9cdee109cd3fc55b3b170f811c0840f078",
     "harness/gate_configs": "ceaa48942d7a61abaa8d1612061f6a8868ad7c5b"
   },
   "evidence_digest": {
+    "secrets_scanning::.gitleaksignore": {
+      "source": ".gitleaksignore (score-altering exclusions)",
+      "kind": "file",
+      "sha256": "4f6f185f89df88aff8cc69108246955bf5769fbb830101201ec40adcf654848c",
+      "bytes": 211,
+      "head": "03-development/tests/test_fr09.py:generic-api-key:308\n03-development/tests/test_fr03.py:generic-api-key:170\n02-architecture/TEST_SPEC.md:generic-api-key:133\n03-development/tests/test_fr03.py:generic-api-key:171"
+    },
+    "mutation_testing::setup.cfg": {
+      "source": "setup.cfg (score-altering exclusions)",
+      "kind": "file",
+      "sha256": "cf656dcdf7aced8af2df4700908c34b80323f44ec286e9d4ab3b3f366b87195c",
+      "bytes": 1175,
+      "head": "[mutmut]\n# Mutation test scope — limited to the taskq-api source tree.\n# Uses mutmut 2.x syntax (not 3.x); pin: pip install \"mutmut<3\".\n# Mutation scope must match the SAB's mutation_testing NFR (NFR-08):\n# the service and repository layers.\npaths_to_mutate=03-development/src/taskq_api/repository,03-development/src/taskq_api/service\n# Data-only / equivalent-mutant files. These contain only string literals,\n# argparse setup, route boilerplate, ORM declarations, alembic DDL, or\n# module-level constants — mutations in these locations are equivalent (no\n# test exercises the specific edge they would change) and cannot be killed\n# without writing assertions against implementation details the gate does\n# not require. The framework's `paths_to_exclude` removes them from the\n# mutant pool so the kill-ratio reflects code that has runtime behaviour.\n# Auto-detected exclusions (_DATA_ONLY_NAMES): __init__.py, config.py, settings.py, constants.py.\n# Round 31 / 32 — equivalent mutant exclusion list.\npaths_to_exclude=\n    v1_initial.py\n    v2_tags.py\n    v3_split_results.py\n    env.py"
+    },
+    "test_coverage::setup.cfg": {
+      "source": "setup.cfg (score-altering exclusions)",
+      "kind": "file",
+      "sha256": "cf656dcdf7aced8af2df4700908c34b80323f44ec286e9d4ab3b3f366b87195c",
+      "bytes": 1175,
+      "head": "[mutmut]\n# Mutation test scope — limited to the taskq-api source tree.\n# Uses mutmut 2.x syntax (not 3.x); pin: pip install \"mutmut<3\".\n# Mutation scope must match the SAB's mutation_testing NFR (NFR-08):\n# the service and repository layers.\npaths_to_mutate=03-development/src/taskq_api/repository,03-development/src/taskq_api/service\n# Data-only / equivalent-mutant files. These contain only string literals,\n# argparse setup, route boilerplate, ORM declarations, alembic DDL, or\n# module-level constants — mutations in these locations are equivalent (no\n# test exercises the specific edge they would change) and cannot be killed\n# without writing assertions against implementation details the gate does\n# not require. The framework's `paths_to_exclude` removes them from the\n# mutant pool so the kill-ratio reflects code that has runtime behaviour.\n# Auto-detected exclusions (_DATA_ONLY_NAMES): __init__.py, config.py, settings.py, constants.py.\n# Round 31 / 32 — equivalent mutant exclusion list.\npaths_to_exclude=\n    v1_initial.py\n    v2_tags.py\n    v3_split_results.py\n    env.py"
+    },
     "linting": {
       "source": "tool_evidence (inline)",
       "kind": "inline",
@@ -47,23 +68,23 @@
     "type_safety": {
       "source": "tool_evidence (inline)",
       "kind": "inline",
-      "sha256": "f07789afa2515fa868e0045c8bb47757003f5c5b9c50174ce70d99bb11d9061b",
+      "sha256": "2745672a08080d59c2083cbd295acb6c7ec824cb809615627e8801357756d0fc",
       "bytes": 186,
-      "head": "{\"version\": \"1.1.409\", \"time\": \"1786350404579\", \"generalDiagnostics\": [], \"summary\": {\"filesAnalyzed\": 29, \"errorCount\": 0, \"warningCount\": 0, \"informationCount\": 0, \"timeInSec\": 1.161}}"
+      "head": "{\"version\": \"1.1.409\", \"time\": \"1786427828625\", \"generalDiagnostics\": [], \"summary\": {\"filesAnalyzed\": 29, \"errorCount\": 0, \"warningCount\": 0, \"informationCount\": 0, \"timeInSec\": 1.147}}"
     },
     "test_coverage": {
       "source": "tool_evidence (inline)",
       "kind": "inline",
-      "sha256": "d8552b3435245c290b8626a01ef4baa0e2d028e44d4defba7638def72f400ee8",
-      "bytes": 141,
-      "head": "20 passed in 0.75s. health.py 100% (27 statements), session.py 100% (72 statements), totals 99 statements covered, 0 missing lines. 0 failed."
+      "sha256": "83d7c2387fe17a467f8f2971818fdfa383033b6ad492dd77684981cfee242d43",
+      "bytes": 717,
+      "head": "collected 23 items\n\n03-development/tests/test_fr09.py ...........                            [ 47%]\n03-development/tests/test_fr06.py .......                                [ 78%]\n03-development/tests/test_fr07.py .....                                  [100%]\n\n============================== 23 passed in 1.27s ==============================\nFR-scoped coverage: {\"totals\": {\"covered_lines\": 94, \"num_statements\": 94, \"percent_covered\": 100.0, \"missing_lines\": 0, \"excluded_lines\": 0}}. Required tests present: test_readyz_503_when_db_unreachable, test_readyz_503_when_migration_lag, test_readyz_fails_closed_without_migration, test_healthz_readyz_no_auth_no_rate_limit, test_metrics_requires_admin. spec_cov_pct=100%."
     },
     "architecture_constraints": {
       "source": "tool_evidence (inline)",
       "kind": "inline",
-      "sha256": "a97acc53f3e7e5eaf4a569a1237bbdb2d5b7bf2d2b28259b2e6f7e90e4540024",
-      "bytes": 116,
-      "head": "Analyzed 48 files, 115 dependencies. Layering KEPT. SQLAlchemy in repository only KEPT. Contracts: 2 kept, 0 broken."
+      "sha256": "ac0837d108a65e2ea9ebe16dc18a28211b6d625eed7a7a58b7760a7a9ab36696",
+      "bytes": 125,
+      "head": "Contracts\n\nAnalyzed 51 files, 90 dependencies.\nLayering KEPT\nSQLAlchemy in repository only KEPT\n\nContracts: 2 kept, 0 broken."
     }
   },
   "composite_score": 100.0,
