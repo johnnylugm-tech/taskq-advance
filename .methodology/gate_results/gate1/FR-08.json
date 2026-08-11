@@ -1,7 +1,7 @@
 {
   "gate": 1,
-  "phase": 5,
-  "fr_id": "FR-08",
+  "phase": 6,
+  "fr_id": "FR-10",
   "overall_score": 100.0,
   "quality_complete": true,
   "rounds_used": 1,
@@ -14,20 +14,20 @@
     "type_safety": {
       "score": 100.0,
       "threshold": 100,
-      "tool_evidence": "{\"version\":\"1.1.409\",\"time\":\"1786435277303\",\"generalDiagnostics\":[],\"summary\":{\"filesAnalyzed\":29,\"errorCount\":0,\"warningCount\":0,\"informationCount\":0,\"timeInSec\":1.167}}"
+      "tool_evidence": "{\"version\": \"1.1.409\", \"summary\": {\"filesAnalyzed\": 29, \"errorCount\": 0, \"warningCount\": 0, \"informationCount\": 0}}"
     },
     "test_coverage": {
       "score": 100.0,
       "threshold": 100,
-      "tests_passed": 32,
+      "tests_passed": 23,
       "tests_failed": 0,
       "tests_skipped": 0,
-      "tool_evidence": "Name                                             Stmts   Miss  Cover\n--------------------------------------------------------------------\n03-development/src/taskq_api/service/runner.py     141      0   100%\n--------------------------------------------------------------------\nTOTAL                                              141      0   100%\n============================== 32 passed in 3.60s =============================="
+      "tool_evidence": "============================== 23 passed in 0.97s ==============================\ntotals: covered_lines=103, num_statements=103, percent_covered=100.0"
     },
     "architecture_constraints": {
       "score": 100.0,
       "threshold": 100,
-      "tool_evidence": "Analyzed 51 files, 91 dependencies. Layering KEPT. SQLAlchemy in repository only KEPT. Contracts: 2 kept, 0 broken."
+      "tool_evidence": "Analyzed 51 files, 91 dependencies.\n-----------------------------------\nLayering KEPT\nSQLAlchemy in repository only KEPT\nContracts: 2 kept, 0 broken."
     }
   },
   "enforcer_sha": "258e4267af0bfec584a2e667c2013922fa50aca8",
@@ -40,9 +40,9 @@
     "secrets_scanning::.gitleaksignore": {
       "source": ".gitleaksignore (score-altering exclusions)",
       "kind": "file",
-      "sha256": "4f6f185f89df88aff8cc69108246955bf5769fbb830101201ec40adcf654848c",
-      "bytes": 211,
-      "head": "03-development/tests/test_fr09.py:generic-api-key:308\n03-development/tests/test_fr03.py:generic-api-key:170\n02-architecture/TEST_SPEC.md:generic-api-key:133\n03-development/tests/test_fr03.py:generic-api-key:171"
+      "sha256": "baee380a9a61bff6a7ae02de6fd5c6237beda8bbe7c01aa85c9f6314e2d9296a",
+      "bytes": 336,
+      "head": "03-development/tests/test_fr09.py:generic-api-key:308\n03-development/tests/test_fr03.py:generic-api-key:170\n02-architecture/TEST_SPEC.md:generic-api-key:133\n03-development/tests/test_fr03.py:generic-api-key:171\n03-development/tests/test_security_threats.py:generic-api-key:382\n05-verification/VERIFICATION_REPORT.md:generic-api-key:111"
     },
     "mutation_testing::setup.cfg": {
       "source": "setup.cfg (score-altering exclusions)",
@@ -68,23 +68,23 @@
     "type_safety": {
       "source": "tool_evidence (inline)",
       "kind": "inline",
-      "sha256": "29025677ab8b10f13812f3746276fbc9c2215e18d029af680483e6ee009630d5",
-      "bytes": 170,
-      "head": "{\"version\":\"1.1.409\",\"time\":\"1786435277303\",\"generalDiagnostics\":[],\"summary\":{\"filesAnalyzed\":29,\"errorCount\":0,\"warningCount\":0,\"informationCount\":0,\"timeInSec\":1.167}}"
+      "sha256": "5464c04b5fecb6db36b8aca76cb1cf5490511adc1201acf3d6de844106a7cbc5",
+      "bytes": 115,
+      "head": "{\"version\": \"1.1.409\", \"summary\": {\"filesAnalyzed\": 29, \"errorCount\": 0, \"warningCount\": 0, \"informationCount\": 0}}"
     },
     "test_coverage": {
       "source": "tool_evidence (inline)",
       "kind": "inline",
-      "sha256": "66664b3df302cae3d985a6437756ff7e9af0101af55f25d1e6d6bb3163fa59a5",
-      "bytes": 425,
-      "head": "Name                                             Stmts   Miss  Cover\n--------------------------------------------------------------------\n03-development/src/taskq_api/service/runner.py     141      0   100%\n--------------------------------------------------------------------\nTOTAL                                              141      0   100%\n============================== 32 passed in 3.60s =============================="
+      "sha256": "5843c469a13c8d2deef8afb5ce1074f8f3dd72e91ccfcb2f9ca08006fddd931b",
+      "bytes": 149,
+      "head": "============================== 23 passed in 0.97s ==============================\ntotals: covered_lines=103, num_statements=103, percent_covered=100.0"
     },
     "architecture_constraints": {
       "source": "tool_evidence (inline)",
       "kind": "inline",
-      "sha256": "6b3667d3a80f9a2187c017efecd427cb5716ce3c9a45d066dbc67e92b9c52c16",
-      "bytes": 115,
-      "head": "Analyzed 51 files, 91 dependencies. Layering KEPT. SQLAlchemy in repository only KEPT. Contracts: 2 kept, 0 broken."
+      "sha256": "df7964b2d2eb494e963218ef823ebafeb5f7e3b69502d899fb6805d1aed6d072",
+      "bytes": 149,
+      "head": "Analyzed 51 files, 91 dependencies.\n-----------------------------------\nLayering KEPT\nSQLAlchemy in repository only KEPT\nContracts: 2 kept, 0 broken."
     }
   },
   "composite_score": 100.0,
@@ -103,5 +103,8 @@
     ],
     "dimensions_unscored": [],
     "dimensions_disabled": []
-  }
+  },
+  "score": 100.0,
+  "open_critical_count": 0,
+  "open_high_count": 0
 }
