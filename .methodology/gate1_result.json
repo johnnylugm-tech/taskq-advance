@@ -1,7 +1,7 @@
 {
   "gate": 1,
   "phase": 7,
-  "fr_id": "FR-02",
+  "fr_id": "FR-09",
   "overall_score": 100.0,
   "quality_complete": true,
   "rounds_used": 1,
@@ -9,31 +9,35 @@
     "linting": {
       "score": 100.0,
       "threshold": 100,
-      "tool_evidence": "All checks passed!\n"
+      "tool_evidence": "All checks passed!\n",
+      "evidence_file": ".sessi-work/round_1/tools/linting.txt"
     },
     "type_safety": {
       "score": 100.0,
       "threshold": 100,
-      "tool_evidence": "{\n    \"version\": \"1.1.409\",\n    \"time\": \"1786453499194\",\n    \"generalDiagnostics\": [],\n    \"summary\": {\n        \"filesAnalyzed\": 29,\n        \"errorCount\": 0,\n        \"warningCount\": 0,\n        \"informationCount\": 0,\n        \"timeInSec\": 1.183\n    }\n}\n"
+      "tool_evidence": "{\n    \"version\": \"1.1.409\",\n    \"time\": \"1786458289333\",\n    \"generalDiagnostics\": [],\n    \"summary\": {\n        \"filesAnalyzed\": 29,\n        \"errorCount\": 0,\n        \"warningCount\": 0,\n        \"informationCount\": 0,\n        \"timeInSec\": 1.172\n    }\n}\n",
+      "evidence_file": ".sessi-work/round_1/tools/type_safety.txt"
     },
     "test_coverage": {
       "score": 100.0,
       "threshold": 100,
-      "tests_passed": 64,
+      "tests_passed": 23,
       "tests_failed": 0,
       "tests_skipped": 0,
-      "tool_evidence": "============================= test session starts ==============================\nplatform darwin -- Python 3.11.15, pytest-8.4.2, pluggy-1.6.0\nrootdir: /Users/johnny/projects/taskq-advance\ncollected 64 items\n\n03-development/tests/test_fr02.py ...........                            [ 17%]\n03-development/tests/test_fr01.py .........................              [ 56%]\n03-development/tests/test_fr06.py .......                                [ 67%]\n03-development/tests/test_fr08.py .....................                  [100%]\n\n============================== 64 passed in 4.61s ==============================\ncoverage: platform darwin, python 3.11.15-final-0\nName                                                         Stmts   Miss  Cover\n03-development/src/taskq_api/api/tasks.py                       38      0   100%\n03-development/src/taskq_api/service/runner.py                 141      0   100%\n03-development/src/taskq_api/repository/task_repo.py            53      0   100%\nTOTAL                                                          232      0   100%"
+      "tool_evidence": "============================= test session starts ==============================\nplatform darwin -- Python 3.11.15, pytest-8.4.2, pluggy-1.6.0\nrootdir: /Users/johnny/projects/taskq-advance\nplugins: benchmark-5.2.3, cov-7.1.0, anyio-4.13.0\ncollected 23 items\n\n03-development/tests/test_fr09.py ...........                            [ 47%]\n03-development/tests/test_fr06.py .......                                [ 78%]\n03-development/tests/test_fr07.py .....                                  [100%]\n\n============================== 23 passed in 1.20s ==============================",
+      "evidence_file": ".sessi-work/round_1/tools/test_coverage.txt"
     },
     "architecture_constraints": {
       "score": 100.0,
       "threshold": 100,
-      "tool_evidence": "Contracts\n---------\n\nAnalyzed 51 files, 91 dependencies.\n-----------------------------------\n\nLayering KEPT\nSQLAlchemy in repository only KEPT\n\nContracts: 2 kept, 0 broken.\n"
+      "tool_evidence": "Import Linter\n\nContracts\n\nAnalyzed 51 files, 91 dependencies.\n\nLayering KEPT\nSQLAlchemy in repository only KEPT\n\nContracts: 2 kept, 0 broken.\n",
+      "evidence_file": ".sessi-work/round_1/tools/architecture_constraints.txt"
     }
   },
-  "enforcer_sha": "258e4267af0bfec584a2e667c2013922fa50aca8",
+  "enforcer_sha": "8eb1992fb652d22eb2685e8fd8ba2454c4fca6ea",
   "enforcer_surface": {
-    "core/quality_gate": "f2ff29e7187cd45108f67dc43758d9405838366a",
-    "harness/harness_bridge.py": "9e737f9cdee109cd3fc55b3b170f811c0840f078",
+    "core/quality_gate": "39694c4358578073e5e8192f0ee6a03d53f64dbf",
+    "harness/harness_bridge.py": "83827f393fc69b4ee9f6dc2cd879f58ea9268f62",
     "harness/gate_configs": "ceaa48942d7a61abaa8d1612061f6a8868ad7c5b"
   },
   "evidence_digest": {
@@ -47,16 +51,16 @@
     "mutation_testing::setup.cfg": {
       "source": "setup.cfg (score-altering exclusions)",
       "kind": "file",
-      "sha256": "cf656dcdf7aced8af2df4700908c34b80323f44ec286e9d4ab3b3f366b87195c",
-      "bytes": 1175,
-      "head": "[mutmut]\n# Mutation test scope — limited to the taskq-api source tree.\n# Uses mutmut 2.x syntax (not 3.x); pin: pip install \"mutmut<3\".\n# Mutation scope must match the SAB's mutation_testing NFR (NFR-08):\n# the service and repository layers.\npaths_to_mutate=03-development/src/taskq_api/repository,03-development/src/taskq_api/service\n# Data-only / equivalent-mutant files. These contain only string literals,\n# argparse setup, route boilerplate, ORM declarations, alembic DDL, or\n# module-level constants — mutations in these locations are equivalent (no\n# test exercises the specific edge they would change) and cannot be killed\n# without writing assertions against implementation details the gate does\n# not require. The framework's `paths_to_exclude` removes them from the\n# mutant pool so the kill-ratio reflects code that has runtime behaviour.\n# Auto-detected exclusions (_DATA_ONLY_NAMES): __init__.py, config.py, settings.py, constants.py.\n# Round 31 / 32 — equivalent mutant exclusion list.\npaths_to_exclude=\n    v1_initial.py\n    v2_tags.py\n    v3_split_results.py\n    env.py"
+      "sha256": "1b3cfe47c18fbfb4ac3b9faa79eab4eb7e56861222938ef51cfbf897290095b3",
+      "bytes": 1586,
+      "head": "[coverage:run]\n# ``__main__.py`` is the operator CLI entry point — invoked via\n# ``python -m taskq_api ...`` and not imported by the FR-09 test suite.\n# The ``if __name__ == \"__main__\":`` block at the bottom is unreachable\n# from in-process tests, so we omit the file at the source level rather\n# than sprinkling pragma markers on a CLI entry-point guard.\nomit =\n    03-development/src/taskq_api/__main__.py\n\n[mutmut]\n# Mutation test scope — limited to the taskq-api source tree.\n# Uses mutmut 2.x syntax (not 3.x); pin: pip install \"mutmut<3\".\n# Mutation scope must match the SAB's mutation_testing NFR (NFR-08):\n# the service and repository layers.\npaths_to_mutate=03-development/src/taskq_api/repository,03-development/src/taskq_api/service\n# Data-only / equivalent-mutant files. These contain only string literals,\n# argparse setup, route boilerplate, ORM declarations, alembic DDL, or\n# module-level constants — mutations in these locations are equivalent (no\n# test exercises the specific edge they would change) and cannot be killed\n# without writing assertions against implementation details the gate does"
     },
     "test_coverage::setup.cfg": {
       "source": "setup.cfg (score-altering exclusions)",
       "kind": "file",
-      "sha256": "cf656dcdf7aced8af2df4700908c34b80323f44ec286e9d4ab3b3f366b87195c",
-      "bytes": 1175,
-      "head": "[mutmut]\n# Mutation test scope — limited to the taskq-api source tree.\n# Uses mutmut 2.x syntax (not 3.x); pin: pip install \"mutmut<3\".\n# Mutation scope must match the SAB's mutation_testing NFR (NFR-08):\n# the service and repository layers.\npaths_to_mutate=03-development/src/taskq_api/repository,03-development/src/taskq_api/service\n# Data-only / equivalent-mutant files. These contain only string literals,\n# argparse setup, route boilerplate, ORM declarations, alembic DDL, or\n# module-level constants — mutations in these locations are equivalent (no\n# test exercises the specific edge they would change) and cannot be killed\n# without writing assertions against implementation details the gate does\n# not require. The framework's `paths_to_exclude` removes them from the\n# mutant pool so the kill-ratio reflects code that has runtime behaviour.\n# Auto-detected exclusions (_DATA_ONLY_NAMES): __init__.py, config.py, settings.py, constants.py.\n# Round 31 / 32 — equivalent mutant exclusion list.\npaths_to_exclude=\n    v1_initial.py\n    v2_tags.py\n    v3_split_results.py\n    env.py"
+      "sha256": "1b3cfe47c18fbfb4ac3b9faa79eab4eb7e56861222938ef51cfbf897290095b3",
+      "bytes": 1586,
+      "head": "[coverage:run]\n# ``__main__.py`` is the operator CLI entry point — invoked via\n# ``python -m taskq_api ...`` and not imported by the FR-09 test suite.\n# The ``if __name__ == \"__main__\":`` block at the bottom is unreachable\n# from in-process tests, so we omit the file at the source level rather\n# than sprinkling pragma markers on a CLI entry-point guard.\nomit =\n    03-development/src/taskq_api/__main__.py\n\n[mutmut]\n# Mutation test scope — limited to the taskq-api source tree.\n# Uses mutmut 2.x syntax (not 3.x); pin: pip install \"mutmut<3\".\n# Mutation scope must match the SAB's mutation_testing NFR (NFR-08):\n# the service and repository layers.\npaths_to_mutate=03-development/src/taskq_api/repository,03-development/src/taskq_api/service\n# Data-only / equivalent-mutant files. These contain only string literals,\n# argparse setup, route boilerplate, ORM declarations, alembic DDL, or\n# module-level constants — mutations in these locations are equivalent (no\n# test exercises the specific edge they would change) and cannot be killed\n# without writing assertions against implementation details the gate does"
     },
     "linting": {
       "source": "tool_evidence (inline)",
@@ -68,23 +72,23 @@
     "type_safety": {
       "source": "tool_evidence (inline)",
       "kind": "inline",
-      "sha256": "622be174c3c07fedd2dca05358e40ec6fb44e66d99b23147f6b1273610b965eb",
+      "sha256": "e303836f7ccb5eea9ab0ad8c45d94f4c7d198dc3fc79ec513716b06801205550",
       "bytes": 250,
-      "head": "{\n    \"version\": \"1.1.409\",\n    \"time\": \"1786453499194\",\n    \"generalDiagnostics\": [],\n    \"summary\": {\n        \"filesAnalyzed\": 29,\n        \"errorCount\": 0,\n        \"warningCount\": 0,\n        \"informationCount\": 0,\n        \"timeInSec\": 1.183\n    }\n}"
+      "head": "{\n    \"version\": \"1.1.409\",\n    \"time\": \"1786458289333\",\n    \"generalDiagnostics\": [],\n    \"summary\": {\n        \"filesAnalyzed\": 29,\n        \"errorCount\": 0,\n        \"warningCount\": 0,\n        \"informationCount\": 0,\n        \"timeInSec\": 1.172\n    }\n}"
     },
     "test_coverage": {
       "source": "tool_evidence (inline)",
       "kind": "inline",
-      "sha256": "87f5349abdc26a80568218197e133e892b342e970dac6e2d22ce3fd44e3f4c14",
-      "bytes": 1065,
-      "head": "============================= test session starts ==============================\nplatform darwin -- Python 3.11.15, pytest-8.4.2, pluggy-1.6.0\nrootdir: /Users/johnny/projects/taskq-advance\ncollected 64 items\n\n03-development/tests/test_fr02.py ...........                            [ 17%]\n03-development/tests/test_fr01.py .........................              [ 56%]\n03-development/tests/test_fr06.py .......                                [ 67%]\n03-development/tests/test_fr08.py .....................                  [100%]\n\n============================== 64 passed in 4.61s ==============================\ncoverage: platform darwin, python 3.11.15-final-0\nName                                                         Stmts   Miss  Cover\n03-development/src/taskq_api/api/tasks.py                       38      0   100%\n03-development/src/taskq_api/service/runner.py                 141      0   100%\n03-development/src/taskq_api/repository/task_repo.py            53      0   100%\nTOTAL                                                          232      0   100%"
+      "sha256": "46bafaa92983ec5073a0717d137ddac62015c19a874933e4aabc5306fa894209",
+      "bytes": 580,
+      "head": "============================= test session starts ==============================\nplatform darwin -- Python 3.11.15, pytest-8.4.2, pluggy-1.6.0\nrootdir: /Users/johnny/projects/taskq-advance\nplugins: benchmark-5.2.3, cov-7.1.0, anyio-4.13.0\ncollected 23 items\n\n03-development/tests/test_fr09.py ...........                            [ 47%]\n03-development/tests/test_fr06.py .......                                [ 78%]\n03-development/tests/test_fr07.py .....                                  [100%]\n\n============================== 23 passed in 1.20s =============================="
     },
     "architecture_constraints": {
       "source": "tool_evidence (inline)",
       "kind": "inline",
-      "sha256": "2cbde109e7835ad40c51bbd22a5058be0cb8a251db6d681ba03b3314361f89aa",
-      "bytes": 172,
-      "head": "Contracts\n---------\n\nAnalyzed 51 files, 91 dependencies.\n-----------------------------------\n\nLayering KEPT\nSQLAlchemy in repository only KEPT\n\nContracts: 2 kept, 0 broken."
+      "sha256": "acc62a9d2f31bfb1562f9450d73d8a57fcd9eac68dc4445a3a7e4ee3d88af59e",
+      "bytes": 141,
+      "head": "Import Linter\n\nContracts\n\nAnalyzed 51 files, 91 dependencies.\n\nLayering KEPT\nSQLAlchemy in repository only KEPT\n\nContracts: 2 kept, 0 broken."
     }
   },
   "composite_score": 100.0,

@@ -130,12 +130,11 @@
         "score": 100.0
       },
       "FR-09": {
-        "dimensions_disabled": [],
+        "score": 100.0,
+        "quality_complete": true,
+        "rounds_used": 2,
         "open_critical": 0,
-        "open_high": 0,
-        "quality_complete": false,
-        "rounds_used": 1,
-        "score": 83.0
+        "open_high": 0
       },
       "FR-10": {
         "open_critical": 0,
