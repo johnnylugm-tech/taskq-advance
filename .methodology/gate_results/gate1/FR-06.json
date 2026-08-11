@@ -1,6 +1,6 @@
 {
   "gate": 1,
-  "phase": 3,
+  "phase": 4,
   "fr_id": "FR-06",
   "overall_score": 100.0,
   "quality_complete": true,
@@ -9,38 +9,55 @@
     "linting": {
       "score": 100.0,
       "threshold": 100,
-      "tool_evidence": "All checks passed!\n",
-      "evidence_file": ".sessi-work/round_1/tools/linting.txt"
+      "tool_evidence": "All checks passed!"
     },
     "type_safety": {
       "score": 100.0,
       "threshold": 100,
-      "tool_evidence": "{\n    \"version\": \"1.1.409\",\n    \"time\": \"1786127213934\",\n    \"generalDiagnostics\": [],\n    \"summary\": {\n        \"filesAnalyzed\": 22,\n        \"errorCount\": 0,\n        \"warningCount\": 0,\n        \"informationCount\": 0,\n        \"timeInSec\": 1.047\n    }\n}\n\n",
-      "evidence_file": ".sessi-work/round_1/tools/type_safety.txt"
+      "tool_evidence": "{\"version\": \"1.1.409\", \"time\": \"1786427040030\", \"generalDiagnostics\": [], \"summary\": {\"filesAnalyzed\": 29, \"errorCount\": 0, \"warningCount\": 0, \"informationCount\": 0, \"timeInSec\": 1.162}}"
     },
     "test_coverage": {
       "score": 100.0,
       "threshold": 100,
-      "tests_passed": 49,
+      "tests_passed": 72,
       "tests_failed": 0,
       "tests_skipped": 0,
-      "tool_evidence": "============================= test session starts ==============================\nplatform darwin -- Python 3.11.15, pytest-8.4.2, pluggy-1.6.0\nbenchmark: 5.2.3 (defaults: timer=time.perf_counter disable_gc=False min_rounds=5 min_time=0.000005 max_time=1.0 calibration_precision=10 warmup=False warmup_iterations=100000)\nrootdir: /Users/johnny/projects/taskq-advance\nplugins: bench\n...\n============================== 49 passed in 1.95s ==============================",
-      "evidence_file": ".sessi-work/round_1/tools/test_coverage.txt"
+      "tool_evidence": "============================== 72 passed in 3.38s ============================== {\"totals\": {\"covered_lines\": 197, \"num_statements\": 197, \"percent_covered\": 100.0, \"missing_lines\": 0}} Required tests present: test_repository_only_owns_session, test_context_manager_commit_unit, test_no_string_concatenated_sql_grep, test_list_endpoint_constant_sql_count, test_pool_pre_ping_unit. spec_cov_pct=100%."
     },
     "architecture_constraints": {
       "score": 100.0,
       "threshold": 100,
-      "tool_evidence": "Contracts\n---------\n\nAnalyzed 47 files, 82 dependencies.\n-----------------------------------\n\nLayering KEPT\nSQLAlchemy in repository only KEPT\n\nContracts: 2 kept, 0 broken.\n",
-      "evidence_file": ".sessi-work/round_1/tools/architecture_constraints.txt"
+      "tool_evidence": "---------\nContracts\n---------\n\nAnalyzed 51 files, 90 dependencies.\n-----------------------------------\n\nLayering KEPT\nSQLAlchemy in repository only KEPT\n\nContracts: 2 kept, 0 broken."
     }
   },
-  "enforcer_sha": "eab6a326b755b7b5f9f6384d41f2b616afc75972",
+  "enforcer_sha": "258e4267af0bfec584a2e667c2013922fa50aca8",
   "enforcer_surface": {
-    "core/quality_gate": "2f36303585e948f41d2b372e127e013471cdc7ff",
+    "core/quality_gate": "f2ff29e7187cd45108f67dc43758d9405838366a",
     "harness/harness_bridge.py": "9e737f9cdee109cd3fc55b3b170f811c0840f078",
     "harness/gate_configs": "ceaa48942d7a61abaa8d1612061f6a8868ad7c5b"
   },
   "evidence_digest": {
+    "secrets_scanning::.gitleaksignore": {
+      "source": ".gitleaksignore (score-altering exclusions)",
+      "kind": "file",
+      "sha256": "4f6f185f89df88aff8cc69108246955bf5769fbb830101201ec40adcf654848c",
+      "bytes": 211,
+      "head": "03-development/tests/test_fr09.py:generic-api-key:308\n03-development/tests/test_fr03.py:generic-api-key:170\n02-architecture/TEST_SPEC.md:generic-api-key:133\n03-development/tests/test_fr03.py:generic-api-key:171"
+    },
+    "mutation_testing::setup.cfg": {
+      "source": "setup.cfg (score-altering exclusions)",
+      "kind": "file",
+      "sha256": "cf656dcdf7aced8af2df4700908c34b80323f44ec286e9d4ab3b3f366b87195c",
+      "bytes": 1175,
+      "head": "[mutmut]\n# Mutation test scope — limited to the taskq-api source tree.\n# Uses mutmut 2.x syntax (not 3.x); pin: pip install \"mutmut<3\".\n# Mutation scope must match the SAB's mutation_testing NFR (NFR-08):\n# the service and repository layers.\npaths_to_mutate=03-development/src/taskq_api/repository,03-development/src/taskq_api/service\n# Data-only / equivalent-mutant files. These contain only string literals,\n# argparse setup, route boilerplate, ORM declarations, alembic DDL, or\n# module-level constants — mutations in these locations are equivalent (no\n# test exercises the specific edge they would change) and cannot be killed\n# without writing assertions against implementation details the gate does\n# not require. The framework's `paths_to_exclude` removes them from the\n# mutant pool so the kill-ratio reflects code that has runtime behaviour.\n# Auto-detected exclusions (_DATA_ONLY_NAMES): __init__.py, config.py, settings.py, constants.py.\n# Round 31 / 32 — equivalent mutant exclusion list.\npaths_to_exclude=\n    v1_initial.py\n    v2_tags.py\n    v3_split_results.py\n    env.py"
+    },
+    "test_coverage::setup.cfg": {
+      "source": "setup.cfg (score-altering exclusions)",
+      "kind": "file",
+      "sha256": "cf656dcdf7aced8af2df4700908c34b80323f44ec286e9d4ab3b3f366b87195c",
+      "bytes": 1175,
+      "head": "[mutmut]\n# Mutation test scope — limited to the taskq-api source tree.\n# Uses mutmut 2.x syntax (not 3.x); pin: pip install \"mutmut<3\".\n# Mutation scope must match the SAB's mutation_testing NFR (NFR-08):\n# the service and repository layers.\npaths_to_mutate=03-development/src/taskq_api/repository,03-development/src/taskq_api/service\n# Data-only / equivalent-mutant files. These contain only string literals,\n# argparse setup, route boilerplate, ORM declarations, alembic DDL, or\n# module-level constants — mutations in these locations are equivalent (no\n# test exercises the specific edge they would change) and cannot be killed\n# without writing assertions against implementation details the gate does\n# not require. The framework's `paths_to_exclude` removes them from the\n# mutant pool so the kill-ratio reflects code that has runtime behaviour.\n# Auto-detected exclusions (_DATA_ONLY_NAMES): __init__.py, config.py, settings.py, constants.py.\n# Round 31 / 32 — equivalent mutant exclusion list.\npaths_to_exclude=\n    v1_initial.py\n    v2_tags.py\n    v3_split_results.py\n    env.py"
+    },
     "linting": {
       "source": "tool_evidence (inline)",
       "kind": "inline",
@@ -51,23 +68,23 @@
     "type_safety": {
       "source": "tool_evidence (inline)",
       "kind": "inline",
-      "sha256": "c15c2f7a3286a26252c736e0e0736daadd09688f7336097fbe00f66e879e87f2",
-      "bytes": 250,
-      "head": "{\n    \"version\": \"1.1.409\",\n    \"time\": \"1786127213934\",\n    \"generalDiagnostics\": [],\n    \"summary\": {\n        \"filesAnalyzed\": 22,\n        \"errorCount\": 0,\n        \"warningCount\": 0,\n        \"informationCount\": 0,\n        \"timeInSec\": 1.047\n    }\n}"
+      "sha256": "84daf23bcb70f182f8d64e36517c0fa3b9bbff63f6670e88fda7d011fae198fa",
+      "bytes": 186,
+      "head": "{\"version\": \"1.1.409\", \"time\": \"1786427040030\", \"generalDiagnostics\": [], \"summary\": {\"filesAnalyzed\": 29, \"errorCount\": 0, \"warningCount\": 0, \"informationCount\": 0, \"timeInSec\": 1.162}}"
     },
     "test_coverage": {
       "source": "tool_evidence (inline)",
       "kind": "inline",
-      "sha256": "852b51acf0829537cd6db89a62d29e48224c28941e66b7a5424feb25ea99235c",
-      "bytes": 465,
-      "head": "============================= test session starts ==============================\nplatform darwin -- Python 3.11.15, pytest-8.4.2, pluggy-1.6.0\nbenchmark: 5.2.3 (defaults: timer=time.perf_counter disable_gc=False min_rounds=5 min_time=0.000005 max_time=1.0 calibration_precision=10 warmup=False warmup_iterations=100000)\nrootdir: /Users/johnny/projects/taskq-advance\nplugins: bench\n...\n============================== 49 passed in 1.95s =============================="
+      "sha256": "b6c6d8f6438b70ee3c3a18bab4641abfdc574afe5c52dbf0215c3b25aea34bcc",
+      "bytes": 398,
+      "head": "============================== 72 passed in 3.38s ============================== {\"totals\": {\"covered_lines\": 197, \"num_statements\": 197, \"percent_covered\": 100.0, \"missing_lines\": 0}} Required tests present: test_repository_only_owns_session, test_context_manager_commit_unit, test_no_string_concatenated_sql_grep, test_list_endpoint_constant_sql_count, test_pool_pre_ping_unit. spec_cov_pct=100%."
     },
     "architecture_constraints": {
       "source": "tool_evidence (inline)",
       "kind": "inline",
-      "sha256": "36c9c994b5a1cfebc11cd3cd394ca59f762d75d0a8e813d6bdb41ab272c52ff2",
-      "bytes": 172,
-      "head": "Contracts\n---------\n\nAnalyzed 47 files, 82 dependencies.\n-----------------------------------\n\nLayering KEPT\nSQLAlchemy in repository only KEPT\n\nContracts: 2 kept, 0 broken."
+      "sha256": "77b9464c6361b86f52d33dd21c02af81d465cb710cc5e052dc69c03e6b199439",
+      "bytes": 182,
+      "head": "---------\nContracts\n---------\n\nAnalyzed 51 files, 90 dependencies.\n-----------------------------------\n\nLayering KEPT\nSQLAlchemy in repository only KEPT\n\nContracts: 2 kept, 0 broken."
     }
   },
   "composite_score": 100.0,

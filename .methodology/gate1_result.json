@@ -1,7 +1,7 @@
 {
   "gate": 1,
   "phase": 4,
-  "fr_id": "FR-05",
+  "fr_id": "FR-06",
   "overall_score": 100.0,
   "quality_complete": true,
   "rounds_used": 1,
@@ -9,25 +9,25 @@
     "linting": {
       "score": 100.0,
       "threshold": 100,
-      "tool_evidence": "All checks passed!\n"
+      "tool_evidence": "All checks passed!"
     },
     "type_safety": {
       "score": 100.0,
       "threshold": 100,
-      "tool_evidence": "{\"version\":\"1.1.409\",\"time\":\"1786426862911\",\"generalDiagnostics\":[],\"summary\":{\"filesAnalyzed\":29,\"errorCount\":0,\"warningCount\":0,\"informationCount\":0,\"timeInSec\":1.165}}"
+      "tool_evidence": "{\"version\": \"1.1.409\", \"time\": \"1786427040030\", \"generalDiagnostics\": [], \"summary\": {\"filesAnalyzed\": 29, \"errorCount\": 0, \"warningCount\": 0, \"informationCount\": 0, \"timeInSec\": 1.162}}"
     },
     "test_coverage": {
       "score": 100.0,
       "threshold": 100,
-      "tests_passed": 29,
+      "tests_passed": 72,
       "tests_failed": 0,
       "tests_skipped": 0,
-      "tool_evidence": "============================== 29 passed in 1.59s ==============================\nCoverage: deps.py=100%, rate_repo.py=100%, ratelimit.py=100% (totals: covered_lines=99, num_statements=99, percent_covered=100.0). Required tests present: test_exceed_burst_returns_429_with_retry_after, test_row_level_lock_unit, test_healthz_readyz_not_rate_limited. spec_cov_pct=100%."
+      "tool_evidence": "============================== 72 passed in 3.38s ============================== {\"totals\": {\"covered_lines\": 197, \"num_statements\": 197, \"percent_covered\": 100.0, \"missing_lines\": 0}} Required tests present: test_repository_only_owns_session, test_context_manager_commit_unit, test_no_string_concatenated_sql_grep, test_list_endpoint_constant_sql_count, test_pool_pre_ping_unit. spec_cov_pct=100%."
     },
     "architecture_constraints": {
       "score": 100.0,
       "threshold": 100,
-      "tool_evidence": "---------\nContracts\n---------\n\nAnalyzed 51 files, 90 dependencies.\n-----------------------------------\n\nLayering KEPT\nSQLAlchemy in repository only KEPT\n\nContracts: 2 kept, 0 broken.\n"
+      "tool_evidence": "---------\nContracts\n---------\n\nAnalyzed 51 files, 90 dependencies.\n-----------------------------------\n\nLayering KEPT\nSQLAlchemy in repository only KEPT\n\nContracts: 2 kept, 0 broken."
     }
   },
   "enforcer_sha": "258e4267af0bfec584a2e667c2013922fa50aca8",
@@ -68,16 +68,16 @@
     "type_safety": {
       "source": "tool_evidence (inline)",
       "kind": "inline",
-      "sha256": "c4cb0b4ab6f8a4fe0ac63035220916aeb3297aa3205dfdfab6cad5aab9a5a4b0",
-      "bytes": 170,
-      "head": "{\"version\":\"1.1.409\",\"time\":\"1786426862911\",\"generalDiagnostics\":[],\"summary\":{\"filesAnalyzed\":29,\"errorCount\":0,\"warningCount\":0,\"informationCount\":0,\"timeInSec\":1.165}}"
+      "sha256": "84daf23bcb70f182f8d64e36517c0fa3b9bbff63f6670e88fda7d011fae198fa",
+      "bytes": 186,
+      "head": "{\"version\": \"1.1.409\", \"time\": \"1786427040030\", \"generalDiagnostics\": [], \"summary\": {\"filesAnalyzed\": 29, \"errorCount\": 0, \"warningCount\": 0, \"informationCount\": 0, \"timeInSec\": 1.162}}"
     },
     "test_coverage": {
       "source": "tool_evidence (inline)",
       "kind": "inline",
-      "sha256": "1fe02150d4dc9137bda0f28214a59ca1acbadb86497aa6a313bf942c6d43c246",
-      "bytes": 366,
-      "head": "============================== 29 passed in 1.59s ==============================\nCoverage: deps.py=100%, rate_repo.py=100%, ratelimit.py=100% (totals: covered_lines=99, num_statements=99, percent_covered=100.0). Required tests present: test_exceed_burst_returns_429_with_retry_after, test_row_level_lock_unit, test_healthz_readyz_not_rate_limited. spec_cov_pct=100%."
+      "sha256": "b6c6d8f6438b70ee3c3a18bab4641abfdc574afe5c52dbf0215c3b25aea34bcc",
+      "bytes": 398,
+      "head": "============================== 72 passed in 3.38s ============================== {\"totals\": {\"covered_lines\": 197, \"num_statements\": 197, \"percent_covered\": 100.0, \"missing_lines\": 0}} Required tests present: test_repository_only_owns_session, test_context_manager_commit_unit, test_no_string_concatenated_sql_grep, test_list_endpoint_constant_sql_count, test_pool_pre_ping_unit. spec_cov_pct=100%."
     },
     "architecture_constraints": {
       "source": "tool_evidence (inline)",
